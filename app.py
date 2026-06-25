@@ -1,31 +1,19 @@
 import streamlit as st
-from google import genai
-from google.genai import types
+import google.generativeai as genai
 
 # ตั้งค่าหน้าตาของเว็บไซต์
 st.set_page_config(page_title="ระบบตรวจข้อมูล B/L กับ Amend", layout="wide")
 st.title("🚢 ระบบตรวจเปรียบเทียบข้อมูล B/L กับ ใบ Amend")
 st.subheader("เน้นตรวจสอบคุณภาพและความถูกต้องของข้อมูลตาม Logic ธุรกิจ")
 
-# ฝัง API Key ไว้อัตโนมัติ (ใส่รหัส API Key ของคุณในเครื่องหมายคำพูดด้านล่างได้เลย)
-API_KEY = "AQ.Ab8RN6L7aY4gXxUn4nfljVIy1xN-3D1PTOPgzfViZ9W_c9aCtw"
+# ⚠️ ใส่รหัส API Key จริงของคุณในเครื่องหมายคำพูดด้านล่างนี้ได้เลยครับ
+API_KEY = "AQ.Ab8RN6KVujoWku4GOWYJbD1uFzhtqUHObm9Y571oqquJ8XrdwQ"
 
-# ฟังก์ชันแปลงไฟล์อัปโหลดให้อยู่ในรูปแบบที่ Gemini เข้าใจ
-def prepare_image(uploaded_file):
-    if uploaded_file is not None:
-        bytes_data = uploaded_file.getvalue()
-        return types.Part.from_bytes(
-            data=bytes_data,
-            mime_type=uploaded_file.type
-        )
-    return None
-
-# ตรวจสอบการเชื่อมต่อระบบ
+# เริ่มต้นระบบเชื่อมต่อ
 if not API_KEY or API_KEY == "YOUR_API_KEY_HERE":
     st.error("⚠️ โปรดใส่รหัส API Key จริงในโค้ดหลังบ้านก่อนนำขึ้นระบบ Cloud")
 else:
-    # เริ่มต้น Client
-    client = genai.Client(api_key=API_KEY)
+    genai.configure(api_key=API_KEY)
     
     # UI ช่องสำหรับลากไฟล์มาวางแยกฝั่งชัดเจน
     col1, col2 = st.columns(2)
@@ -41,15 +29,16 @@ else:
         if st.button("🚀 เริ่มตรวจสอบเปรียบเทียบคำสะกดอย่างละเอียด", use_container_width=True):
             with st.spinner("🤖 สมองกลกำลังวิเคราะห์ตารางและคำนวณมูลค่าตัวเลข..."):
                 try:
-                    bl_part = prepare_image(bl_file)
-                    amend_part = prepare_image(amend_file)
+                    # จัดเตรียมไฟล์เพื่อส่งให้โมเดล
+                    bl_data = bl_file.getvalue()
+                    amend_data = amend_file.getvalue()
                     
-                    generation_config = {
-                        'temperature': 1,
-                        'max_output_tokens': 65536,
-                        'top_p': 0.95,
-                    }
+                    uploaded_parts = [
+                        {"mime_type": bl_file.type, "data": bl_data},
+                        {"mime_type": amend_file.type, "data": amend_data}
+                    ]
                     
+                    # ตั้งค่า Logic การตรวจ
                     system_instruction = """คุณคือผู้เชี่ยวชาญด้านเอกสารโลจิสติกส์ มีความแม่นยำสูงมากในการตรวจสอบเอกสาร Bill of Lading (B/L) และใบขอแก้ไขข้อมูล (Amendment)
 
                     ภารกิจของคุณ:
@@ -71,11 +60,18 @@ else:
                     ให้ตอบกลับมาเป็นตารางเปรียบเทียบที่อ่านง่าย พร้อมสรุปท้ายว่า 'เอกสารนี้ควรต้องทำเรื่อง Amend หรือไม่' เพราะเหตุใด
                     """
                     
-                    response = client.models.generate_content(
-                        model='gemini-3.5-flash',
-                        contents=[bl_part, amend_part, system_instruction],
-                        config=generation_config
+                    # เรียกใช้โมเดลเวอร์ชันเสถียร
+                    model = genai.GenerativeModel(
+                        model_name="gemini-1.5-flash",
+                        generation_config={
+                            "temperature": 1,
+                            "top_p": 0.95,
+                            "max_output_tokens": 8192,
+                        }
                     )
+                    
+                    # ส่งข้อมูลไปประมวลผล
+                    response = model.generate_content([system_instruction, uploaded_parts[0], uploaded_parts[1]])
                     
                     st.success("✨ ตรวจสอบเสร็จสิ้นเรียบร้อย!")
                     st.markdown("### 📊 ผลการตรวจสอบเปรียบเทียบ")
