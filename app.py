@@ -13,11 +13,20 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🖌️ 2. Inject Clean Enterprise CSS (Fixed Empty Gaps & Dark Background Artifacts)
+# 🖌️ 2. Inject Powerful Root Theme Overrides (บังคับเปลี่ยนสีโครงสร้างภายในแอปทั้งหมดไม่ให้มีสีดำหลุดมา)
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700;800&family=Manrope:wght@500;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&display=swap');
         
+        /* 🚨 บังคับเปลี่ยนตัวแปรหลักของ Streamlit ให้เป็น Light Theme ทั้งหมด (แก้ปัญหาตารางดำ) */
+        :root {
+            --primary-color: #557A61;
+            --background-color: #FAF8F5;
+            --secondary-background-color: #FFFFFF;
+            --text-color: #2D3531;
+            --font: 'Bai Jamjuree', sans-serif;
+        }
+
         .stApp {
             background: linear-gradient(180deg, #FAF8F5 0%, #F4F2EE 100%);
             font-family: 'Bai Jamjuree', sans-serif;
@@ -167,7 +176,7 @@ st.markdown("""
             padding: 25px 20px !important;
         }
 
-        /* ✏️ Clean Text Input Styling (แก้ปัญหาขอบซ้อน และครอบคลุมทุก Input ในแอป) */
+        /* ✏️ Clean Text Input Styling */
         div[data-testid="stTextInput"] label {
             color: #3A443E !important;
             font-weight: 600 !important;
@@ -203,19 +212,16 @@ st.markdown("""
             opacity: 1 !important;
         }
 
-        /* 📊 Dataframe Light Styling (แก้ไขพื้นหลังตารางและหัวตารางที่เคยเป็นสีมืดดำ) */
-        div[data-testid="stDataFrame"] {
+        /* 📊 Dataframe Light Overrides (ดักจับทั้งคลาสหลักและองค์ประกอบย่อยเพื่อสลัดสีดำออก) */
+        div[data-testid="stDataFrame"], 
+        div[data-testid="stDataFrame"] *, 
+        .stDataFrame,
+        div[class^="st-emotion-cache"] table {
             background-color: #FFFFFF !important;
-            border: 1px solid #EAE8DF !important;
-            border-radius: 12px !important;
-            overflow: hidden !important;
+            color: #2D3531 !important;
+            border-color: #EAE8DF !important;
         }
         
-        /* บังคับสไตล์ตารางด้านในให้เป็นสีสว่างนุ่มนวลทั้งหมด */
-        div[data-testid="stDataFrame"] data-grid {
-            background-color: #FFFFFF !important;
-        }
-
         /* 🔘 Buttons Customization */
         div.stButton > button:first-child {
             border-radius: 12px !important;
@@ -353,7 +359,7 @@ else:
                     </div>
                     <div class='card-title-text'>บันทึกรับ D/O</div>
                     <p class='card-desc-text'>
-                        ประทับตราเคาน์เตอร์และระบบค้นหาประวัติตรวจสอบสถานะส่งมอบแบบเรียลไทม์
+                        ประทับตราเคาน์เตอร์และระบบค้นหาประวัติตwarzสอบสถานะส่งมอบแบบเรียลไทม์
                     </p>
                     <div class='custom-code-box'>
                         <div class='card-checklist'>
@@ -447,8 +453,8 @@ else:
         
         df_current = load_data()
         
-        # 🧾 แผงบันทึกข้อมูลหน้าเคาน์เตอร์
-        st.markdown("<div style='background-color: #FFFFFF; border: 1px solid #EAE8DF; padding: 25px 28px; border-radius: 18px; box-shadow: 0 4px 20px rgba(141, 137, 120, 0.02);'>", unsafe_allow_html=True)
+        # 🧾 แผงบันทึกข้อมูลหน้าเคาน์เตอร์ (กล่องบน)
+        st.markdown("<div style='background-color: #FFFFFF; border: 1px solid #EAE8DF; padding: 22px 24px; border-radius: 18px;'>", unsafe_allow_html=True)
         st.markdown("<div style='background-color: #F4F3ED; padding: 12px 20px; border-radius: 12px; color: #4A5A4E; font-size: 14px; font-weight: 600; margin-bottom: 20px; display:flex; align-items:center; gap:8px;'><span class='material-symbols-outlined' style='font-size:18px;'>edit_square</span> รายการรับเอกสารหน้าเคาน์เตอร์</div>", unsafe_allow_html=True)
         
         cx1, cx2 = st.columns(2)
@@ -478,10 +484,10 @@ else:
                 st.warning("⚠️ โปรดกรอกหมายเลข B/L")
         st.markdown("</div>", unsafe_allow_html=True)
 
-        # 🔍 กระชับระยะห่าง (ลบช่องว่างยาวๆ ออกแล้ว) และจัดกรอบค้นหาประวัติต่อทันที
+        # 🔍 จัดระยะชิดพอดีกระชับ (20px) แล้วต่อด้วยกรอบส่วนประวัติตารางด้านล่างทันที
         st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
         
-        st.markdown("<div style='background-color: #FFFFFF; border: 1px solid #EAE8DF; padding: 25px 28px; border-radius: 18px; box-shadow: 0 4px 20px rgba(141, 137, 120, 0.02);'>", unsafe_allow_html=True)
+        st.markdown("<div style='background-color: #FFFFFF; border: 1px solid #EAE8DF; padding: 22px 24px; border-radius: 18px;'>", unsafe_allow_html=True)
         st.markdown("<h4 style='font-weight: 700; color: #2D3531; margin-top:0; margin-bottom: 15px; display:flex; align-items:center; gap:8px;'><span class='material-symbols-outlined' style='font-size:22px;'>search</span> ค้นหาประวัติสถานะส่งมอบเอกสาร</h4>", unsafe_allow_html=True)
         
         search_query = st.text_input("ระบุเลข B/L เพื่อค้นหาแบบเรียลไทม์", placeholder="พิมพ์คำค้นหาตรงนี้...", key="search_input_field")
@@ -492,5 +498,6 @@ else:
             df_filtered = df_current
                 
         st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
+        # ตารางข้อมูลที่จะถูกบังคับเรนเดอร์เป็นธีมสว่างคลีนตาด้วย :root configuration
         st.dataframe(df_filtered, use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
