@@ -138,7 +138,7 @@ st.markdown("""
             margin-bottom: 0;
         }
 
-        /* 🧺 3. Cozy Cream Code & Link Box (แก้ไขโครงสร้างเพื่อแสดง Checklist ด้านในการ์ด) */
+        /* 🧺 3. Cozy Cream Code & Link Box */
         .custom-code-box {
             background-color: #FAF8F5 !important;
             border: 1px solid #EAE8DF !important;
@@ -169,7 +169,7 @@ st.markdown("""
             font-weight: 700;
         }
 
-        /* ☁️ 4. แก้กล่องดำอัปโหลดไฟล์ (Streamlit File Uploader Overrides) */
+        /* ☁️ 4. Streamlit File Uploader Overrides */
         div[data-testid="stFileUploader"] {
             background-color: #FAF8F5 !important;
             border: 1.5px dashed #DCD9CD !important;
@@ -308,6 +308,7 @@ st.markdown("<hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 18px 0
 if not API_KEY or API_KEY.startswith("YOUR"):
     st.error("⚠️ โปรดใส่รหัส Gemini API Key จริงของคุณในโค้ดหลังบ้านก่อนนำไปรัน")
 else:
+    # ⚙️ เรียกผ่าน SDK มาตรฐานเพื่อความเสถียรและหลีกเลี่ยงปัญหา endpoint v1beta เก่า
     client = genai.Client(api_key=API_KEY)
 
     # 🚪 ================== [หน้าแรก: Portal เมนูหลัก] ==================
@@ -412,6 +413,7 @@ else:
                         )
                         contents_payload.append(prompt_instruction)
                         
+                        # ✨ อัปเกรดเรียกใช้โมเดลเวอร์ชันใหม่ gemini-2.5-flash
                         response = client.models.generate_content(model='gemini-2.5-flash', contents=contents_payload)
                         st.balloons()
                         st.success("✨ ตรวจสอบและสรุปรายงานเรียบร้อยแล้วค่ะ!")
@@ -484,8 +486,20 @@ else:
             df_filtered = df_current
                 
         st.dataframe(df_filtered, use_container_width=True)
+        
+        # 🗑️ เพิ่มฟังก์ชันการล้างข้อมูลประวัติทิ้งแบบ UI สวยงาม (Clear History Engine)
+        st.markdown("<hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 30px 0 20px 0;'>", unsafe_allow_html=True)
+        st.markdown("<p style='color: #A66E6E; font-size: 13px; font-weight: 600;'>⚠️ โซนอันตรายสำหรับผู้ดูแลระบบ</p>", unsafe_allow_html=True)
+        
+        if st.button("ล้างฐานข้อมูลประวัติทั้งหมด (Reset History)", key="clear_all_history"):
+            if os.path.exists(EXCEL_FILE):
+                try:
+                    os.remove(EXCEL_FILE)
+                    st.success("🔥 ลบไฟล์ฐานข้อมูล Excel และเคลียร์ประวัติทั้งหมดเรียบร้อยแล้ว ระบบรีเซ็ตเป็นตารางว่าง!")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"ไม่สามารถเคลียร์ประวัติได้เนื่องจาก: {e}")
+            else:
+                st.warning("ไม่มีไฟล์ฐานข้อมูลประวัติให้ลบในระบบอยู่แล้วครับน้า")
+                
         st.markdown("</div>", unsafe_allow_html=True)
-
-
-
-
