@@ -13,40 +13,32 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🖌️ 2. Inject Professional Enterprise Dashboard CSS (UX/UI Optimized)
+# 🖌️ 2. Inject Clean Enterprise CSS (Anti-Overlap Engine)
 st.markdown("""
     <style>
-        /* โหลดฟอนต์ระบบสากลร่วมกับฟอนต์งานจัดซื้อ-โลจิสติกส์ */
+        /* โหลดฟอนต์หลัก Manrope และฟอนต์ภาษาไทย */
         @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700;800&family=Manrope:wght@500;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&display=swap');
         
-        /* [ข้อ 1] พื้นหลังครีมอ่อนละมุน ลดทอนสัญญาณรบกวน (Content is the Focus) */
+        /* 1. พื้นหลังครีมอ่อนละมุน เน้น Content เป็นหลัก */
         .stApp {
             background: linear-gradient(180deg, #FAF8F5 0%, #F4F2EE 100%);
             font-family: 'Bai Jamjuree', sans-serif;
             background-attachment: fixed;
         }
         
-        /* [ข้อ 8] ดีไซน์ Header Layout ใหม่: แยกฝั่ง Logo และ ข้อมูลผู้ใช้ผู้เข้าล็อกอิน */
-        .header-system-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 40px;
-            background-color: #FFFFFF;
-            border-bottom: 1px solid #EAE8DF;
-            margin: -6rem -5rem 30px -5rem; /* ดันชิดขอบจอ Streamlit */
-            box-shadow: 0 2px 10px rgba(141, 137, 120, 0.02);
-        }
+        /* 2. ดีไซน์บล็อกหัวข้อแบรนด์ และกล่องข้อมูลผู้ใช้งาน (แก้บั๊กจมเลเยอร์) */
         .brand-block {
             text-align: left;
+            padding-top: 10px;
         }
         .brand-header {
             font-family: 'Manrope', sans-serif;
             color: #3A443E; 
             font-weight: 800;
-            font-size: 26px;
+            font-size: 32px; /* ขยายขึ้นให้เด่นชัดเจน ไม่จม */
             letter-spacing: 0.5px;
             margin: 0;
+            line-height: 1.2;
             background: linear-gradient(180deg, #3A443E 0%, #222825 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -54,23 +46,26 @@ st.markdown("""
         .brand-subtitle {
             font-family: 'Bai Jamjuree', sans-serif;
             color: #8C968E;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 500;
             letter-spacing: 1px;
             text-transform: uppercase;
-            margin: 0;
+            margin-top: 2px;
         }
         .user-profile-box {
             display: flex;
             align-items: center;
+            justify-content: flex-end;
             gap: 12px;
-            background-color: #F8F6F2;
-            padding: 8px 16px;
+            background-color: #FFFFFF;
+            padding: 10px 18px;
             border-radius: 14px;
             border: 1px solid #EAE8DF;
+            box-shadow: 0 4px 12px rgba(141, 137, 120, 0.02);
+            margin-top: 10px;
         }
         .user-avatar {
-            font-size: 20px;
+            font-size: 22px;
             color: #557A61;
         }
         .user-info-text {
@@ -84,114 +79,81 @@ st.markdown("""
             color: #2D3531;
         }
         
-        /* [ข้อ 7] โครงสร้างแถวสถิติสรุปภาพรวมวันนี้ (Today's Overview) */
-        .stats-strip {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 35px;
-        }
-        .stat-mini-card {
-            flex: 1;
-            background-color: #FFFFFF;
-            border: 1px solid #EAE8DF;
-            border-radius: 18px;
-            padding: 16px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(141, 137, 120, 0.02);
-        }
-        .stat-label {
-            font-size: 13px;
-            color: #7A857D;
-            font-weight: 500;
-        }
-        .stat-value {
-            font-family: 'Manrope', sans-serif;
-            font-size: 24px;
-            font-weight: 800;
-            color: #3A443E;
-        }
-        
-        /* [ข้อ 2] ข้อความต้อนรับกระชับแบบระบบภายในองค์กร */
+        /* 3. คอนเทนต์ข้อความต้อนรับของ Workspace */
         .workspace-title {
             font-family: 'Manrope', sans-serif;
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 700;
             color: #2D3531;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         .workspace-subtitle {
-            font-size: 13.5px;
+            font-size: 14px;
             color: #7A857D;
-            margin-bottom: 30px;
+            margin-bottom: 35px;
         }
         
-        /* [ข้อ 4 & ข้อ 9] ปรับลดความสูงพอร์ทัลการ์ดลง 15-20% และกระชับระยะห่าง Spacing 8-12px */
+        /* 4. โครงสร้างพอร์ทัลการ์ด กระชับและมีมิติตามหลัก UX */
         .cozy-portal-card {
             background-color: #FFFFFF;
-            padding: 28px 24px; /* กระชับขอบ */
+            padding: 30px 24px;
             border-radius: 22px;
             border: 1px solid #EAE8DF;
             text-align: center;
-            /* [ข้อ 6] ปรับแต่งเงาให้นุ่มนวลลอยขึ้น (Opacity 5-8% บลูเพิ่มขึ้น) */
-            box-shadow: 0 10px 30px rgba(141, 137, 120, 0.06);
+            box-shadow: 0 10px 30px rgba(141, 137, 120, 0.05);
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             margin-bottom: 15px;
         }
         
-        /* [ข้อ 10] Micro Interactions สมบูรณ์แบบตามพิกัดเป๊ะ */
+        /* Micro Interactions ลอยตัว บอร์เดอร์เขียวเมื่อเมาส์ชี้ */
         .cozy-portal-card:hover {
-            transform: translateY(-5px); /* ยกขึ้น 4-6px */
-            border-color: #557A61; /* เส้นขอบเปลี่ยนเป็นสีเขียว */
-            box-shadow: 0 20px 40px rgba(85, 122, 97, 0.12); /* Shadow เข้มขึ้นและกระจายกว้าง */
+            transform: translateY(-5px);
+            border-color: #557A61;
+            box-shadow: 0 20px 40px rgba(85, 122, 97, 0.10);
         }
         
-        /* ระยะห่างองค์ประกอบไอคอน (กระชับลง) */
         .icon-wrapper {
             background-color: #F4F6F4; 
-            width: 52px; 
-            height: 52px; 
+            width: 54px; 
+            height: 54px; 
             border-radius: 50%; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            margin: 0 auto 14px auto; /* ลด Spacing ลง */
+            margin: 0 auto 16px auto;
             color: #4A5A4E;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         
-        /* [ข้อ 10] ไอคอนขยายขึ้นประมาณ 105% เมื่อ Hover การ์ด */
         .cozy-portal-card:hover .icon-wrapper {
             transform: scale(1.05);
             background-color: #EDF3EE;
             color: #557A61;
         }
         
-        /* การ์ดหัวข้อและคำอธิบายภายใน */
         .card-title-text {
             color: #3A443E; 
             font-weight: 700; 
-            font-size: 18px; 
-            margin-bottom: 6px; /* ลด Spacing ลง */
+            font-size: 19px; 
+            margin-bottom: 8px;
         }
         .card-desc-text {
             color: #7A857D; 
-            font-size: 13px; 
-            line-height: 1.4; 
+            font-size: 13.5px; 
+            line-height: 1.45; 
             margin-bottom: 0;
         }
         
-        /* [ข้อ 5] รายการเอกสาร (Feature List) ขยายตัวอักษรให้อ่านง่าย และใช้คำสม่ำเสมอ */
+        /* รายการคำศัพท์ Freight สากล */
         .card-checklist {
             text-align: left;
             max-width: 220px;
-            margin: 16px auto 0 auto; /* ลด Spacing ลง */
+            margin: 18px auto 0 auto;
             border-top: 1px solid #F1EFE8;
-            padding-top: 14px;
+            padding-top: 15px;
         }
         .checklist-item {
-            font-size: 14px; /* เพิ่มขนาดขึ้นเล็กน้อยตามต้องการ */
+            font-size: 14px;
             color: #5A665E;
             margin-bottom: 6px;
             display: flex;
@@ -203,30 +165,30 @@ st.markdown("""
             font-weight: 700;
         }
         
-        /* [ข้อ 3] ยกเลิกปุ่ม Footer ดั้งเดิม ปรับดีไซน์ปุ่มกดตรงแผงหน้าจอกลางให้โดดเด่น */
+        /* ปุ่มกดดีไซน์ชัดเจน (Affordance แยกอิสระไม่เต็ม Card) */
         div.stButton > button:first-child {
-            border-radius: 12px !important; /* ทรงเหลี่ยมมนมนโมเดิร์นคลีน */
+            border-radius: 12px !important;
             border: 1px solid #557A61 !important;
             background-color: #FFFFFF !important;
             color: #557A61 !important;
             font-family: 'Manrope', sans-serif !important;
             font-weight: 700 !important;
-            font-size: 13.5px !important;
-            padding: 8px 20px !important;
+            font-size: 14px !important;
+            padding: 8px 22px !important;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(85, 122, 97, 0.05);
+            box-shadow: 0 4px 10px rgba(85, 122, 97, 0.04);
             margin: 0 auto;
             display: block;
-            width: auto !important; /* ปลดล็อคไม่ให้ยาวเต็ม Card */
+            width: auto !important;
         }
         div.stButton > button:first-child:hover {
             background-color: #557A61 !important;
             color: #FFFFFF !important;
-            transform: translateY(-2px) !important; /* ยกตัวขึ้นเล็กน้อย */
-            box-shadow: 0 8px 16px rgba(85, 122, 97, 0.18) !important; /* เงาเพิ่มขึ้นตาม Affordance */
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 16px rgba(85, 122, 97, 0.15) !important;
         }
         
-        /* สไตล์ฟอร์มหน้าภายใน */
+        /* บล็อกฟอร์มด้านใน */
         .uploadedFile {
             border-radius: 16px !important;
             border: 2px dashed #D5D2C1 !important;
@@ -258,13 +220,19 @@ def เตรียมไฟล์สำหรับ_gemini(file_uploader_obj):
 if "current_page" not in st.session_state:
     st.session_state.current_page = "portal"
 
-# 🏢 [ข้อ 8] REAL-TIME ENTERPRISE NAVIGATION BAR & USER PROFILE INFO
-st.markdown(f"""
-    <div class='header-system-bar'>
+# 🏢 TOP NAVIGATION: แยกสองฝั่งชัดเจนผ่านฟังก์ชันสตรีมลิตแท้ (หัวข้อเด้งลอยขึ้นมา ไม่โดนจมตัดขอบ)
+nav_col1, nav_col2 = st.columns([7, 3])
+
+with nav_col1:
+    st.markdown("""
         <div class='brand-block'>
             <div class='brand-header'>VERIFYHUB</div>
             <div class='brand-subtitle'>Document Verification System</div>
         </div>
+    """, unsafe_allow_html=True)
+
+with nav_col2:
+    st.markdown(f"""
         <div class='user-profile-box'>
             <div class='user-avatar'>👤</div>
             <div class='user-info-text'>
@@ -272,8 +240,11 @@ st.markdown(f"""
                 <div style='color: #7A857D;'>Regional QA &bull; {datetime.now().strftime('%d %b %Y')}</div>
             </div>
         </div>
-    </div>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
+
+# ขีดเส้นคั่นแบ่งโซน Navigation เพื่อความเนี้ยบสไตล์มินิมอล
+st.markdown("<hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 18px 0 25px 0;'>", unsafe_allow_html=True)
+
 
 if not API_KEY or API_KEY.startswith("YOUR"):
     st.error("⚠️ โปรดใส่รหัส Gemini API Key จริงของคุณในโค้ดหลังบ้านก่อนนำไปรัน")
@@ -283,35 +254,13 @@ else:
     # 🚪 ================== [หน้าแรก: Portal เมนูหลัก] ==================
     if st.session_state.current_page == "portal":
         
-        # [ข้อ 7] TODAY'S OVERVIEW DASHBOARD STRIP (ดึงสถิติหน้างานมาโชว์จริง)
-        df_records = load_data()
-        total_do_saved = len(df_records)
-        
-        st.markdown("""
-            <div class='stats-strip'>
-                <div class='stat-mini-card'>
-                    <div class='stat-label'>Pending Verification</div>
-                    <div class='stat-value' style='color: #D1A153;'>12</div>
-                </div>
-                <div class='stat-mini-card'>
-                    <div class='stat-label'>Completed Today</div>
-                    <div class='stat-value' style='color: #557A61;'>8</div>
-                </div>
-                <div class='stat-mini-card'>
-                    <div class='stat-label'>D/O Database Records</div>
-                    <div class='stat-value'>{}</div>
-                </div>
-            </div>
-        """.format(total_do_saved), unsafe_allow_html=True)
-        
-        # [ข้อ 2] คลีนข้อความสั้นกระชับตรงจุดแนว Workspaces
+        # ข้อความต้อนรับคลีน ๆ กระชับ เข้าประเด็นระบบงานทันที
         st.markdown("<div class='workspace-title'>Welcome back.</div>", unsafe_allow_html=True)
         st.markdown("<div class='workspace-subtitle'>Choose a workspace to continue your operations.</div>", unsafe_allow_html=True)
         
         p_col1, space_col, p_col2 = st.columns([4, 0.6, 4])
         
         with p_col1:
-            # [ข้อ 4, 5, 9, 10] ยุบรวมดีไซน์การ์ดและรายการตรวจสอบให้เป็นคำศัพท์สากล Freight 
             st.markdown("""
                 <div class='cozy-portal-card'>
                     <div class='icon-wrapper'>
@@ -328,7 +277,6 @@ else:
                     </div>
                 </div>
             """, unsafe_allow_html=True)
-            # [ข้อ 3] ปุ่มแยกเป็นอิสระ มีลักษณะเป็นปุ่มชัดเจน (Affordance)
             if st.button("Start Verification  →", key="go_audit"):
                 st.session_state.current_page = "audit_page"
                 st.rerun()
@@ -350,7 +298,6 @@ else:
                     </div>
                 </div>
             """, unsafe_allow_html=True)
-            # [ข้อ 3] ปุ่มแยกเป็นอิสระ มีสัญลักษณ์ระบุการก้าวข้ามไปยัง Workspace
             if st.button("Open Workspace  →", key="go_tracking"):
                 st.session_state.current_page = "tracking_page"
                 st.rerun()
@@ -391,28 +338,14 @@ else:
                             "คุณคือผู้เชี่ยวชาญด้านเอกสารเอกสารโลจิสติกส์และการตรวจปล่อยสินค้า (Import-Export Specialist)\n"
                             "จงวิเคราะห์ไฟล์ภาพหรือ PDF ของเอกสาร Bill of Lading (B/L) ทุกฉบับ เปรียบเทียบกับ ใบขอแก้ไขข้อมูล (Amendment) และไฟล์ใบแนบ (Attached Sheet) ทั้งหมดที่ส่งไปให้\n\n"
                             "💡 คำแนะนำพิเศษในการอ่านไฟล์ (CRITICAL FILE READING INSTRUCTION):\n"
-                            "1. จงอ่านและสกัดรายละเอียดเนื้อหาในไฟล์แนบ หรือ ใบ Attached Sheet ทุกใบอย่างละเอียดครบถ้วนทุกบรรทัด "
-                            "โดยข้อมูลใน Attached Sheet มักจะระบุเชื่อมโยงกับเลขที่ D/O หรือลำดับรายการบนใบ Amend หลัก ไม่ใช่เลข B/L ดั้งเดิม ให้คุณทำการรวบรวมและเชื่อมโยงข้อมูลให้ถูกทอดก่อน\n"
-                            "2. โปรดเข้าใจว่ารูปแบบการพิมพ์ของลูกค้าแต่ละใบอาจไม่เหมือนกัน มีการเว้นวรรค พิมพ์ขึ้นบรรทัดใหม่ หรือกด Enter แตกต่างกันไปตามฟอร์มของแต่ละบริษัท "
-                            "ดังนั้นให้เน้นที่ 'ใจความและเนื้อหาข้อมูลสำคัญ' เป็นหลักในการพิจารณาตรวจสอบข้ามเอกสาร\n\n"
+                            "1. จงอ่านและสกัดรายละเอียดเนื้อหาในไฟล์แนบ หรือ ใบ Attached Sheet ทุกใบอย่างละเอียดครบถ้วนทุกบรรทัด\n"
+                            "2. โปรดเข้าใจว่ารูปแบบการพิมพ์ของลูกค้าแต่ละใบอาจไม่เหมือนกัน ให้เน้นที่ 'ใจความและเนื้อหาข้อมูลสำคัญ' เป็นหลัก\n\n"
                             "🔍 เกณฑ์การจับคู่แบบไฮบริดดั้งเดิม (Hybrid & Flexible Logic):\n"
-                            "- Description of Goods: หากข้อมูลในใบ Amend/Attached sheet ใส่มาแค่ชื่อสินค้าหลักตรง หรือจำนวนหีบห่อตรงตามหน้า B/L (แม้ข้อความจะสั้นยาวไม่เท่ากัน หรือกด Enter สลับบรรทัดกันมา) ให้ตัดสินเป็น MATCH ทันที\n"
-                            "- Consignee, Shipping Marks, Gross Weight, CBM: ตรวจสอบและเปรียบเทียบข้อมูลรายฉบับด้วยความยืดหยุ่นตามบริบทงานชิปปิ้งจริง\n\n"
+                            "- Description of Goods: หากข้อมูลในใบ Amend/Attached sheet ใส่มาแค่ชื่อสินค้าหลักตรง หรือจำนวนหีบห่อตรงตามหน้า B/L ให้ตัดสินเป็น MATCH ทันที\n\n"
                             "📊 รูปแบบผลลัพธ์ Markdown ตารางที่ต้องการ:\n\n"
                             "### 📊 ตารางตรวจสอบเปรียบเทียบข้อมูลจำแนกรายฉบับ (Detailed Comparison)\n"
                             "| เลขที่ B/L / ข้อมูล D/O | หัวข้อตรวจสอบ | ข้อมูลบนใบ B/L | ข้อมูลบนใบ Amend + Attached Sheet | ผลการตรวจ | หมายเหตุ / วิเคราะห์สาเหตุการอนุโลม |\n"
                             "| :--- | :--- | :--- | :--- | :--- | :--- |\n"
-                            "| **[เลข B/L]** | Consignee | ... | ... | MATCH / MISMATCH | ... |\n"
-                            "| **[เลข B/L]** | Shipping Marks | ... | ... | MATCH / MISMATCH | ... |\n"
-                            "| **[เลข B/L]** | Description of Goods | ... | ... | MATCH / MISMATCH | ... |\n"
-                            "| **[เลข B/L]** | Gross Weight (G.W.) | ... | ... | MATCH / MISMATCH | ... |\n"
-                            "| **[เลข B/L]** | Measurement (CBM) | ... | ... | MATCH / MISMATCH | ... |\n"
-                            "| --- | --- | --- | --- | --- | --- |\n\n"
-                            "### 🧮 ตารางสรุปยอดรวมสุทธิ (Grand Totals Check)\n"
-                            "| หัวข้อตรวจสอบ | ผลรวมจาก B/L ทุกใบรวมกัน | ยอดรวมสุทธิบนใบ Amend | ผลรวมตรงกันไหม | หมายเหตุคำนวณ |\n"
-                            "| :--- | :--- | :--- | :--- | :--- |\n"
-                            "| **Gross Weight รวม** | [เลขรวม] | [เลขรวม] | MATCH / MISMATCH | [แสดงเลขคำนวณ] |\n"
-                            "| **Measurement (CBM) รวม** | [เลขรวม] | [เลขรวม] | MATCH / MISMATCH | [แสดงเลขคำนวณ] |\n"
                         )
                         contents_payload.append(prompt_instruction)
                         
