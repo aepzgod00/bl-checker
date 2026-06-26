@@ -6,14 +6,14 @@ import os
 import pandas as pd
 from datetime import datetime
 
-# 🎨 1. Set Page Configuration (Cozy Enterprise Suite)
+# 🎨 1. Set Page Configuration
 st.set_page_config(
     page_title="VerifyHub - Document Verification System", 
     page_icon="🌿", 
     layout="wide"
 )
 
-# 🖌️ 2. Inject Clean Enterprise CSS (Anti-Overlap & Cozy Theme Engine)
+# 🖌️ 2. Inject Clean Enterprise CSS (Fixed Empty Space & Input Borders)
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700;800&family=Manrope:wght@500;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&display=swap');
@@ -89,6 +89,7 @@ st.markdown("""
             margin-bottom: 35px;
         }
         
+        /* Main Container Card */
         .cozy-portal-card {
             background-color: #FFFFFF;
             padding: 30px 24px;
@@ -119,12 +120,6 @@ st.markdown("""
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         
-        .cozy-portal-card:hover .icon-wrapper {
-            transform: scale(1.05);
-            background-color: #EDF3EE;
-            color: #557A61;
-        }
-        
         .card-title-text {
             color: #3A443E; 
             font-weight: 700; 
@@ -145,7 +140,6 @@ st.markdown("""
             padding: 16px 20px !important;
             margin-top: 15px !important;
             text-align: left !important;
-            box-shadow: inset 0 2px 4px rgba(141, 137, 120, 0.02) !important;
         }
         .card-checklist {
             text-align: left;
@@ -160,54 +154,35 @@ st.markdown("""
             align-items: center;
             gap: 10px;
         }
-        .checklist-item:last-child {
-            margin-bottom: 0;
-        }
         .checklist-item-check {
             color: #557A61;
             font-weight: 700;
         }
 
-        /* ☁️ 3. แก้ไขกล่องดำอัปโหลดไฟล์ (Streamlit File Uploader Overrides) */
+        /* ☁️ File Uploader Customization */
         div[data-testid="stFileUploader"] {
             background-color: #FAF8F5 !important;
             border: 1.5px dashed #DCD9CD !important;
             border-radius: 16px !important;
             padding: 25px 20px !important;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        div[data-testid="stFileUploader"]:hover {
-            border-color: #557A61 !important;
-            background-color: #F3F5F2 !important;
-        }
-        div[data-testid="stFileUploader"] section button {
-            background-color: #FFFFFF !important;
-            color: #4A5A4E !important;
-            border: 1px solid #D5D2C1 !important;
-            border-radius: 10px !important;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.02) !important;
-            transition: all 0.2s ease;
-        }
-        div[data-testid="stFileUploader"] section button:hover {
-            border-color: #557A61 !important;
-            color: #557A61 !important;
-            background-color: #FAF8F5 !important;
-        }
-        div[data-testid="stFileUploaderText"] > span {
-            color: #7A857D !important;
-            font-size: 13.5px !important;
-        }
-        div[data-testid="stFileUploader"] > section {
-            background-color: transparent !important;
         }
 
-        /* ✏️ 4. แก้ไขกล่องกรอกข้อความ (Streamlit Text Input Overrides) */
+        /* ✏️ 3. Clean Text Input Styling (ลบกรอบเข้ม ขอบซ้อน และมุมมืดออก) */
         div[data-testid="stTextInput"] label {
             color: #3A443E !important;
             font-weight: 600 !important;
             font-size: 14px !important;
             margin-bottom: 8px !important;
         }
+        
+        /* ควบคุมรูปลักษณ์ของกรอบชั้นนอกของ Streamlit ไม่ให้ซ้อนขอบดำ */
+        div[data-testid="stTextInput"] > div:first-child {
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+        
+        /* ปรับแต่งช่อง Input จริงให้เป็นเส้นเดี่ยว คลีน นุ่มนวล */
         div[data-testid="stTextInput"] input {
             background-color: #FFFFFF !important;
             color: #2D3531 !important;
@@ -215,20 +190,23 @@ st.markdown("""
             border-radius: 12px !important;
             padding: 12px 16px !important;
             font-size: 14.5px !important;
-            box-shadow: 0 2px 5px rgba(141, 137, 120, 0.03) !important;
-            transition: all 0.25s ease !important;
+            box-shadow: none !important;
+            outline: none !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
         }
+        
+        /* สไตล์เวลา Focus เมาส์คลิก */
         div[data-testid="stTextInput"] input:focus {
             border-color: #557A61 !important;
             box-shadow: 0 0 0 3px rgba(85, 122, 97, 0.12) !important;
-            background-color: #FFFFFF !important;
         }
-        /* ปรับสีข้อความบอกใบ้ (Placeholder) ให้คมชัดขึ้นแต่ยังนุ่มนวล */
+        
         div[data-testid="stTextInput"] input::placeholder {
             color: #A0AAA2 !important;
             opacity: 1 !important;
         }
 
+        /* 🔘 Buttons Customization */
         div.stButton > button:first-child {
             border-radius: 12px !important;
             border: 1px solid #557A61 !important;
@@ -240,26 +218,16 @@ st.markdown("""
             padding: 10px 24px !important;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(85, 122, 97, 0.05);
-            margin: 0 auto;
-            display: block;
-            width: auto !important;
         }
         div.stButton > button:first-child:hover {
             background-color: #557A61 !important;
             color: #FFFFFF !important;
             transform: translateY(-2px) !important;
-            box-shadow: 0 8px 20px rgba(85, 122, 97, 0.18) !important;
         }
         
         div.stButton > button[key^="back_"] {
             border: 1px solid #D5D2C1 !important;
             color: #7A857D !important;
-            margin-left: 0 !important;
-        }
-        div.stButton > button[key^="back_"]:hover {
-            background-color: #F4F2EE !important;
-            color: #2D3531 !important;
-            border-color: #2D3531 !important;
         }
 
         .inner-header-container {
@@ -469,8 +437,9 @@ else:
         
         df_current = load_data()
         
-        st.markdown("<div class='cozy-portal-card' style='text-align: left; padding: 35px 28px;'>", unsafe_allow_html=True)
-        st.markdown("<div style='background-color: #F4F3ED; padding: 12px 20px; border-radius: 12px; color: #4A5A4E; font-size: 14px; font-weight: 600; margin-bottom: 20px; display:flex; align-items:center; gap:8px;'><span class='material-symbols-outlined' style='font-size:18px;'>edit_square</span> รายการรับเอกสารหน้าเคาน์เตอร์</div>", unsafe_allow_html=True)
+        # 🟢 ลบกล่องคลุมชั้นนอกสุดที่เคยทำให้เกิดช่องขาวว่างๆ ออก และใช้โครงสร้างแถวคอลัมน์คลีนๆ แทน
+        st.markdown("<div style='background-color: #FAF8F5; border: 1px solid #EAE8DF; padding: 25px 28px; border-radius: 18px;'>", unsafe_allow_html=True)
+        st.markdown("<div style='background-color: #F4F3ED; padding: 12px 20px; border-radius: 12px; color: #4A5A4E; font-size: 14px; font-weight: 600; margin-bottom: 25px; display:flex; align-items:center; gap:8px;'><span class='material-symbols-outlined' style='font-size:18px;'>edit_square</span> รายการรับเอกสารหน้าเคาน์เตอร์</div>", unsafe_allow_html=True)
         
         cx1, cx2 = st.columns(2)
         with cx1:
@@ -499,9 +468,10 @@ else:
                 st.warning("⚠️ โปรดกรอกหมายเลข B/L")
         st.markdown("</div>", unsafe_allow_html=True)
 
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("<br><br>", unsafe_allow_html=True)
         
-        st.markdown("<div class='cozy-portal-card' style='text-align: left; padding: 35px 28px;'>", unsafe_allow_html=True)
+        # กล่องส่วนแสดงตารางข้อมูลด้านล่าง
+        st.markdown("<div style='background-color: #FFFFFF; border: 1px solid #EAE8DF; padding: 25px 28px; border-radius: 18px; box-shadow: 0 10px 30px rgba(141, 137, 120, 0.03);'>", unsafe_allow_html=True)
         st.markdown("<h4 style='font-weight: 700; color: #2D3531; margin-top:0; display:flex; align-items:center; gap:8px;'><span class='material-symbols-outlined' style='font-size:22px;'>search</span> ค้นหาประวัติสถานะส่งมอบเอกสาร</h4>", unsafe_allow_html=True)
         search_query = st.text_input("ระบุเลข B/L เพื่อค้นหาแบบเรียลไทม์", placeholder="พิมพ์คำค้นหาตรงนี้...")
         
