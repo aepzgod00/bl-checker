@@ -148,11 +148,6 @@ st.markdown("""
             text-align: left !important;
             box-shadow: inset 0 2px 4px rgba(141, 137, 120, 0.02) !important;
         }
-        .card-checklist {
-            text-align: left;
-            margin: 0;
-            padding: 0;
-        }
         .checklist-item {
             font-size: 13.5px;
             color: #5A665E;
@@ -261,7 +256,8 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-API_KEY = "AQ.Ab8RN6KVujoWku4GOWYJbD1uFzhtqUHObm9Y571oqquJ8XrdwQ"
+# ⚙️ 3. การตั้งค่าระบบหลังบ้าน (รวมถึงคีย์ AQ. ตัวใหม่)
+API_KEY = "AQ.Ab8RN6Jp3FRSFTLGrLKEDIcF5vxf-0x8vnFMPOv2Y3mwxqOrcA"
 EXCEL_FILE = "do_database_records.xlsx"
 
 def load_data():
@@ -280,7 +276,7 @@ def เตรียมไฟล์สำหรับ_gemini(file_uploader_obj):
 if "current_page" not in st.session_state:
     st.session_state.current_page = "portal"
 
-# 🏢 TOP NAVIGATION
+# 🏢 TOP NAVIGATION HEADER
 nav_col1, nav_col2 = st.columns([7, 3])
 
 with nav_col1:
@@ -304,12 +300,22 @@ with nav_col2:
 
 st.markdown("<hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 18px 0 25px 0;'>", unsafe_allow_html=True)
 
-
+# 🧠 4. การเชื่อมต่อกับโมเดล AI (ปรับปรุงเพื่อรองรับคีย์ AQ.)
 if not API_KEY or API_KEY.startswith("YOUR"):
-    st.error("⚠️ โปรดใส่รหัส Gemini API Key จริงของคุณในโค้ดหลังบ้านก่อนนำไปรัน")
+    st.error("⚠️ โปรดใส่รหัส Gemini API Key ในโค้ดหลังบ้านก่อนนำไปรัน")
 else:
-    # ⚙️ เรียกผ่าน SDK มาตรฐานเพื่อความเสถียรและหลีกเลี่ยงปัญหา endpoint v1beta เก่า
-    client = genai.Client(api_key=API_KEY)
+    try:
+        # บังคับส่งTokenผ่านทาง Header เพื่อรองรับคีย์ประเภท AQ. ที่น้าสร้างมาครับ
+        if API_KEY.startswith("AQ."):
+            client = genai.Client(
+                http_options={'headers': {'Authorization': f'Bearer {API_KEY}'}}
+            )
+        else:
+            client = genai.Client(api_key=API_KEY)
+            
+    except Exception as credential_error:
+        st.error(f"ระบบตรวจพบปัญหาด้านการยืนยันสิทธิ์: {credential_error}")
+
 
     # 🚪 ================== [หน้าแรก: Portal เมนูหลัก] ==================
     if st.session_state.current_page == "portal":
@@ -329,11 +335,9 @@ else:
                         เปรียบเทียบข้อมูลไฟล์สแกนและประมวลผลความถูกต้องข้ามเอกสารอัตโนมัติ
                     </p>
                     <div class='custom-code-box'>
-                        <div class='card-checklist'>
-                            <div class='checklist-item'><span class='checklist-item-check'>✓</span> Bill of Lading (B/L)</div>
-                            <div class='checklist-item'><span class='checklist-item-check'>✓</span> Amendment Notice</div>
-                            <div class='checklist-item'><span class='checklist-item-check'>✓</span> Attached Sheet</div>
-                        </div>
+                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Bill of Lading (B/L)</div>
+                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Amendment Notice</div>
+                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Attached Sheet</div>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
@@ -349,14 +353,12 @@ else:
                     </div>
                     <div class='card-title-text'>บันทึกรับ D/O</div>
                     <p class='card-desc-text'>
-                        ประทับตราเคาน์เตอร์และระบบค้นหาประวัติตรวจสอบสถานะส่งมอบแบบเรียลไทม์
+                        ประทับตราเคาน์เตอร์และระบบค้นหาประวัติตwarzสอบสถานะส่งมอบแบบเรียลไทม์
                     </p>
                     <div class='custom-code-box'>
-                        <div class='card-checklist'>
-                            <div class='checklist-item'><span class='checklist-item-check'>✓</span> D/O Release Stamp</div>
-                            <div class='checklist-item'><span class='checklist-item-check'>✓</span> Consignee Tracking</div>
-                            <div class='checklist-item'><span class='checklist-item-check'>✓</span> Quick Search History</div>
-                        </div>
+                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> D/O Release Stamp</div>
+                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Consignee Tracking</div>
+                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Quick Search History</div>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
@@ -413,7 +415,7 @@ else:
                         )
                         contents_payload.append(prompt_instruction)
                         
-                        # ✨ อัปเกรดเรียกใช้โมเดลเวอร์ชันใหม่ gemini-2.5-flash
+                        # 🧠 สั่งประมวลผลด้วยโมเดล Gemini 2.5 Flash
                         response = client.models.generate_content(model='gemini-2.5-flash', contents=contents_payload)
                         st.balloons()
                         st.success("✨ ตรวจสอบและสรุปรายงานเรียบร้อยแล้วค่ะ!")
@@ -444,6 +446,7 @@ else:
         
         df_current = load_data()
         
+        # คอนเทนเนอร์กรอกข้อมูลหน้าเคาน์เตอร์
         st.markdown("<div class='cozy-portal-card' style='text-align: left; padding: 35px 28px;'>", unsafe_allow_html=True)
         st.markdown("<div style='background-color: #F4F3ED; padding: 12px 20px; border-radius: 12px; color: #4A5A4E; font-size: 14px; font-weight: 600; margin-bottom: 20px; display:flex; align-items:center; gap:8px;'><span class='material-symbols-outlined' style='font-size:18px;'>edit_square</span> รายการรับเอกสารหน้าเคาน์เตอร์</div>", unsafe_allow_html=True)
         
@@ -471,11 +474,12 @@ else:
                 st.success(f"บันทึกประวัติเรียบร้อยแล้วค่ะ")
                 st.rerun()
             else:
-                st.warning("⚠️ โปรดกรอกหมายเลข B/L")
+                st.warning("⚠️ โปรดกรอกหมายเลข B/L ก่อนกดยืนยันบันทึก")
         st.markdown("</div>", unsafe_allow_html=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
         
+        # คอนเทนเนอร์ค้นหาและตารางประวัติข้อมูล
         st.markdown("<div class='cozy-portal-card' style='text-align: left; padding: 35px 28px;'>", unsafe_allow_html=True)
         st.markdown("<h4 style='font-weight: 700; color: #2D3531; margin-top:0; display:flex; align-items:center; gap:8px;'><span class='material-symbols-outlined' style='font-size:22px;'>search</span> ค้นหาประวัติสถานะส่งมอบเอกสาร</h4>", unsafe_allow_html=True)
         search_query = st.text_input("ระบุเลข B/L เพื่อค้นหาแบบเรียลไทม์", placeholder="พิมพ์คำค้นหาตรงนี้...")
@@ -487,19 +491,20 @@ else:
                 
         st.dataframe(df_filtered, use_container_width=True)
         
-        # 🗑️ เพิ่มฟังก์ชันการล้างข้อมูลประวัติทิ้งแบบ UI สวยงาม (Clear History Engine)
+        # 🗑️ ฟังก์ชันการล้างข้อมูลประวัติทั้งหมดทิ้ง (Clear History Engine)
         st.markdown("<hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 30px 0 20px 0;'>", unsafe_allow_html=True)
-        st.markdown("<p style='color: #A66E6E; font-size: 13px; font-weight: 600;'>⚠️ โซนอันตรายสำหรับผู้ดูแลระบบ</p>", unsafe_allow_html=True)
+        st.markdown("<p style='color: #A66E6E; font-size: 13.0px; font-weight: 600;'>️⚠️ โซนอันตรายสำหรับผู้ดูแลระบบ</p>", unsafe_allow_html=True)
         
-        if st.button("ล้างฐานข้อมูลประวัติทั้งหมด (Reset History)", key="clear_all_history"):
+        if st.button("ล้างฐานข้อมูลประวัติทั้งหมด (Clear History)", key="clear_all_history"):
             if os.path.exists(EXCEL_FILE):
                 try:
+                    # ลบไฟล์Excelฐานข้อมูล
                     os.remove(EXCEL_FILE)
-                    st.success("🔥 ลบไฟล์ฐานข้อมูล Excel และเคลียร์ประวัติทั้งหมดเรียบร้อยแล้ว ระบบรีเซ็ตเป็นตารางว่าง!")
+                    st.success("🔥 ลบประวัติข้อมูลทั้งหมดเรียบร้อยแล้ว แฟ้มข้อมูลถูกรีเซ็ตเป็นตารางว่าง!")
                     st.rerun()
                 except Exception as e:
                     st.error(f"ไม่สามารถเคลียร์ประวัติได้เนื่องจาก: {e}")
             else:
-                st.warning("ไม่มีไฟล์ฐานข้อมูลประวัติให้ลบในระบบอยู่แล้วครับน้า")
+                st.warning("ไม่มีข้อมูลประวัติให้ลบในระบบอยู่แล้วครับน้า")
                 
         st.markdown("</div>", unsafe_allow_html=True)
