@@ -249,7 +249,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 🧠 ⚙️ CONFIGURATION: ใส่คีย์สิทธิ์องค์กรตัวเดิม (AQ...) ของน้าตรงจุดนี้ได้เลยครับ
-API_KEY = "AQ.Ab8RN6I6laxWePmvYG1jGjbMflb4GtDkCcF3mnrBBe2nDb5SYw"  
+API_KEY = "AQ.Ab8RN6L93mrD1nKmWuzrhjeWyIwgzu7aAugS_4Hwhl3mxze1-w"  
 EXCEL_FILE = "do_database_records.xlsx"
 
 def load_data():
