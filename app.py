@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🖌️ 2. Inject Clean Enterprise CSS (Anti-Overlap & Cozy Theme Engine)
+# 🖌️ 2. Inject Re-Engineered Light Theme Custom CSS (Anti-Overlap & Cozy Theme Engine)
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700;800&family=Manrope:wght@500;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&display=swap');
@@ -256,7 +256,8 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ⚙️ 3. การตั้งค่าระบบหลังบ้าน (รวมถึงคีย์ AQ. ตัวใหม่)
+# 🧠 ⚙️ การตั้งค่าระบบหลังบ้านและ AI Library Modification (แก้ไขบรรทัด 95-108)
+# ใส่คีย์ AQ ตัวจริงของน้าตรงนี้ครับ
 API_KEY = "AQ.Ab8RN6KpGqGhPQq0sHfUVKonhSr_qyYV10OtPHdMVp-JSpOz1g"
 EXCEL_FILE = "do_database_records.xlsx"
 
@@ -300,12 +301,12 @@ with nav_col2:
 
 st.markdown("<hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 18px 0 25px 0;'>", unsafe_allow_html=True)
 
-# 🧠 4. การเชื่อมต่อกับโมเดล AI (ปรับปรุงเพื่อรองรับคีย์ AQ.)
+# ⚠️ ตรวจสอบคีย์และตั้งค่า Client (ส่วนที่แก้ไขหลัก)
 if not API_KEY or API_KEY.startswith("YOUR"):
     st.error("⚠️ โปรดใส่รหัส Gemini API Key ในโค้ดหลังบ้านก่อนนำไปรัน")
 else:
     try:
-        # บังคับส่งTokenผ่านทาง Header เพื่อรองรับคีย์ประเภท AQ. ที่น้าสร้างมาครับ
+        # บังคับส่ง Token ผ่าน Header ตรง ๆ เพื่อรองรับคีย์ประเภทองค์กรแบบ Access Token (แก้ Error 401)
         if API_KEY.startswith("AQ."):
             client = genai.Client(
                 http_options={'headers': {'Authorization': f'Bearer {API_KEY}'}}
@@ -335,9 +336,11 @@ else:
                         เปรียบเทียบข้อมูลไฟล์สแกนและประมวลผลความถูกต้องข้ามเอกสารอัตโนมัติ
                     </p>
                     <div class='custom-code-box'>
-                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Bill of Lading (B/L)</div>
-                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Amendment Notice</div>
-                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Attached Sheet</div>
+                        <div class='card-checklist'>
+                            <div class='checklist-item'><span class='checklist-item-check'>✓</span> Bill of Lading (B/L)</div>
+                            <div class='checklist-item'><span class='checklist-item-check'>✓</span> Amendment Notice</div>
+                            <div class='checklist-item'><span class='checklist-item-check'>✓</span> Attached Sheet</div>
+                        </div>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
@@ -415,7 +418,7 @@ else:
                         )
                         contents_payload.append(prompt_instruction)
                         
-                        # 🧠 สั่งประมวลผลด้วยโมเดล Gemini 2.5 Flash
+                        # 🧠 ✨ อัปเดตเรียกใช้โมเดลเวอร์ชันใหม่ gemini-2.5-flash เพื่อความเสถียร
                         response = client.models.generate_content(model='gemini-2.5-flash', contents=contents_payload)
                         st.balloons()
                         st.success("✨ ตรวจสอบและสรุปรายงานเรียบร้อยแล้วค่ะ!")
@@ -446,43 +449,50 @@ else:
         
         df_current = load_data()
         
-        # คอนเทนเนอร์กรอกข้อมูลหน้าเคาน์เตอร์
         st.markdown("<div class='cozy-portal-card' style='text-align: left; padding: 35px 28px;'>", unsafe_allow_html=True)
         st.markdown("<div style='background-color: #F4F3ED; padding: 12px 20px; border-radius: 12px; color: #4A5A4E; font-size: 14px; font-weight: 600; margin-bottom: 20px; display:flex; align-items:center; gap:8px;'><span class='material-symbols-outlined' style='font-size:18px;'>edit_square</span> รายการรับเอกสารหน้าเคาน์เตอร์</div>", unsafe_allow_html=True)
         
-        cx1, cx2 = st.columns(2)
-        with cx1:
-            input_bl = st.text_input("หมายเลข Bill of Lading (B/L)", placeholder="เช่น PKELCH2660002")
-        with cx2:
-            input_consignee = st.text_input("ชื่อบริษัทลูกค้า / Consignee", placeholder="เช่น SIAM LOGISTICS CO., LTD.")
+        # 🧾 ✅ แก้ไขอาการ rerun loop ข้อมูลหาย โดยเปลี่ยนมาใช้ st.form
+        with st.form(key="do_entry_form", clear_on_submit=True):
+            cx1, cx2 = st.columns(2)
+            with cx1:
+                input_bl = st.text_input("หมายเลข Bill of Lading (B/L)", placeholder="เช่น PKELCH2660002", key="entry_bl_input")
+            with cx2:
+                input_consignee = st.text_input("ชื่อบริษัทลูกค้า / Consignee", placeholder="เช่น SIAM LOGISTICS CO., LTD.", key="entry_con_input")
+                
+            st.markdown("<br>", unsafe_allow_html=True)
+            submit_save = st.form_submit_button("ยืนยันและบันทึกประวัติ")
             
-        st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("ยืนยันและบันทึกประวัติ", use_container_width=False):
-            if input_bl:
-                bl_clean = input_bl.strip()
-                consignee_clean = input_consignee.strip() if input_consignee else "ลูกค้าหน้าเคาน์เตอร์"
-                today_str = datetime.now().strftime("%Y-%m-%d")
-                
-                if bl_clean in df_current["เลขที่ B/L"].values:
-                    df_current = df_current[df_current["เลขที่ B/L"] != bl_clean]
-                
-                new_row = pd.DataFrame([{"เลขที่ B/L": bl_clean, "ชื่อ Consignee": consignee_clean, "วันที่รับ D/O": today_str}])
-                df_current = pd.concat([df_current, new_row], ignore_index=True)
-                
-                df_current.to_excel(EXCEL_FILE, index=False)
-                st.balloons()
-                st.success(f"บันทึกประวัติเรียบร้อยแล้วค่ะ")
-                st.rerun()
-            else:
-                st.warning("⚠️ โปรดกรอกหมายเลข B/L ก่อนกดยืนยันบันทึก")
+            if submit_save:
+                if input_bl:
+                    bl_clean = input_bl.strip()
+                    consignee_clean = input_consignee.strip() if input_consignee else "ลูกค้าหน้าเคาน์เตอร์"
+                    today_str = datetime.now().strftime("%Y-%m-%d")
+                    
+                    if bl_clean in df_current["เลขที่ B/L"].values:
+                        df_current = df_current[df_current["เลขที่ B/L"] != bl_clean]
+                    
+                    new_row = pd.DataFrame([{"เลขที่ B/L": bl_clean, "ชื่อ Consignee": consignee_clean, "วันที่รับ D/O": today_str}])
+                    df_current = pd.concat([df_current, new_row], ignore_index=True)
+                    
+                    # บันทึกฐานข้อมูลลงไฟล์ Excel
+                    try:
+                        df_current.to_excel(EXCEL_FILE, index=False)
+                        st.balloons()
+                        st.success(f"บันทึกประวัติเลขที่ {bl_clean} เรียบร้อยแล้วค่ะ")
+                        st.rerun()
+                    except Exception as excel_save_error:
+                        st.error(f"เกิดข้อผิดพลาดตอนบันทึกไฟล์ Excel: {excel_save_error}")
+                else:
+                    st.warning("⚠️ โปรดกรอกหมายเลข B/L ก่อนกดยืนยันบันทึก")
         st.markdown("</div>", unsafe_allow_html=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
         
-        # คอนเทนเนอร์ค้นหาและตารางประวัติข้อมูล
+        # 🔍 ส่วนการค้นหาฐานข้อมูลประวัติ
         st.markdown("<div class='cozy-portal-card' style='text-align: left; padding: 35px 28px;'>", unsafe_allow_html=True)
         st.markdown("<h4 style='font-weight: 700; color: #2D3531; margin-top:0; display:flex; align-items:center; gap:8px;'><span class='material-symbols-outlined' style='font-size:22px;'>search</span> ค้นหาประวัติสถานะส่งมอบเอกสาร</h4>", unsafe_allow_html=True)
-        search_query = st.text_input("ระบุเลข B/L เพื่อค้นหาแบบเรียลไทม์", placeholder="พิมพ์คำค้นหาตรงนี้...")
+        search_query = st.text_input("ระบุเลข B/L เพื่อค้นหาแบบเรียลไทม์", placeholder="พิมพ์คำค้นหาตรงนี้...", key="search_query_input")
         
         if search_query.strip() != "":
             df_filtered = df_current[df_current["เลขที่ B/L"].str.contains(search_query.strip(), case=False, na=False)]
@@ -491,20 +501,20 @@ else:
                 
         st.dataframe(df_filtered, use_container_width=True)
         
-        # 🗑️ ฟังก์ชันการล้างข้อมูลประวัติทั้งหมดทิ้ง (Clear History Engine)
+        # 🗑️ ✨ เพิ่มฟังก์ชันการล้างข้อมูลประวัติทั้งหมดทิ้ง (Clear History Engine)
         st.markdown("<hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 30px 0 20px 0;'>", unsafe_allow_html=True)
         st.markdown("<p style='color: #A66E6E; font-size: 13.0px; font-weight: 600;'>️⚠️ โซนอันตรายสำหรับผู้ดูแลระบบ</p>", unsafe_allow_html=True)
         
-        if st.button("ล้างฐานข้อมูลประวัติทั้งหมด (Clear History)", key="clear_all_history"):
+        if st.button("ล้างฐานข้อมูลประวัติทั้งหมด (Reset History)", key="clear_all_history_btn"):
             if os.path.exists(EXCEL_FILE):
                 try:
                     # ลบไฟล์Excelฐานข้อมูล
                     os.remove(EXCEL_FILE)
-                    st.success("🔥 ลบประวัติข้อมูลทั้งหมดเรียบร้อยแล้ว แฟ้มข้อมูลถูกรีเซ็ตเป็นตารางว่าง!")
+                    st.success("🔥 ลบไฟล์ฐานข้อมูล Excel และเคลียร์ประวัติทั้งหมดเรียบร้อยแล้ว แฟ้มข้อมูลถูกรีเซ็ตเป็นตารางว่าง!")
                     st.rerun()
                 except Exception as e:
                     st.error(f"ไม่สามารถเคลียร์ประวัติได้เนื่องจาก: {e}")
             else:
-                st.warning("ไม่มีข้อมูลประวัติให้ลบในระบบอยู่แล้วครับน้า")
+                st.warning("ไม่มีไฟล์ฐานข้อมูลประวัติให้ลบในระบบอยู่แล้วครับน้า")
                 
         st.markdown("</div>", unsafe_allow_html=True)
