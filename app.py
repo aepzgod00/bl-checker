@@ -94,7 +94,7 @@ else:
     with cx2:
         input_consignee = st.text_input("ชื่อบริษัทลูกค้า / Consignee", placeholder="เช่น SIAM LOGISTICS CO., LTD.")
         
-    if st.button("💾 บันทึกวันที่จ่าย D/O", use_container_width=True):
+    if st.button("💾 บันทึกวันรับ D/O", use_container_width=True):
         if input_bl:
             found = False
             # ค้นหาและอัปเดตข้อมูลเดิมที่มีอยู่
