@@ -8,7 +8,7 @@ from datetime import datetime
 
 # 🎨 1. Set Page Configuration & Inject Cozy Earthy Custom CSS
 st.set_page_config(
-    page_title="Seabra Trans - Smart Import System", 
+    page_title="VerifyHub - Smart System", 
     page_icon="🌿", 
     layout="wide"
 )
@@ -16,7 +16,7 @@ st.set_page_config(
 # เนรมิตความนุ่มนวลตามรูปตัวอย่าง: พื้นหลังครีมอุ่น ฟอนต์โค้งมน และการ์ดสีเขียวธรรมชาติ
 st.markdown("""
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700;800&display=swap');
         
         /* 1. คุมโทนพื้นหลังสีครีมงาช้างอบอุ่น (Earthy Off-White) */
         .stApp {
@@ -75,7 +75,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 🔑 ใส่รหัส Gemini API Key ของคุณที่นี่ครับ
-API_KEY = "AQ.Ab8RN6KVujoWku4GOWYJbD1uFzhtqUHObm9Y571oqquJ8XrdwQ"
+API_KEY = "YOUR_GEMINI_API_KEY_HERE"
 EXCEL_FILE = "do_database_records.xlsx"
 
 def load_data():
@@ -95,11 +95,9 @@ def เตรียมไฟล์สำหรับ_gemini(file_uploader_obj):
 if "current_page" not in st.session_state:
     st.session_state.current_page = "portal"
 
-# 🏢 TOP NAVIGATION BRANDING
+# 🏢 TOP NAVIGATION BRANDING (ปรับเป็น VerifyHub ตัวหนาๆ ใหญ่ๆ คลีน ๆ เรียบร้อยครับน้า ✨)
 st.markdown("<br>", unsafe_allow_html=True)
-st.markdown("<h2 style='text-align: center; color: #4A5A4E; font-weight: 400; letter-spacing: 1px;'>⚓ Seabra Trans</h2>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #8C968E; font-size: 13px; margin-top: -10px;'>Smart Import D/O Assistant • Cozy Minimal Vibe</p>", unsafe_allow_html=True)
-st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #3A443E; font-weight: 800; font-size: 52px; letter-spacing: -1px; margin-bottom: 30px;'>VerifyHub</h1>", unsafe_allow_html=True)
 
 if not API_KEY or API_KEY.startswith("YOUR"):
     st.error("⚠️ โปรดใส่รหัส Gemini API Key จริงของคุณในโค้ดหลังบ้านก่อนนำไปรัน")
@@ -178,8 +176,8 @@ else:
                             if amend_part: contents_payload.append(amend_part)
                         
                         prompt_instruction = (
-                            "คุณคือผู้เชี่ยวชาญด้านเอกสารเอกสารโลจิสติกส์และการตรวจปล่อยสินค้า (Import-Export Specialist) ของ Seabra Trans\n"
-                            "จงวิเคราะห์ไฟล์ภาพหรือ PDF ของเอกสาร Bill of Lading (B/L) ทุกฉบับ เปรียบเทียบกับ ใบขอแก้ไขข้อมูล (Amendment) และไฟล์ใบแนบ (Attached Sheet) ทั้งหมดที่ส่งไปให้\n\n"
+                            "คุณคือผู้เชี่ยวชาญด้านเอกสารเอกสารโลจิสติกส์และการตรวจปล่อยสินค้า (Import-Export Specialist)\n"
+                            "จงวิเคราะห์ไฟล์ภาพหรือ PDF ของเอกสาร Bill of Lading (B/L) ทุกฉับบ เปรียบเทียบกับ ใบขอแก้ไขข้อมูล (Amendment) และไฟล์ใบแนบ (Attached Sheet) ทั้งหมดที่ส่งไปให้\n\n"
                             "💡 คำแนะนำพิเศษในการอ่านไฟล์ (CRITICAL FILE READING INSTRUCTION):\n"
                             "1. จงอ่านและสกัดรายละเอียดเนื้อหาในไฟล์แนบ หรือ ใบ Attached Sheet ทุกใบอย่างละเอียดครบถ้วนทุกบรรทัด "
                             "โดยข้อมูลใน Attached Sheet มักจะระบุเชื่อมโยงกับเลขที่ D/O หรือลำดับรายการบนใบ Amend หลัก ไม่ใช่เลข B/L ดั้งเดิม ให้คุณทำการรวบรวมและเชื่อมโยงข้อมูลให้ถูกทอดก่อน\n"
