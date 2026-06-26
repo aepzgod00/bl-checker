@@ -1,8 +1,9 @@
 import streamlit as st
-from google import genai
-from google.genai import types
 import io
 import os
+import base64
+import requests
+import json
 import pandas as pd
 from datetime import datetime
 
@@ -13,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🖌️ 2. Inject Re-Engineered Light Theme Custom CSS (Anti-Overlap & Cozy Theme Engine)
+# 🖌️ 2. Inject Re-Engineered Light Theme Custom CSS (คงความสวยงามแบบใน UI ล่าสุด)
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700;800&family=Manrope:wght@500;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&display=swap');
@@ -138,7 +139,6 @@ st.markdown("""
             margin-bottom: 0;
         }
 
-        /* 🧺 3. Cozy Cream Code & Link Box */
         .custom-code-box {
             background-color: #FAF8F5 !important;
             border: 1px solid #EAE8DF !important;
@@ -164,7 +164,6 @@ st.markdown("""
             font-weight: 700;
         }
 
-        /* ☁️ 4. Streamlit File Uploader Overrides */
         div[data-testid="stFileUploader"] {
             background-color: #FAF8F5 !important;
             border: 1.5px dashed #DCD9CD !important;
@@ -188,13 +187,6 @@ st.markdown("""
             border-color: #557A61 !important;
             color: #557A61 !important;
             background-color: #FAF8F5 !important;
-        }
-        div[data-testid="stFileUploaderText"] > span {
-            color: #7A857D !important;
-            font-size: 13.5px !important;
-        }
-        div[data-testid="stFileUploader"] > section {
-            background-color: transparent !important;
         }
 
         div.stButton > button:first-child {
@@ -256,8 +248,8 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 🧠 ⚙️ ระบบหลังบ้านประจำชุดข้อมูลและการยืนยันสิทธิ์
-API_KEY = "AQ.Ab8RN6L_4aakR65NA0dsC7T14fbiXe-GvchsfCJBeZvEsGtPHg"
+# 🧠 ⚙️ CONFIGURATION: ใส่คีย์สิทธิ์องค์กรตัวเดิม (AQ...) ของน้าตรงจุดนี้ได้เลยครับ
+API_KEY = "AQ.Ab8RN6JCHVKHZeM0RN0lm9hfdmJOrqASsRZPJ19Ow0601DG3yA"  
 EXCEL_FILE = "do_database_records.xlsx"
 
 def load_data():
@@ -266,12 +258,49 @@ def load_data():
     else:
         return pd.DataFrame(columns=["เลขที่ B/L", "ชื่อ Consignee", "วันที่รับ D/O"])
 
-def เตรียมไฟล์สำหรับ_gemini(file_uploader_obj):
-    if file_uploader_obj is not None:
-        file_bytes = file_uploader_obj.getvalue()
-        mime_type = file_uploader_obj.type
-        return types.Part.from_bytes(data=file_bytes, mime_type=mime_type)
-    return None
+# 🔄 ระบบหลังบ้านตัวเก่งยิงตรงผ่าน requests (รองรับคีย์ AQ 100%)
+def call_gemini_via_requests(api_key, text_prompt, uploaded_files):
+    # เรียกผ่านเอนพอยต์ v1beta ที่เสถียรที่สุดสำหรับโครงสร้างคีย์ประเภทนี้
+    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
+    
+    # 🔑 จุดสำคัญที่ทำให้ใช้คีย์ AQ ได้: การส่งผ่าน Authorization Bearer Header ท่อตรง
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    parts_payload = []
+    
+    # วนลูปแปลงไฟล์ทั้งหมดที่อัปโหลดเข้ามาให้อยู่ในรูปแบบ Inline Base64 Data
+    for file in uploaded_files:
+        file_bytes = file.getvalue()
+        base64_data = base64.b64encode(file_bytes).decode("utf-8")
+        parts_payload.append({
+            "inlineData": {
+                "mimeType": file.type,
+                "data": base64_data
+            }
+        })
+        
+    # ใส่คำสั่ง Prompt ปิดท้าย
+    parts_payload.append({"text": text_prompt})
+    
+    payload = {
+        "contents": [{
+            "parts": parts_payload
+        }]
+    }
+    
+    response = requests.post(url, headers=headers, json=payload)
+    
+    if response.status_code == 200:
+        res_json = response.json()
+        try:
+            return res_json["candidates"][0]["content"]["parts"][0]["text"]
+        except (KeyError, IndexError):
+            return "ไม่สามารถดึงข้อมูลผลลัพธ์จากโครงสร้าง JSON ของโมเดลได้สำเร็จ"
+    else:
+        raise Exception(f"Error {response.status_code}: {response.text}")
 
 if "current_page" not in st.session_state:
     st.session_state.current_page = "portal"
@@ -300,24 +329,10 @@ with nav_col2:
 
 st.markdown("<hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 18px 0 25px 0;'>", unsafe_allow_html=True)
 
-# ⚠️ จุดแก้ไขหลัก: ตรวจสอบและบายพาสคีย์ประเภทองค์กร (คีย์ AQ.) เพื่อป้องกัน Error 401
-if not API_KEY or API_KEY.startswith("YOUR"):
-    st.error("⚠️ โปรดใส่รหัส Gemini API Key ในโค้ดหลังบ้านก่อนนำไปรัน")
+# ตรวจสอบการกรอกคีย์เบื้องต้นก่อนทำงาน
+if not API_KEY or API_KEY.startswith("YOUR") or API_KEY.startswith("AQ.Ab8RN6..."):
+    st.error("⚠️ โปรดวางรหัส API Key (AQ...) ตัวที่ใช้งานได้ในไฟล์โค้ดก่อนเริ่มต้นระบบครับน้า")
 else:
-    try:
-        if API_KEY.startswith("AQ."):
-            # ป้อนค่าว่างหลอกให้ผ่านด่าน SDK พร้อมส่ง Bearer Token ผ่าน Header ตัวจริง
-            client = genai.Client(
-                api_key=" ", 
-                http_options={'headers': {'Authorization': f'Bearer {API_KEY}'}}
-            )
-        else:
-            client = genai.Client(api_key=API_KEY)
-            
-    except Exception as credential_error:
-        st.error(f"ระบบตรวจพบปัญหาด้านการยืนยันสิทธิ์: {credential_error}")
-
-
     # 🚪 ================== [หน้าแรก: Portal เมนูหลัก] ==================
     if st.session_state.current_page == "portal":
         st.markdown("<div class='workspace-title'>Welcome back.</div>", unsafe_allow_html=True)
@@ -341,7 +356,7 @@ else:
                         <div class='checklist-item'><span class='checklist-item-check'>✓</span> Attached Sheet</div>
                     </div>
                 </div>
-            """, unsafe_allow_html=True) # <-- ปรับให้แสดงผลเป็น HTML สวยงาม ไม่หลุดข้อความดิบ
+            """, unsafe_allow_html=True)
             if st.button("Start Verification  →", key="go_audit"):
                 st.session_state.current_page = "audit_page"
                 st.rerun()
@@ -362,11 +377,10 @@ else:
                         <div class='checklist-item'><span class='checklist-item-check'>✓</span> Quick Search History</div>
                     </div>
                 </div>
-            """, unsafe_allow_html=True) # <-- จุดที่ 2 แสดงผลเรียบร้อยสมบูรณ์
+            """, unsafe_allow_html=True)
             if st.button("Open Workspace  →", key="go_tracking"):
                 st.session_state.current_page = "tracking_page"
                 st.rerun()
-
 
     # 🔍 ================== [ฝั่งที่ 1: ตรวจสอบเอกสาร] ==================
     elif st.session_state.current_page == "audit_page":
@@ -399,33 +413,35 @@ else:
         if bl_files and amend_files:
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("🚀 เริ่มการสแกนและเปรียบเทียบข้อมูลเชิงลึก", use_container_width=False):
-                with st.spinner("🤖 ระบบกำลังแกะอักษรและตรวจสอบความถูกต้องอย่างประณีต..."):
+                with st.spinner("🤖 ระบบกำลังแกะอักษรและตรวจสอบความถูกต้องผ่านท่อส่งตรงของคีย์..."):
                     try:
-                        contents_payload = []
-                        for bl in bl_files:
-                            part = เตรียมไฟล์สำหรับ_gemini(bl)
-                            if part: contents_payload.append(part)
-                        for amend in amend_files:
-                            amend_part = เตรียมไฟล์สำหรับ_gemini(amend)
-                            if amend_part: contents_payload.append(amend_part)
+                        # รวมมัดไฟล์ทั้งหมดเข้าชุดเพื่อส่งแบบ Multipart
+                        all_target_files = []
+                        all_target_files.extend(bl_files)
+                        all_target_files.extend(amend_files)
                         
                         prompt_instruction = (
-                            "ไฟล์เอกสารที่แนบไปคือไฟล์สำหรับตรวจสอบงานโลจิสติกส์\n"
-                            "กรุณาเปรียบเทียบข้อมูลสำคัญระหว่างเอกสาร Bill of Lading (B/L), Amendment และ Attached Sheet\n"
-                            "และสรุปผลความสอดคล้องออกมาเป็นตารางจำแนกรายฉบับให้ชัดเจน"
+                            "คุณคือผู้เชี่ยวชาญระดับสูงด้านระบบโลจิสติกส์และการตรวจสอบความถูกต้องของเอกสารนำเข้า-ส่งออกสินค้า\n"
+                            "กรุณาวิเคราะห์และเปรียบเทียบข้อมูลเชิงลึกระหว่างเอกสารชุด Bill of Lading (B/L), ใบแก้งาน Amendment Notice และ Attached Sheet ที่อัปโหลดเข้ามานี้\n"
+                            "ตรวจสอบความถูกต้องสอดคล้องกันอย่างละเอียด เช่น หมายเลขตู้คอนเทนเนอร์, ชื่อผู้รับสินค้า (Consignee), น้ำหนักรวม, ปริมาตร หรือสัญลักษณ์นำส่งสินค้า\n"
+                            "สรุปผลแยกแยะจุดที่ตรงกันและจุดที่พบความผิดพลาดคลาดเคลื่อนออกมาเป็นตารางภาษาไทยที่ชัดเจน เป็นระเบียบ และเข้าใจง่ายที่สุด"
                         )
-                        contents_payload.append(prompt_instruction)
                         
-                        # ✨ เรียกใช้งานผ่านโมเดล Gemini 2.5 Flash เพื่อการวิเคราะห์ภาพที่รวดเร็วแม่นยำ
-                        response = client.models.generate_content(model='gemini-2.5-flash', contents=contents_payload)
+                        # เรียกใช้ฟังก์ชันยิงตรง Requests เพื่อการันตีการทำงานร่วมกับคีย์ AQ ได้ราบรื่น
+                        analysis_result = call_gemini_via_requests(
+                            api_key=API_KEY,
+                            text_prompt=prompt_instruction,
+                            uploaded_files=all_target_files
+                        )
+                        
                         st.balloons()
                         st.success("✨ ตรวจสอบและสรุปรายงานเรียบร้อยแล้วค่ะ!")
-                        st.markdown(response.text)
+                        st.markdown(analysis_result)
                         
-                    except Exception as e:
-                        st.error(f"เกิดข้อผิดพลาดในการประมวลผลโมเดล: {str(e)}")
+                    except Exception as api_err:
+                        st.error(f"เกิดข้อผิดพลาดระหว่างส่งข้อมูลให้โมเดลประมวลผล: {str(api_err)}")
+                        st.info("💡 ข้อแนะนำ: ตรวจสอบให้แน่ใจว่าค่า Token หรือรหัสในตัวแปร API_KEY ยังไม่หมดอายุและระบุไว้อย่างถูกต้อง")
         st.markdown("</div>", unsafe_allow_html=True)
-
 
     # 📦 ================== [ฝั่งที่ 2: บันทึกรับ D/O] ==================
     elif st.session_state.current_page == "tracking_page":
@@ -450,7 +466,6 @@ else:
         st.markdown("<div class='cozy-portal-card' style='text-align: left; padding: 35px 28px;'>", unsafe_allow_html=True)
         st.markdown("<div style='background-color: #F4F3ED; padding: 12px 20px; border-radius: 12px; color: #4A5A4E; font-size: 14px; font-weight: 600; margin-bottom: 20px; display:flex; align-items:center; gap:8px;'><span class='material-symbols-outlined' style='font-size:18px;'>edit_square</span> รายการรับเอกสารหน้าเคาน์เตอร์</div>", unsafe_allow_html=True)
         
-        # 🧾 ครอบฟอร์มสตรีมลิตป้องกันอาการรันซ้ำเพื่อหลีกเลี่ยงข้อผิดพลาด Openpyxl/Pandas
         with st.form(key="do_entry_form", clear_on_submit=True):
             cx1, cx2 = st.columns(2)
             with cx1:
@@ -498,7 +513,7 @@ else:
                 
         st.dataframe(df_filtered, use_container_width=True)
         
-        # 🗑️ โซนล้างฐานข้อมูลประวัติทั้งหมดทิ้งสำหรับลบข้อมูลเก่า
+        # 🗑️ โซนล้างฐานข้อมูลประวัติทั้งหมดทิ้ง
         st.markdown("<hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 30px 0 20px 0;'>", unsafe_allow_html=True)
         st.markdown("<p style='color: #A66E6E; font-size: 13.0px; font-weight: 600;'>⚠️ โซนอันตรายสำหรับผู้ดูแลระบบ</p>", unsafe_allow_html=True)
         
