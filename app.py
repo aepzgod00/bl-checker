@@ -75,7 +75,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 🔑 ใส่รหัส Gemini API Key ของคุณที่นี่ครับ
-API_KEY = "YOUR_GEMINI_API_KEY_HERE"
+API_KEY = "AQ.Ab8RN6KVujoWku4GOWYJbD1uFzhtqUHObm9Y571oqquJ8XrdwQ"
 EXCEL_FILE = "do_database_records.xlsx"
 
 def load_data():
