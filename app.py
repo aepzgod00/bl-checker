@@ -2,13 +2,33 @@ import streamlit as st
 from google import genai
 from google.genai import types
 import io
+from datetime import datetime
 
 st.set_page_config(page_title="ระบบตรวจข้อมูล B/L กับ Amend (Gemini)", layout="wide")
-st.title("🚢 [Gemini 2.5] ระบบตรวจเปรียบเทียบข้อมูล B/L แยกตามรายฉบับ และใบ Amend")
-st.subheader("เวอร์ชันอัปเกรดล่าสุด: รองรับการตรวจจับ Description แบบผสม (ชื่อสินค้า + จำนวน) ยืดหยุ่นสูงสุด")
+st.title("🚢 [Gemini 2.5] ระบบตรวจเอกสารและจัดการสถานะส่งมอบ D/O อัจฉริยะ")
+st.subheader("เวอร์ชันสำหรับส่งโครงการ: มีระบบแทร็กประวัติเวลารับ D/O สำหรับตอบ Agent ได้ทันที")
 
 # 🔑 ใส่รหัส Gemini API Key ของคุณที่นี่ครับ
 API_KEY = "AQ.Ab8RN6KVujoWku4GOWYJbD1uFzhtqUHObm9Y571oqquJ8XrdwQ"
+
+# 🗄️ จำลองฐานข้อมูลเก็บสถานะการแลก D/O (ใช้ Session State)
+if "do_database" not in st.session_state:
+    st.session_state.do_database = [
+        {
+            "bl_no": "PKELCH2660001",
+            "consignee": "SIAM LOGISTICS CO., LTD.",
+            "status": "🟢 รับ D/O เรียบร้อยแล้ว",
+            "pickup_time": "2026-06-25 14:30:15",
+            "agent_remark": "Agent: OOCL / จ่ายเงินครบแล้ว"
+        },
+        {
+            "bl_no": "PKELCH2660002",
+            "consignee": "PACIFIC TRADING THAILAND",
+            "status": "🟡 เอกสารผ่านแล้ว (รอเงินเข้า/รอรับ D/O)",
+            "pickup_time": "-",
+            "agent_remark": "Agent: ONE / รอยืนยัน Pay-in"
+        }
+    ]
 
 # ฟังก์ชันสำหรับเตรียมไฟล์ส่งให้ Gemini
 def เตรียมไฟล์สำหรับ_gemini(file_uploader_obj):
@@ -26,12 +46,14 @@ if not API_KEY or API_KEY.startswith("YOUR"):
 else:
     client = genai.Client(api_key=API_KEY)
     
+    # 🌟 ส่วนที่ 1: หน้าจอหลักสำหรับอัปโหลดและตรวจสอบเอกสาร (Process 1-4)
+    st.markdown("---")
+    st.markdown("## 📄 ส่วนที่ 1: อัปโหลดและตรวจสอบเอกสาร (B/L vs Amendment)")
+    
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown("### 📄 1. ไฟล์ Bill of Lading (B/L) *อัปโหลดได้หลายไฟล์พร้อมกัน*")
         bl_files = st.file_uploader("ลากไฟล์ B/L ทั้งหมดมาวางตรงนี้", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True, key="bl")
     with col2:
-        st.markdown("### 📝 2. ไฟล์ใบขอแก้ไข (Amendment)")
         amend_file = st.file_uploader("ลากไฟล์ใบ Amend มาวางตรงนี้", type=["pdf", "png", "jpg", "jpeg"], key="amend")
 
     if bl_files and amend_file:
@@ -39,69 +61,84 @@ else:
             with st.spinner("🤖 Gemini กําลังใช้ Logic ชิปปิ้งขั้นสูง ตรวจสอบชื่อสินค้าและจำนวนแบบไฮบริด..."):
                 try:
                     contents_payload = []
-                    
-                    # วนลูปแอดไฟล์ B/L ทุกใบ
-                    for idx, bl in enumerate(bl_files):
+                    for bl in bl_files:
                         part = เตรียมไฟล์สำหรับ_gemini(bl)
-                        if part:
-                            contents_payload.append(part)
-                            
-                    # แอดไฟล์ใบ Amend ปิดท้าย
+                        if part: contents_payload.append(part)
                     amend_part = เตรียมไฟล์สำหรับ_gemini(amend_file)
-                    if amend_part:
-                        contents_payload.append(amend_part)
+                    if amend_part: contents_payload.append(amend_part)
                     
-                    # 🧠 ปรับ Prompt เพิ่ม Logic แบบผสม (ชื่อสินค้า + จำนวน) ตามหน้างานจริง
                     prompt_instruction = (
                         "คุณคือผู้เชี่ยวชาญด้านเอกสารเอกสารโลจิสติกส์และการตรวจปล่อยสินค้า (Import-Export Specialist) ของ Seabra Trans "
                         "จงวิเคราะห์ไฟล์ภาพหรือ PDF ของเอกสาร Bill of Lading (B/L) ทุกฉบับ เปรียบเทียบกับ ใบขอแก้ไขข้อมูล (Amendment/DO รายการ) "
-                        "โดยห้ามนำข้อมูลของ B/L คนละเลขมายำรวมกันในแถวเดียว ให้แตกแถว (Row) แยกคู่อย่างชัดเจนตามกฎดังต่อไปนี้:\n\n"
-                        
-                        "🔍 5 ฟิลด์หลักที่ต้องจับคู่ตรวจสอบรายใบ:\n"
-                        "1. Consignee: เทียบเฉพาะชื่อบริษัทหลัก (ตัดเครื่องหมายจุด, คอมมา ออกเพื่อเทียบความถูกต้อง)\n"
-                        "2. Shipping Marks & Numbers: เครื่องหมายหีบห่อ ไม่รวมเลขตู้คอนเทนเนอร์\n"
-                        "3. Description of Goods (⚠️ ใช้ HYBRID MATCH LOGIC ขั้นสูง):\n"
-                        "   - ในหน้างานจริง เอกสารใบ Amend ลูกค้าอาจระบุข้อมูลแบบย่อ หรือใส่ผสมกันมาหลากหลายรูปแบบ ไม่ตรงกับ B/L เป๊ะๆ ให้ใช้กฎตัดสินดังนี้:\n"
-                        "     * เคสที่ 1 (ชื่อสินค้าคู่กับจำนวน): หากใบ Amend ระบุมาทั้งชื่อสินค้าและจำนวนร่วมกัน เช่น 'SPORTING GOODS 81 CTNS' หรือ '3 PLTS OF MOLD' "
-                        "       ให้ทำการแยกแยะ (Parse) หากพบว่า 'ชื่อสินค้าหลักตรง' และ 'ตัวเลข/หน่วยนับจำนวนหีบห่อตรง' กับสิ่งที่ระบุอยู่ใน B/L ฉบับนั้น แม้ข้อมูลส่วนอื่น (เช่น รหัสใบสั่งซื้อ/ข้อความขยาย) จะหายไป -> ให้ตัดสินผลเป็น 'MATCH' ทันที!\n"
-                        "     * เคสที่ 2 (ใส่เฉพาะชื่อสินค้าหลัก): ถ้ามีแค่ชื่อสินค้าโดดๆ แต่คำหลักนั้นตรงกับคำใน B/L -> ให้ตัดสินผลเป็น 'MATCH' ทันที!\n"
-                        "     * เคสที่ 3 (ใส่เฉพาะจำนวนหีบห่อ): ถ้ามีแค่วอดรวมจำนวน เช่น '81 CTNS' แต่ตัวเลขและหน่วยนับไปตรงกับยอดรวมใน B/L -> ให้ตัดสินผลเป็น 'MATCH' ทันที!\n"
-                        "     * เคสที่ 4 (ฟอนต์เบียดอักษรเพี้ยน): หากเจอเครื่องหมาย '#' เพี้ยนเนื่องจากเอกสารจาง/เบียด เช่น #35S แต่บริบทคือตัวเดียวกัน -> ให้ตัดสินผลเป็น 'MATCH' ทันที!\n"
-                        "     * หากไม่เข้าเงื่อนไขอนุโลมใดๆ เลย (ชนิดสินค้าเปลี่ยนไปอย่างสิ้นเชิง หรือจำนวนขัดแย้งกันรุนแรง) -> ให้ตัดสินผลเป็น 'MISMATCH'\n"
-                        "4. Gross Weight (G.W.): น้ำหนักรวมรายฉบับ\n"
-                        "5. Measurement (CBM): ปริมาตรรวมรายฉบับ\n\n"
-                        
+                        "โดยแตกแถว (Row) แยกคู่อย่างชัดเจนตามกฎตรวจจับแบบไฮบริด (ชื่อสินค้าตรง หรือจำนวนหีบห่อตรง ให้ปัดเป็น MATCH ทันที)\n\n"
                         "📊 รูปแบบผลลัพธ์ Markdown ตารางที่ต้องการ (กรุณาแสดงผลแยกแถวให้ชัดเจน):\n\n"
                         "### 📊 ตารางตรวจสอบเปรียบเทียบข้อมูลจำแนกรายฉบับ (Detailed Comparison)\n"
                         "| เลขที่ B/L / ข้อมูล D/O | หัวข้อตรวจสอบ | ข้อมูลบนใบ B/L | ข้อมูลบนใบ Amend | ผลการตรวจ | หมายเหตุ / วิเคราะห์สาเหตุการอนุโลม |\n"
                         "| :--- | :--- | :--- | :--- | :--- | :--- |\n"
-                        "| **PKELCH2660001** (D/O 01) | Consignee | [ข้อมูล] | [ข้อมูล] | MATCH / MISMATCH | [อธิบาย] |\n"
-                        "| **PKELCH2660001** (D/O 01) | Shipping Marks | [ข้อมูล] | [ข้อมูล] | MATCH / MISMATCH | [อธิบาย] |\n"
-                        "| **PKELCH2660001** (D/O 01) | Description of Goods | [ข้อมูล] | [ข้อมูล] | MATCH / MISMATCH | [ระบุเหตุผล เช่น ผ่านเงื่อนไขไฮบริด: ชื่อสินค้าและจำนวนตรง] |\n"
-                        "| **PKELCH2660001** (D/O 01) | Gross Weight (G.W.) | [ข้อมูล] | [ข้อมูล] | MATCH / MISMATCH | [อธิบาย] |\n"
-                        "| **PKELCH2660001** (D/O 01) | Measurement (CBM) | [ข้อมูล] | [ข้อมูล] | MATCH / MISMATCH | [อธิบาย] |\n"
-                        "| --- | --- | --- | --- | --- | --- |\n"
-                        "| [ไล่เรียงใบอื่นๆ ให้ครบ...] | ... | ... | ... | ... | ... |\n\n"
-                        
-                        "### 🧮 ตารางสรุปยอดรวมสุทธิ (Grand Totals Check)\n"
-                        "| หัวข้อตรวจสอบ | ผลรวมจาก B/L ทุกใบรวมกัน | ยอดรวมสุทธิบนใบ Amend | ผลรวมตรงกันไหม | หมายเหตุคำนวณ |\n"
-                        "| :--- | :--- | :--- | :--- | :--- |\n"
-                        "| **Gross Weight รวม** | [เลขรวม] | [เลขรวม] | MATCH / MISMATCH | [แสดงเลขคำนวณ] |\n"
-                        "| **Measurement (CBM) รวม** | [เลขรวม] | [เลขรวม] | MATCH / MISMATCH | [แสดงเลขคำนวณ] |\n\n"
-                        "### 📢 สรุปข้อแนะนำการปฏิบัติงาน\n"
-                        "**ข้อวิเคราะห์สรุป:** (เขียนสรุปภาพรวมให้คำแนะนำในมุมมองชิปปิ้งมืออาชีพ)"
+                        "| **PKELCH2660001** | Consignee | ... | ... | MATCH | ... |\n"
+                        "| [แสดงผลตรวจให้ครบถ้วนตามเกณฑ์เดิม] | ... | ... | ... | ... | ... |\n"
                     )
-                    
                     contents_payload.append(prompt_instruction)
+                    response = client.models.generate_content(model='gemini-2.5-flash', contents=contents_payload)
                     
-                    response = client.models.generate_content(
-                        model='gemini-2.5-flash',
-                        contents=contents_payload
-                    )
-                    
-                    st.success("✨ Gemini อัปเดตระบบตรวจสอบแบบผสมผสาน (Hybrid) เรียบร้อยแล้ว!")
-                    st.markdown("### 📊 ผลการตรวจสอบเปรียบเทียบรายใบ (Advanced Smart View)")
+                    st.success("✨ Gemini ตรวจสอบข้อมูลเสร็จสิ้น!")
                     st.markdown(response.text)
                     
                 except Exception as e:
                     st.error(f"เกิดข้อผิดพลาดในการประมวลผลของ Gemini: {str(e)}")
+
+    # 🌟 ส่วนที่ 2: ระบบจัดการและบันทึกเวลาการรับ D/O (Process 8)
+    st.markdown("---")
+    st.markdown("## 📦 ส่วนที่ 2: ระบบบริหารสถานะและการส่งมอบ D/O (สำหรับตอบ Agent และลูกค้า)")
+    
+    # ส่วนฟอร์มสำหรับอัปเดตเวลารับ D/O เมื่อลูกค้ามาถึงหน้าเคาน์เตอร์
+    st.markdown("### 📝 บันทึกการรับ D/O หน้างาน (เมื่อลูกค้ามาแลกเอกสาร)")
+    cx1, cx2, cx3 = st.columns([2, 2, 2])
+    with cx1:
+        input_bl = st.text_input("กรอกเลขที่ B/L ที่ลูกค้ามารับ", placeholder="เช่น PKELCH2660002")
+    with cx2:
+        input_agent = st.text_input("ชื่อ Agent / สายเรือ (ถ้ามีข้อมูล)", placeholder="เช่น OOCL, ONE, COSCO")
+    with cx3:
+        st.markdown("<br>", unsafe_allow_html=True) # จัดปุ่มให้ตรงบรรทัด
+        if st.button("💾 บันทึกเวลาจ่าย D/O ทันที", use_container_width=True):
+            if input_bl:
+                found = False
+                # วนลูปเช็กว่ามีเลข B/L นี้ในฐานข้อมูลจำลองไหม
+                for item in st.session_state.do_database:
+                    if item["bl_no"] == input_bl.strip():
+                        item["status"] = "🟢 รับ D/O เรียบร้อยแล้ว"
+                        item["pickup_time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        if input_agent:
+                            item["agent_remark"] = f"Agent: {input_agent}"
+                        found = True
+                        st.success(f"บันทึกเวลารับ D/O ของเลข B/L {input_bl} สำเร็จ!")
+                        break
+                
+                # ถ้าไม่เจอ เลข B/L เดิม ให้แอดเป็นรายการใหม่เข้าไปในตารางเลย
+                if not found:
+                    new_record = {
+                        "bl_no": input_bl.strip(),
+                        "consignee": "ลูกค้าหน้าเคาน์เตอร์",
+                        "status": "🟢 รับ D/O เรียบร้อยแล้ว",
+                        "pickup_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        "agent_remark": f"Agent: {input_agent}" if input_agent else "-"
+                    }
+                    st.session_state.do_database.append(new_record)
+                    st.success(f"สร้างรายการและบันทึกเวลารับ D/O ของเลข B/L {input_bl} สำเร็จ!")
+            else:
+                st.warning("⚠️ โปรดระบุเลขที่ B/L ก่อนกดบันทึก")
+
+    # ส่วนตารางมอนิเตอร์สถานะหลัก (Dashboard) ที่เอาไว้เปิดดูเวลา Agent ถาม
+    st.markdown("### 📊 ตารางตรวจสอบสถานะตู้สินค้า และ ประวัติเวลารับ D/O")
+    
+    # ปุ่มสำหรับเคลียร์ค่า หรือเพิ่มช่องค้นหาด่วน
+    search_query = st.text_input("🔍 ค้นหาด่วนด้วยเลข B/L (พิมพ์เลขแล้วกด Enter เพื่อตอบ Agent)", placeholder="พิมพ์เลข B/L ที่ต้องการเช็กตรงนี้...")
+    
+    # แสดงตารางผลลัพธ์
+    table_data = []
+    for item in st.session_state.do_database:
+        # ฟิลเตอร์กรองข้อมูลตามคำค้นหา
+        if search_query.strip() == "" or search_query.strip().lower() in item["bl_no"].lower():
+            table_data.append(item)
+            
+    st.table(table_data)
