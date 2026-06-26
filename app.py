@@ -13,15 +13,30 @@ st.set_page_config(
     layout="wide"
 )
 
-# เนรมิตความนุ่มนวลตามรูปตัวอย่าง: พื้นหลังครีมอุ่น ฟอนต์โค้งมน และการ์ดสีเขียวธรรมชาติ
+# เนรมิตความนุ่มนวลตามรูปตัวอย่าง: เพิ่มฟอนต์ Cinzel Decorative สำหรับหัวข้อสไตล์ดิสเพลย์หรูหรา
 st.markdown("""
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700;800&family=Cinzel+Decorative:wght@700;900&display=swap');
         
         /* 1. คุมโทนพื้นหลังสีครีมงาช้างอบอุ่น (Earthy Off-White) */
         .stApp {
             background-color: #F9F8F3;
             font-family: 'Bai Jamjuree', sans-serif;
+        }
+        
+        /* สไตล์พิเศษสำหรับหัวข้อใหญ่ VERIFYHUB ให้ได้ฟีลลิ่ง High-Contrast Serif แบบรูปตัวอย่าง */
+        .brand-header {
+            font-family: 'Cinzel Decorative', serif;
+            text-align: center; 
+            color: #3A443E; 
+            font-weight: 900; 
+            font-size: 64px;          /* ปรับขนาดให้ใหญ่เด่นชัด */
+            letter-spacing: 2px;      /* เว้นระยะตัวอักษรให้อ่านง่ายและดูแพง */
+            margin-top: 20px;
+            margin-bottom: 35px;
+            background: linear-gradient(180deg, #3A443E 0%, #252B28 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         
         /* 2. ดีไซน์ปุ่มทั่วไปให้โค้งมน นุ่มนิ่ม และใช้สีเขียวหม่นธรรมชาติ */
@@ -95,16 +110,15 @@ def เตรียมไฟล์สำหรับ_gemini(file_uploader_obj):
 if "current_page" not in st.session_state:
     st.session_state.current_page = "portal"
 
-# 🏢 TOP NAVIGATION BRANDING (ปรับเป็น VerifyHub ตัวหนาๆ ใหญ่ๆ คลีน ๆ เรียบร้อยครับน้า ✨)
-st.markdown("<br>", unsafe_allow_html=True)
-st.markdown("<h1 style='text-align: center; color: #3A443E; font-weight: 800; font-size: 52px; letter-spacing: -1px; margin-bottom: 30px;'>VerifyHub</h1>", unsafe_allow_html=True)
+# 🏢 TOP NAVIGATION BRANDING (ปรับเป็นสไตล์ Modern Elegant Serif แล้วครับน้า 🌿)
+st.markdown("<div class='brand-header'>VERIFYHUB</div>", unsafe_allow_html=True)
 
 if not API_KEY or API_KEY.startswith("YOUR"):
     st.error("⚠️ โปรดใส่รหัส Gemini API Key จริงของคุณในโค้ดหลังบ้านก่อนนำไปรัน")
 else:
     client = genai.Client(api_key=API_KEY)
 
-    # 🚪 ================== [หน้าแรก: แบ่งเป็น 2 ฝั่งตามสั่ง] ==================
+    # 🚪 ================== [หน้าแรก: แบ่งเป็น 2 ฝั่ง] ==================
     if st.session_state.current_page == "portal":
         st.markdown("<h4 style='text-align: center; color: #5D6861; font-weight: 400; margin-bottom: 40px;'>Good morning! วันนี้ต้องการจัดการงานส่วนไหนดีคะ? ✨</h4>", unsafe_allow_html=True)
         
@@ -177,11 +191,11 @@ else:
                         
                         prompt_instruction = (
                             "คุณคือผู้เชี่ยวชาญด้านเอกสารเอกสารโลจิสติกส์และการตรวจปล่อยสินค้า (Import-Export Specialist)\n"
-                            "จงวิเคราะห์ไฟล์ภาพหรือ PDF ของเอกสาร Bill of Lading (B/L) ทุกฉับบ เปรียบเทียบกับ ใบขอแก้ไขข้อมูล (Amendment) และไฟล์ใบแนบ (Attached Sheet) ทั้งหมดที่ส่งไปให้\n\n"
+                            "จงวิเคราะห์ไฟล์ภาพหรือ PDF ของเอกสาร Bill of Lading (B/L) ทุกฉบับ เปรียบเทียบกับ ใบขอแก้ไขข้อมูล (Amendment) และไฟล์ใบแนบ (Attached Sheet) ทั้งหมดที่ส่งไปให้\n\n"
                             "💡 คำแนะนำพิเศษในการอ่านไฟล์ (CRITICAL FILE READING INSTRUCTION):\n"
                             "1. จงอ่านและสกัดรายละเอียดเนื้อหาในไฟล์แนบ หรือ ใบ Attached Sheet ทุกใบอย่างละเอียดครบถ้วนทุกบรรทัด "
                             "โดยข้อมูลใน Attached Sheet มักจะระบุเชื่อมโยงกับเลขที่ D/O หรือลำดับรายการบนใบ Amend หลัก ไม่ใช่เลข B/L ดั้งเดิม ให้คุณทำการรวบรวมและเชื่อมโยงข้อมูลให้ถูกทอดก่อน\n"
-                            "2. โปรดเข้าใจว่ารูปแบบการพิมพ์ของลูกค้าแต่ละใบอาจไม่เหมือนกัน มีการเว้นวรรค พิมพ์ขึ้นบรรทัดใหม่ หรือกด Enter แตกต่างกันไปตามฟอร์มของแต่ละบริษัท "
+                            "2. โปรดเข้าใจว่ารูปแบบการพิมพ์ของลูกค้าแต่ละใบอาจไม่เหมือนกัน มีการเว้นวรรค พิมพ์ขึ้นบรรทัดใหม่ หรือกด Enter แต่างกันไปตามฟอร์มของแต่ละบริษัท "
                             "ดังนั้นให้เน้นที่ 'ใจความและเนื้อหาข้อมูลสำคัญ' เป็นหลักในการพิจารณาตรวจสอบข้ามเอกสาร\n\n"
                             "🔍 เกณฑ์การจับคู่แบบไฮบริดดั้งเดิม (Hybrid & Flexible Logic):\n"
                             "- Description of Goods: หากข้อมูลในใบ Amend/Attached sheet ใส่มาแค่ชื่อสินค้าหลักตรง หรือจำนวนหีบห่อตรงตามหน้า B/L (แม้ข้อความจะสั้นยาวไม่เท่ากัน หรือกด Enter สลับบรรทัดกันมา) ให้ตัดสินเป็น MATCH ทันที\n"
