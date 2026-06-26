@@ -6,37 +6,55 @@ import os
 import pandas as pd
 from datetime import datetime
 
-# 🎨 1. Set Page Configuration & Inject Cozy Earthy Custom CSS
+# 🎨 1. Set Page Configuration
 st.set_page_config(
-    page_title="VerifyHub - Smart System", 
+    page_title="VerifyHub - Document Verification System", 
     page_icon="🌿", 
     layout="wide"
 )
 
-# เนรมิตความนุ่มนวล: นำเข้าฟอนต์ Fredoka เพื่อให้หัวข้อหนา อ้วนกลม เป็นกันเองตามรูปตัวอย่าง
+# 🖌️ 2. Inject Advanced Cozy Modern CSS & Texture Layout
 st.markdown("""
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700;800&family=Fredoka:wght@600;700;900&display=swap');
+        /* ดึงฟอนต์ภาษาไทย ฟอนต์หัวข้อ และ Material Symbols มาใช้งานร่วมกัน */
+        @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700;800&family=Cinzel+Decorative:wght@700;900&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&display=swap');
         
-        /* 1. คุมโทนพื้นหลังสีครีมงาช้างอบอุ่น (Earthy Off-White) */
+        /* 1. พื้นหลังแบบ Cozy Modern Gradient + ใส่ Aura วงกลมเบลอสีเขียวอ่อนด้านหลัง */
         .stApp {
-            background-color: #F9F8F3;
+            background: 
+                radial-gradient(circle at 50% 30%, rgba(211, 221, 214, 0.4) 0%, rgba(211, 221, 214, 0) 60%),
+                linear-gradient(180deg, #FFFDF8 0%, #F8F6F2 100%);
             font-family: 'Bai Jamjuree', sans-serif;
+            background-attachment: fixed;
         }
         
-        /* สไตล์พิเศษสำหรับหัวข้อใหญ่ VERIFYHUB ให้เป็นฟอนต์อ้วนกลมหนานุ่มสไตล์การ์ตูน */
+        /* 2. จัดแต่งหัวข้อ LOGO (ลดขนาดเหลือ 70% และเพิ่ม Subtitle ใต้โลโก้) */
+        .brand-container {
+            text-align: center;
+            margin-top: 25px;
+            margin-bottom: 40px;
+        }
         .brand-header {
-            font-family: 'Fredoka', sans-serif;
-            text-align: center; 
+            font-family: 'Cinzel Decorative', serif;
             color: #3A443E; 
-            font-weight: 700;          /* ความหนากำลังดีตามสไตล์ Chubby */
-            font-size: 60px;           /* ขนาดใหญ่เห็นชัดเจน */
-            letter-spacing: 1px;       /* ระยะห่างพอดีคำ */
-            margin-top: 20px;
-            margin-bottom: 30px;
+            font-weight: 900; 
+            font-size: 45px;          /* ลดขนาดลงมาเหลือ 70% ตามบรีฟ */
+            letter-spacing: 3px;
+            margin-bottom: 5px;
+            background: linear-gradient(180deg, #3A443E 0%, #222825 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .brand-subtitle {
+            font-family: 'Bai Jamjuree', sans-serif;
+            color: #8C968E;
+            font-size: 14px;
+            font-weight: 400;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
         }
         
-        /* 2. ดีไซน์ปุ่มทั่วไปให้โค้งมน นุ่มนิ่ม และใช้สีเขียวหม่นธรรมชาติ */
+        /* 3. ออกแบบและพัฒนาปุ่มให้โค้งมนสไตล์ ซอฟต์-มินิมอล */
         div.stButton > button:first-child {
             border-radius: 24px !important;
             border: 1px solid #D5D2C1 !important;
@@ -45,7 +63,7 @@ st.markdown("""
             font-weight: 500 !important;
             padding: 10px 24px !important;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            box-shadow: 0 4px 12px rgba(141, 137, 120, 0.05);
+            box-shadow: 0 4px 12px rgba(141, 137, 120, 0.04);
         }
         div.stButton > button:first-child:hover {
             border-color: #557A61 !important;
@@ -55,30 +73,72 @@ st.markdown("""
             box-shadow: 0 6px 18px rgba(85, 122, 97, 0.15);
         }
         
-        /* 3. ตกแต่งการ์ดเลือกฝั่งหน้าแรกให้สวยหรู มินิมอล */
+        /* 4. ออกแบบ Portal Card & รองรับชุดคำสั่ง Interactive Hover แบบจัดเต็ม */
         .cozy-portal-card {
             background-color: #FFFFFF;
-            padding: 35px 25px;
+            padding: 40px 30px;
             border-radius: 28px;
             border: 1px solid #EAE8DF;
             text-align: center;
-            box-shadow: 0 10px 25px rgba(141, 137, 120, 0.04);
-            transition: all 0.3s ease;
-        }
-        .cozy-portal-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 15px 35px rgba(85, 122, 97, 0.08);
-            border-color: #D3DDD6;
+            box-shadow: 0 8px 24px rgba(141, 137, 120, 0.03);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         
-        /* 4. กล่องอัปโหลดไฟล์แบบ Soft Form */
+        /* เอฟเฟกต์ Hover: ลอยขึ้น 6px, ชาโดว์เพิ่ม, ขอบเปลี่ยนเป็นสีเขียว */
+        .cozy-portal-card:hover {
+            transform: translateY(-6px);
+            box-sizing: border-box;
+            border-color: #557A61;
+            box-shadow: 0 20px 38px rgba(85, 122, 97, 0.1);
+        }
+        
+        /* ดีไซน์กล่องครอบไอคอน Material ให้เป็นเส้นระบบเดียวกัน */
+        .icon-wrapper {
+            background-color: #F4F6F4; 
+            width: 64px; 
+            height: 64px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin: 0 auto 22px auto;
+            color: #4A5A4E;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        /* เอฟเฟกต์ Hover ขยายขนาด Icon ขึ้น 110% */
+        .cozy-portal-card:hover .icon-wrapper {
+            transform: scale(1.10);
+            background-color: #EDF3EE;
+            color: #557A61;
+        }
+        
+        /* สไตล์ชุดรายการตรวจสอบสแกน (Checklist Content) */
+        .card-checklist {
+            text-align: left;
+            max-width: 220px;
+            margin: 20px auto 25px auto;
+            padding-left: 10px;
+        }
+        .checklist-item {
+            font-size: 13.5px;
+            color: #626E65;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .checklist-item-check {
+            color: #557A61;
+            font-weight: bold;
+        }
+        
+        /* 5. กล่องอัปโหลดไฟล์ */
         .uploadedFile {
             border-radius: 20px !important;
             border: 2px dashed #D5D2C1 !important;
             background-color: #FFFFFF !important;
         }
-        
-        /* หัวข้อสีเทาอบอุ่น */
         h1, h2, h3, h4 {
             color: #3A443E !important;
             font-weight: 500 !important;
@@ -103,35 +163,46 @@ def เตรียมไฟล์สำหรับ_gemini(file_uploader_obj):
         return types.Part.from_bytes(data=file_bytes, mime_type=mime_type)
     return None
 
-# ตรวจสอบหน้าปัจจุบันด้วย Session State
 if "current_page" not in st.session_state:
     st.session_state.current_page = "portal"
 
-# 🏢 TOP NAVIGATION BRANDING (ปรับเป็น Font อ้วนกลม น่ารัก มินิมอล ตามรูปแบบเรียบร้อยครับน้า 🌿)
-st.markdown("<div class='brand-header'>VERIFYHUB</div>", unsafe_allow_html=True)
+# 🏢 TOP NAVIGATION BRANDING (อัปเดตตามบรีฟข้อ 1 เรียบร้อยครับ)
+st.markdown("""
+    <div class='brand-container'>
+        <div class='brand-header'>VERIFYHUB</div>
+        <div class='brand-subtitle'>Document Verification System</div>
+    </div>
+""", unsafe_allow_html=True)
 
 if not API_KEY or API_KEY.startswith("YOUR"):
     st.error("⚠️ โปรดใส่รหัส Gemini API Key จริงของคุณในโค้ดหลังบ้านก่อนนำไปรัน")
 else:
     client = genai.Client(api_key=API_KEY)
 
-    # 🚪 ================== [หน้าแรก: แบ่งเป็น 2 ฝั่ง] ==================
+    # 🚪 ================== [หน้าแรก: Portal เมนูหลัก] ==================
     if st.session_state.current_page == "portal":
-        st.markdown("<h4 style='text-align: center; color: #5D6861; font-weight: 400; margin-bottom: 40px;'>Good morning! วันนี้ต้องการจัดการงานส่วนไหนดีคะ? ✨</h4>", unsafe_allow_html=True)
+        # เปลี่ยนประโยคทักทายตามบรีฟข้อ 2
+        st.markdown("<h4 style='text-align: center; color: #5D6861; font-weight: 400; margin-bottom: 45px;'>Good Morning, What would you like to do today? ✨</h4>", unsafe_allow_html=True)
         
-        # จัด Layout แบ่งเป็นสองฝั่งอย่างสมดุลและกว้างพอดีสายตา
         p_col1, space_col, p_col2 = st.columns([4, 0.8, 4])
         
         with p_col1:
+            # การ์ดฝั่งสแกน (ปรับปรุงข้อ 3, 4, 5 เรียบร้อย)
             st.markdown("""
                 <div class='cozy-portal-card'>
-                    <div style='background-color: #EDF3EE; width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto;'>
-                        <span style='font-size: 32px;'>🔍</span>
+                    <div class='icon-wrapper'>
+                        <span class="material-symbols-outlined" style="font-size: 32px;">pageview</span>
                     </div>
                     <h3 style='color: #3A443E; font-weight: 500; font-size: 20px; margin-bottom: 8px;'>ตรวจสอบเอกสาร</h3>
-                    <p style='color: #8C968E; font-size: 13px; line-height: 1.6; margin-bottom: 25px;'>
-                        เปรียบเทียบใบ B/L กับใบแจ้งขอแก้ไข (Amend) <br>และใบแนบ Attached Sheet สแกนข้อมูลรายตัวอักษร
+                    <p style='color: #8C968E; font-size: 13px; line-height: 1.5;'>
+                        เปรียบเทียบข้อมูลไฟล์สแกนและประมวลผลความถูกต้องข้ามเอกสารอัตโนมัติ
                     </p>
+                    
+                    <div class='card-checklist'>
+                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Bill of Lading (B/L)</div>
+                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Amendment Paper</div>
+                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Attached Sheet</div>
+                    </div>
                 </div>
             """, unsafe_allow_html=True)
             if st.button("เข้าสู่ห้องตรวจเอกสาร  ➔", use_container_width=True, key="go_audit"):
@@ -139,15 +210,22 @@ else:
                 st.rerun()
                 
         with p_col2:
+            # การ์ดฝั่งบันทึกรับ D/O (ปรับปรุงให้สมดุลเป็นระบบเดียวกัน)
             st.markdown("""
                 <div class='cozy-portal-card'>
-                    <div style='background-color: #FBF0F0; width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto;'>
-                        <span style='font-size: 32px;'>📦</span>
+                    <div class='icon-wrapper'>
+                        <span class="material-symbols-outlined" style="font-size: 32px;">archive</span>
                     </div>
                     <h3 style='color: #3A443E; font-weight: 500; font-size: 20px; margin-bottom: 8px;'>บันทึกรับ D/O</h3>
-                    <p style='color: #8C968E; font-size: 13px; line-height: 1.6; margin-bottom: 25px;'>
-                        ประทับตราวันที่ลูกค้ามารับใบดีโอหน้าเคาน์เตอร์ <br>และค้นหาตรวจสอบสถานะเพื่อตอบกลับสายเรือด่วน
+                    <p style='color: #8C968E; font-size: 13px; line-height: 1.5;'>
+                        ประทับตราเคาน์เตอร์และระบบค้นหาประวัติตรวจสอบสถานะส่งมอบแบบเรียลไทม์
                     </p>
+                    
+                    <div class='card-checklist'>
+                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> D/O Release Stamp</div>
+                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Consignee Tracking</div>
+                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Quick Search History</div>
+                    </div>
                 </div>
             """, unsafe_allow_html=True)
             if st.button("เข้าสู่ห้องบันทึกข้อมูล  ➔", use_container_width=True, key="go_tracking"):
@@ -236,7 +314,6 @@ else:
         
         df_current = load_data()
         
-        # ฟอร์มกล่องกรอกข้อมูลมน ๆ โทนอุ่น
         st.markdown("<div style='background-color: #F3F1E8; padding: 16px 22px; border-radius: 20px; color: #4A5A4E; font-size: 14px; font-weight: 500; margin-bottom: 20px;'>📝 แสตมป์รายการรับเอกสารหน้าเคาน์เตอร์</div>", unsafe_allow_html=True)
         cx1, cx2 = st.columns(2)
         with cx1:
@@ -273,5 +350,4 @@ else:
         else:
             df_filtered = df_current
                 
-        # แสดงตารางแบบคลีนมินิมอล
         st.dataframe(df_filtered, use_container_width=True)
