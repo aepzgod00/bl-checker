@@ -1,31 +1,52 @@
 import streamlit as st
 from anthropic import Anthropic
 import base64
-from pdf2image import convert_from_bytes
 import io
+from pypdf import PdfReader
 
 st.set_page_config(page_title="ระบบตรวจข้อมูล B/L กับ Amend", layout="wide")
 st.title("🚢 [Claude 3.5 Sonnet] ระบบตรวจเปรียบเทียบข้อมูล B/L หลายฉบับ กับ ใบ Amend")
-st.subheader("เวอร์ชันเสถียรสูงสุด: สแกนโครงสร้างพิกเซลและแก้อักษรเพี้ยนอย่างแม่นยำ")
+st.subheader("เวอร์ชันเสถียรสูงสุดบน Cloud: รองรับทั้งไฟล์ภาพและ PDF สแกน")
 
 # ⚠️ ใส่รหัส Claude API Key (sk-ant-...) ของคุณด้านล่างนี้ครับ
-API_KEY = "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"
+API_KEY = "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"
 
-# ฟังก์ชันแปลงไฟล์ส่งให้ Claude
-def เอกสารเป็นภาพ_base64(file_bytes, file_type):
-    if "pdf" in file_type.lower():
-        # ถ้าเป็น PDF ให้แปลงหน้าแรกเป็นรูปภาพก่อนส่งให้โมเดลมองเห็น
-        images = convert_from_bytes(file_bytes, first_page=1, last_page=1)
-        if images:
-            img_byte_arr = io.BytesIO()
-            images[0].save(img_byte_arr, format='JPEG')
-            base64_data = base64.b64encode(img_byte_arr.getvalue()).decode("utf-8")
-            return "image/jpeg", base64_data
-    else:
-        # ถ้าเป็นรูปภาพปกติอยู่แล้ว ส่งตรงได้เลย
-        base64_data = base64.b64encode(file_bytes).decode("utf-8")
-        return file_type, base64_data
-    return None, None
+# ฟังก์ชันสำหรับจัดการไฟล์เพื่อส่งให้ Claude
+def ประมวลผลเอกสาร(file_uploader_obj):
+    file_bytes = file_uploader_obj.getvalue()
+    file_name = file_uploader_obj.name.lower()
+    file_type = file_uploader_obj.type
+    
+    # เคสที่ 1: เป็นไฟล์ PDF -> สกัดข้อความออกมา
+    if file_name.endswith('.pdf') or "pdf" in file_type:
+        try:
+            pdf_file = io.BytesIO(file_bytes)
+            reader = PdfReader(pdf_file)
+            extracted_text = ""
+            for page in reader.pages:
+                text = page.extract_text()
+                if text:
+                    extracted_text += text + "\n"
+            
+            # ถ้าสกัดข้อความออกมาได้ ให้ส่งเป็นข้อความ Text
+            if extracted_text.strip():
+                return {"type": "text", "text": f"--- เนื้อหาข้อความจากไฟล์ {file_uploader_obj.name} ---\n{extracted_text}"}
+        except Exception:
+            pass
+            
+    # เคสที่ 2: เป็นไฟล์รูปภาพ หรือ PDF ที่สกัดตัวหนังสือไม่ได้ (เป็นภาพสแกนเพียวๆ)
+    # ส่งข้อมูลแบบภาพ Base64 ให้ตาคอมพิวเตอร์ของ Claude สแกนโดยตรง
+    # หมายเหตุ: หากระบบต้องการระบุมีเดียไทป์ บังคับเลือก image/jpeg หรือ image/png
+    media_type = "image/png" if "png" in file_type else "image/jpeg"
+    base64_data = base64.b64encode(file_bytes).decode("utf-8")
+    return {
+        "type": "image",
+        "source": {
+            "type": "base64",
+            "media_type": media_type,
+            "data": base64_data
+        }
+    }
 
 if not API_KEY or API_KEY.startswith("YOUR"):
     st.error("⚠️ โปรดใส่รหัส Claude API Key จริงของคุณในโค้ดหลังบ้านก่อนนำไปรัน")
@@ -44,10 +65,10 @@ else:
         if st.button("🚀 เริ่มตรวจสอบเปรียบเทียบข้อมูลด้วย Claude 3.5", use_container_width=True):
             with st.spinner("🤖 Claude 3.5 Sonnet กําลังแกะฟอนต์และประมวลผลตารางอย่างละเอียด..."):
                 try:
-                    # โครงสร้างข้อความสำหรับส่งให้ Claude
+                    # โครงสร้างข้อความคอนเทนต์สำหรับส่งให้ Claude
                     message_content = []
                     
-                    # ตัวแปรคุม Logic และ Prompt กฎเหล็ก
+                    # ตัวแปรคุม Logic และ Prompt กฎเหล็กโลจิสติกส์
                     system_instruction = (
                         "คุณคือผู้เชี่ยวชาญด้านเอกสารโลจิสติกส์ มีความแม่นยำสูงมากในการตรวจสอบเอกสาร Bill of Lading (B/L) หลายๆ ใบ เทียบกับใบขอแก้ไขข้อมูล (Amendment) ใบเดียว\n\n"
                         "ภารกิจของคุณ:\n"
@@ -75,22 +96,16 @@ else:
                     
                     message_content.append({"type": "text", "text": system_instruction})
                     
-                    # 🔄 วนลูปโหลดไฟล์ B/L ทุกใบส่งเข้าสมองกล
+                    # 🔄 วนลูปประมวลผลไฟล์ B/L ทุกใบ
                     for bl in bl_files:
-                        m_type, b64_txt = เอกสารเป็นภาพ_base64(bl.getvalue(), bl.type)
-                        if b64_txt:
-                            message_content.append({
-                                "type": "image",
-                                "source": {"type": "base64", "media_type": "image/jpeg", "data": b64_txt}
-                            })
+                        bl_part = ประมวลผลเอกสาร(bl)
+                        if bl_part:
+                            message_content.append(bl_part)
                     
-                    # โหลดไฟล์ใบ Amend ส่งเข้าสมองกล
-                    am_type, am_b64 = เอกสารเป็นภาพ_base64(amend_file.getvalue(), amend_file.type)
-                    if am_b64:
-                        message_content.append({
-                            "type": "image",
-                            "source": {"type": "base64", "media_type": "image/jpeg", "data": am_b64}
-                        })
+                    # ประมวลผลไฟล์ใบ Amend
+                    amend_part = ประมวลผลเอกสาร(amend_file)
+                    if amend_part:
+                        message_content.append(amend_part)
                     
                     # ยิงข้อมูลเรียกใช้งาน Claude 3.5 Sonnet ตัวท็อป
                     response = client.messages.create(
