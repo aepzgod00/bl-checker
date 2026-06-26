@@ -138,7 +138,6 @@ st.markdown("""
             margin-bottom: 0;
         }
 
-        /* 🧺 3. Cozy Cream Code & Link Box (ปรับจากกล่องสีดำเป็นสีครีมมูดยุโรป) */
         .custom-code-box {
             background-color: #FAF8F5 !important;
             border: 1px solid #EAE8DF !important;
@@ -148,17 +147,28 @@ st.markdown("""
             text-align: left !important;
             box-shadow: inset 0 2px 4px rgba(141, 137, 120, 0.02) !important;
         }
-        .custom-code-text {
-            font-family: 'Courier New', Courier, monospace !important;
-            color: #5A665E !important;
-            font-size: 13px !important;
-            line-height: 1.5 !important;
-            white-space: pre-wrap !important;
-            word-break: break-all !important;
-            margin: 0 !important;
+        .card-checklist {
+            text-align: left;
+            margin: 0;
+            padding: 0;
         }
-        
-        /* ☁️ 4. แก้กล่องดำอัปโหลดไฟล์ (Streamlit File Uploader Overrides) */
+        .checklist-item {
+            font-size: 13.5px;
+            color: #5A665E;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .checklist-item:last-child {
+            margin-bottom: 0;
+        }
+        .checklist-item-check {
+            color: #557A61;
+            font-weight: 700;
+        }
+
+        /* ☁️ 3. แก้ไขกล่องดำอัปโหลดไฟล์ (Streamlit File Uploader Overrides) */
         div[data-testid="stFileUploader"] {
             background-color: #FAF8F5 !important;
             border: 1.5px dashed #DCD9CD !important;
@@ -170,7 +180,6 @@ st.markdown("""
             border-color: #557A61 !important;
             background-color: #F3F5F2 !important;
         }
-        /* แก้ปุ่ม Browse Files ด้านใน */
         div[data-testid="stFileUploader"] section button {
             background-color: #FFFFFF !important;
             color: #4A5A4E !important;
@@ -184,14 +193,40 @@ st.markdown("""
             color: #557A61 !important;
             background-color: #FAF8F5 !important;
         }
-        /* แก้สีข้อความอธิบายการลากไฟล์ */
         div[data-testid="stFileUploaderText"] > span {
             color: #7A857D !important;
             font-size: 13.5px !important;
         }
-        /* ล้างสีพื้นหลังสีดำเดิมของโครงสร้างเบื้องหลัง */
         div[data-testid="stFileUploader"] > section {
             background-color: transparent !important;
+        }
+
+        /* ✏️ 4. แก้ไขกล่องกรอกข้อความ (Streamlit Text Input Overrides) */
+        div[data-testid="stTextInput"] label {
+            color: #3A443E !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            margin-bottom: 8px !important;
+        }
+        div[data-testid="stTextInput"] input {
+            background-color: #FFFFFF !important;
+            color: #2D3531 !important;
+            border: 1px solid #D5D2C1 !important;
+            border-radius: 12px !important;
+            padding: 12px 16px !important;
+            font-size: 14.5px !important;
+            box-shadow: 0 2px 5px rgba(141, 137, 120, 0.03) !important;
+            transition: all 0.25s ease !important;
+        }
+        div[data-testid="stTextInput"] input:focus {
+            border-color: #557A61 !important;
+            box-shadow: 0 0 0 3px rgba(85, 122, 97, 0.12) !important;
+            background-color: #FFFFFF !important;
+        }
+        /* ปรับสีข้อความบอกใบ้ (Placeholder) ให้คมชัดขึ้นแต่ยังนุ่มนวล */
+        div[data-testid="stTextInput"] input::placeholder {
+            color: #A0AAA2 !important;
+            opacity: 1 !important;
         }
 
         div.stButton > button:first-child {
@@ -320,7 +355,11 @@ else:
                         เปรียบเทียบข้อมูลไฟล์สแกนและประมวลผลความถูกต้องข้ามเอกสารอัตโนมัติ
                     </p>
                     <div class='custom-code-box'>
-                        <div class='custom-code-text'>&lt;div class='card-checklist'&gt;<br>&lt;div class='checklist-item'&gt;&lt;span class='checklist-item-check'&gt;✓&lt;/span&gt; Bill of Lading (B/L)&lt;/div&gt;<br>&lt;div class='checklist-item'&gt;&lt;span class='checklist-item-check'&gt;✓&lt;/span&gt; Amendment Notice&lt;/div&gt;<br>&lt;div class='checklist-item'&gt;&lt;span class='checklist-item-check'&gt;✓&lt;/span&gt; Attached Sheet&lt;/div&gt;<br>&lt;/div&gt;</div>
+                        <div class='card-checklist'>
+                            <div class='checklist-item'><span class='checklist-item-check'>✓</span> Bill of Lading (B/L)</div>
+                            <div class='checklist-item'><span class='checklist-item-check'>✓</span> Amendment Notice</div>
+                            <div class='checklist-item'><span class='checklist-item-check'>✓</span> Attached Sheet</div>
+                        </div>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
@@ -339,7 +378,11 @@ else:
                         ประทับตราเคาน์เตอร์และระบบค้นหาประวัติตรวจสอบสถานะส่งมอบแบบเรียลไทม์
                     </p>
                     <div class='custom-code-box'>
-                        <div class='custom-code-text'>&lt;div class='card-checklist'&gt;<br>&lt;div class='checklist-item'&gt;&lt;span class='checklist-item-check'&gt;✓&lt;/span&gt; D/O Release Stamp&lt;/div&gt;<br>&lt;div class='checklist-item'&gt;&lt;span class='checklist-item-check'&gt;✓&lt;/span&gt; Consignee Tracking&lt;/div&gt;<br>&lt;div class='checklist-item'&gt;&lt;span class='checklist-item-check'&gt;✓&lt;/span&gt; Quick Search History&lt;/div&gt;<br>&lt;/div&gt;</div>
+                        <div class='card-checklist'>
+                            <div class='checklist-item'><span class='checklist-item-check'>✓</span> D/O Release Stamp</div>
+                            <div class='checklist-item'><span class='checklist-item-check'>✓</span> Consignee Tracking</div>
+                            <div class='checklist-item'><span class='checklist-item-check'>✓</span> Quick Search History</div>
+                        </div>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
@@ -436,7 +479,6 @@ else:
             input_consignee = st.text_input("ชื่อบริษัทลูกค้า / Consignee", placeholder="เช่น SIAM LOGISTICS CO., LTD.")
             
         st.markdown("<br>", unsafe_allow_html=True)
-        # นำรูปไอคอนเซฟแผ่นดิสก์เวอร์ชันเก่าออก เปลี่ยนเป็นปุ่มสไตล์โมเดิร์นมินิมอลเรียบร้อยครับ
         if st.button("ยืนยันและบันทึกประวัติ", use_container_width=False):
             if input_bl:
                 bl_clean = input_bl.strip()
