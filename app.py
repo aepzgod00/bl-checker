@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🖌️ 2. Inject Re-Engineered Light Theme Custom CSS
+# 🖌️ 2. Inject Re-Engineered Light Theme Custom CSS (แก้ไขปัญหารูปอักษรสีขาวกลืนกับพื้นหลัง)
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700;800&family=Manrope:wght@500;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&display=swap');
@@ -22,6 +22,43 @@ st.markdown("""
             background: linear-gradient(180deg, #FAF8F5 0%, #F4F2EE 100%);
             font-family: 'Bai Jamjuree', sans-serif;
             background-attachment: fixed;
+        }
+        
+        /* 🔥 FIX: บังคับข้อความและตารางจาก st.markdown ให้เป็นสีเข้ม อ่านง่าย ไม่กลืนกับพื้นหลัง */
+        div[data-testid="stMarkdownContainer"] p, 
+        div[data-testid="stMarkdownContainer"] li,
+        div[data-testid="stMarkdownContainer"] h1,
+        div[data-testid="stMarkdownContainer"] h2,
+        div[data-testid="stMarkdownContainer"] h3,
+        div[data-testid="stMarkdownContainer"] h4,
+        div[data-testid="stMarkdownContainer"] h5,
+        div[data-testid="stMarkdownContainer"] h6 {
+            color: #2D3531 !important;
+        }
+        
+        /* 🔥 FIX: ปรับแต่งตารางสรุปผลของ AI ให้สวยคมชัด */
+        div[data-testid="stMarkdownContainer"] table {
+            color: #2D3531 !important;
+            background-color: #FFFFFF !important;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(141, 137, 120, 0.05);
+            margin: 15px 0;
+            width: 100%;
+        }
+        div[data-testid="stMarkdownContainer"] th {
+            background-color: #EDF3EE !important;
+            color: #3A443E !important;
+            font-weight: 700 !important;
+            padding: 12px !important;
+            border: 1px solid #EAE8DF !important;
+        }
+        div[data-testid="stMarkdownContainer"] td {
+            color: #4A5A4E !important;
+            padding: 12px !important;
+            border: 1px solid #EAE8DF !important;
+            background-color: #FFFFFF !important;
         }
         
         .brand-block {
@@ -188,7 +225,6 @@ st.markdown("""
             background-color: #FAF8F5 !important;
         }
 
-        /* ตกแต่งปุ่มหลัก */
         div.stButton > button {
             border-radius: 12px !important;
             border: 1px solid #557A61 !important;
@@ -251,7 +287,6 @@ def เตรียมไฟล์สำหรับ_gemini(file_uploader_obj):
         return types.Part.from_bytes(data=file_bytes, mime_type=mime_type)
     return None
 
-# ตรวจสอบ State การเปลี่ยนหน้าจอ
 if "current_page" not in st.session_state:
     st.session_state.current_page = "portal"
 
@@ -279,7 +314,6 @@ with nav_col2:
 
 st.markdown("<hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 18px 0 25px 0;'>", unsafe_allow_html=True)
 
-# ตรวจสอบการตรวจสอบสิทธิ์ความปลอดภัยคีย์เบื้องต้นก่อนทำงาน
 if not API_KEY or API_KEY.startswith("YOUR"):
     st.error("⚠️ โปรดใส่รหัส Gemini API Key จริงของคุณในโค้ดหลังบ้านก่อนนำไปรัน")
 else:
@@ -352,7 +386,6 @@ else:
             </div>
         """, unsafe_allow_html=True)
         
-        # จัดสไตล์กล่อง Container ล้อมรอบ Layout
         with st.container():
             col1, col2 = st.columns(2)
             with col1:
@@ -375,7 +408,6 @@ else:
                                 amend_part = เตรียมไฟล์สำหรับ_gemini(amend)
                                 if amend_part: contents_payload.append(amend_part)
                             
-                            # คำสั่งวิเคราะห์เวอร์ชันฉลาดดั้งเดิม คืนค่าประสิทธิภาพการตรวจจับสูง
                             prompt_instruction = (
                                 "คุณคือผู้เชี่ยวชาญด้านเอกสารเอกสารโลจิสติกส์และการตรวจปล่อยสินค้า (Import-Export Specialist) ของ Seabra Trans "
                                 "จงวิเคราะห์ไฟล์ภาพหรือ PDF ของเอกสาร Bill of Lading (B/L) ทุกฉบับ เปรียบเทียบกับ ใบขอแก้ไขข้อมูล (Amendment) และไฟล์ใบแนบ (Attached Sheet) ทั้งหมดที่ส่งไปให้\n\n"
@@ -443,7 +475,6 @@ else:
         
         st.markdown("<h4 style='font-weight: 700; color: #2D3531; margin-top:0; display:flex; align-items:center; gap:8px;'><span class='material-symbols-outlined' style='font-size:22px;'>edit_square</span> บันทึกการรับ D/O หน้างาน</h4>", unsafe_allow_html=True)
         
-        # กล่องฟอร์มกรอกข้อมูลพร้อมปุ่มส่งข้อมูลที่มีโครงสร้างที่ถูกต้อง
         with st.form(key="do_entry_form", clear_on_submit=True):
             cx1, cx2 = st.columns(2)
             with cx1:
@@ -475,9 +506,8 @@ else:
                 else:
                     st.warning("⚠️ โปรดกรอกหมายเลข B/L ก่อนกดยืนยันบันทึก")
 
-        st.markdown("<br><hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 20px 0;'><br>", unsafe_allow_html=True)
+        st.markdown("<br><hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 20px 0;'>br>", unsafe_allow_html=True)
         
-        # 🔍 ส่วนการค้นหาฐานข้อมูลประวัติ
         st.markdown("<h4 style='font-weight: 700; color: #2D3531; margin-top:0; display:flex; align-items:center; gap:8px;'><span class='material-symbols-outlined' style='font-size:22px;'>search</span> ค้นหาด่วนประวัติประทับตราสถานะ</h4>", unsafe_allow_html=True)
         search_query = st.text_input("ระบุเลข B/L เพื่อค้นหาแบบเรียลไทม์ (พิมพ์เลขแล้วกด Enter เพื่อตอบ Agent)", placeholder="พิมพ์คำค้นหาตรงนี้...", key="search_query_input")
         
@@ -488,7 +518,6 @@ else:
                 
         st.table(df_filtered)
         
-        # 🗑️ โซนล้างฐานข้อมูลประวัติทั้งหมดทิ้ง
         st.markdown("<br><br><hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 30px 0 20px 0;'>", unsafe_allow_html=True)
         st.markdown("<p style='color: #A66E6E; font-size: 13.0px; font-weight: 600;'>⚠️ โซนอันตรายสำหรับผู้ดูแลระบบ</p>", unsafe_allow_html=True)
         
