@@ -26,7 +26,7 @@ st.markdown("""
         
         /* สไตล์พิเศษสำหรับหัวข้อใหญ่ VERIFYHUB ให้ได้ฟีลลิ่ง High-Contrast Serif แบบรูปตัวอย่าง */
         .brand-header {
-            font-family: 'Cinzel Decorative', serif;
+            font-family: 'Oswald', serif;
             text-align: center; 
             color: #3A443E; 
             font-weight: 900; 
