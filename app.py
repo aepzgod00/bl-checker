@@ -13,20 +13,17 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🖌️ 2. Inject Clean Enterprise CSS (Anti-Overlap Engine)
+# 🖌️ 2. Inject Clean Enterprise CSS (Anti-Overlap & Cozy Theme Engine)
 st.markdown("""
     <style>
-        /* โหลดฟอนต์หลัก Manrope และฟอนต์ภาษาไทย */
         @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700;800&family=Manrope:wght@500;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&display=swap');
         
-        /* 1. พื้นหลังครีมอ่อนละมุน เน้น Content เป็นหลัก */
         .stApp {
             background: linear-gradient(180deg, #FAF8F5 0%, #F4F2EE 100%);
             font-family: 'Bai Jamjuree', sans-serif;
             background-attachment: fixed;
         }
         
-        /* 2. ดีไซน์บล็อกหัวข้อแบรนด์ และกล่องข้อมูลผู้ใช้งาน (แก้บั๊กจมเลเยอร์) */
         .brand-block {
             text-align: left;
             padding-top: 10px;
@@ -79,7 +76,6 @@ st.markdown("""
             color: #2D3531;
         }
         
-        /* 3. คอนเทนต์ข้อความต้อนรับของ Workspace */
         .workspace-title {
             font-family: 'Manrope', sans-serif;
             font-size: 22px;
@@ -93,7 +89,6 @@ st.markdown("""
             margin-bottom: 35px;
         }
         
-        /* 4. โครงสร้างพอร์ทัลการ์ด กระชับและมีมิติตามหลัก UX */
         .cozy-portal-card {
             background-color: #FFFFFF;
             padding: 30px 24px;
@@ -162,8 +157,27 @@ st.markdown("""
             color: #557A61;
             font-weight: 700;
         }
+
+        /* 🧺 3. Cozy Cream Code Box (แก้ปัญหากล่องสีดำ) */
+        .custom-code-box {
+            background-color: #FAF8F5 !important;
+            border: 1px solid #EAE8DF !important;
+            border-radius: 14px !important;
+            padding: 16px 20px !important;
+            margin-top: 15px !important;
+            text-align: left !important;
+            box-shadow: inset 0 2px 4px rgba(141, 137, 120, 0.02) !important;
+        }
+        .custom-code-text {
+            font-family: 'Courier New', Courier, monospace !important;
+            color: #5A665E !important;
+            font-size: 13px !important;
+            line-height: 1.5 !important;
+            white-space: pre-wrap !important;
+            word-break: break-all !important;
+            margin: 0 !important;
+        }
         
-        /* ปุ่มกดดีไซน์ชัดเจน */
         div.stButton > button:first-child {
             border-radius: 12px !important;
             border: 1px solid #557A61 !important;
@@ -186,7 +200,6 @@ st.markdown("""
             box-shadow: 0 8px 16px rgba(85, 122, 97, 0.15) !important;
         }
         
-        /* 🌿 แก้ไขปุ่มย้อนกลับให้เรียบร้อย ไม่เตะตาเกินไป */
         div.stButton > button[key^="back_"] {
             border: 1px solid #D5D2C1 !important;
             color: #7A857D !important;
@@ -198,7 +211,6 @@ st.markdown("""
             border-color: #2D3531 !important;
         }
 
-        /* 👑 ส่วนโมดิฟายด์หน้าภายในให้หรูหราตามแบบรูปที่ 1 👑 */
         .inner-header-container {
             display: flex;
             align-items: flex-start;
@@ -210,19 +222,19 @@ st.markdown("""
             text-align: left;
         }
         .inner-main-title {
-            font-family: 'Manrope', sans-serif;
+            font-family: 'Bai Jamjuree', sans-serif;
             font-size: 24px;
             font-weight: 700;
             color: #2D3531;
-            line-height: 1.2;
+            line-height: 1.3;
         }
         .inner-sub-title {
+            font-family: 'Bai Jamjuree', sans-serif;
             font-size: 14px;
             color: #7A857D;
             margin-top: 5px;
         }
 
-        /* ✨ เคลือบดีไซน์กล่องอัปโหลดของ Streamlit ให้คลีน ละมุน ตา สไตล์โมเดิร์น (ลบสีดำทึบออก) */
         div[data-testid="stFileUploader"] {
             background-color: #FAFAF9 !important;
             border: 1.5px dashed #E2E0D5 !important;
@@ -234,7 +246,6 @@ st.markdown("""
             border-color: #557A61 !important;
             background-color: #F4F6F4 !important;
         }
-        /* ซ่อนส่วนปุ่มอัปโหลดสีดำดั้งเดิมเพื่อความคลีน */
         div[data-testid="stFileUploader"] section button {
             background-color: #FFFFFF !important;
             color: #4A5A4E !important;
@@ -249,7 +260,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 🔑 ใส่รหัส Gemini API Key
 API_KEY = "AQ.Ab8RN6KVujoWku4GOWYJbD1uFzhtqUHObm9Y571oqquJ8XrdwQ"
 EXCEL_FILE = "do_database_records.xlsx"
 
@@ -316,10 +326,8 @@ else:
                     <p class='card-desc-text'>
                         เปรียบเทียบข้อมูลไฟล์สแกนและประมวลผลความถูกต้องข้ามเอกสารอัตโนมัติ
                     </p>
-                    <div class='card-checklist'>
-                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Bill of Lading (B/L)</div>
-                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Amendment Notice</div>
-                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Attached Sheet</div>
+                    <div class='custom-code-box'>
+                        <div class='custom-code-text'>&lt;div class='card-checklist'&gt;<br>&lt;div class='checklist-item'&gt;&lt;span class='checklist-item-check'&gt;✓&lt;/span&gt; Bill of Lading (B/L)&lt;/div&gt;<br>&lt;div class='checklist-item'&gt;&lt;span class='checklist-item-check'&gt;✓&lt;/span&gt; Amendment Notice&lt;/div&gt;<br>&lt;div class='checklist-item'&gt;&lt;span class='checklist-item-check'&gt;✓&lt;/span&gt; Attached Sheet&lt;/div&gt;<br>&lt;/div&gt;</div>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
@@ -337,10 +345,8 @@ else:
                     <p class='card-desc-text'>
                         ประทับตราเคาน์เตอร์และระบบค้นหาประวัติตรวจสอบสถานะส่งมอบแบบเรียลไทม์
                     </p>
-                    <div class='card-checklist'>
-                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> D/O Release Stamp</div>
-                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Consignee Tracking</div>
-                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Quick Search History</div>
+                    <div class='custom-code-box'>
+                        <div class='custom-code-text'>&lt;div class='card-checklist'&gt;<br>&lt;div class='checklist-item'&gt;&lt;span class='checklist-item-check'&gt;✓&lt;/span&gt; D/O Release Stamp&lt;/div&gt;<br>&lt;div class='checklist-item'&gt;&lt;span class='checklist-item-check'&gt;✓&lt;/span&gt; Consignee Tracking&lt;/div&gt;<br>&lt;div class='checklist-item'&gt;&lt;span class='checklist-item-check'&gt;✓&lt;/span&gt; Quick Search History&lt;/div&gt;<br>&lt;/div&gt;</div>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
@@ -349,26 +355,24 @@ else:
                 st.rerun()
 
 
-    # 🔍 ================== [ฝั่งที่ 1: ตรวจสอบเอกสาร (แปลงโฉมตามรูปที่ 1)] ==================
+    # 🔍 ================== [ฝั่งที่ 1: ตรวจสอบเอกสาร] ==================
     elif st.session_state.current_page == "audit_page":
         if st.button("⬅   กลับหน้าเมนูหลัก", key="back_from_audit"):
             st.session_state.current_page = "portal"
             st.rerun()
             
-        # ใช้โครงสร้างหัวข้อแบบมีไอคอนวงกลมลอยตัวหรูหราแบบหน้าแรก แทนอีโมจิอันเดิม
         st.markdown("""
             <div class='inner-header-container'>
                 <div class='icon-wrapper' style='margin: 0; min-width: 54px;'>
                     <span class="material-symbols-outlined" style="font-size: 26px;">pageview</span>
                 </div>
                 <div class='inner-title-block'>
-                    <div class='inner-main-title'>ระบบตรวจสอบความถูกต้องเอกสาร (Process 1-4)</div>
-                    <div class='inner-sub-title'>ระบบวิเคราะห์ข้อมูลความสอดคล้องของชื่อบริษัท เครื่องหมายสินค้า น้ำหนัก และปริมาตรตู้ให้อัตโนมัติ</div>
+                    <div class='inner-main-title'>ตรวจสอบความสอดคล้องของข้อมูลเอกสารขนส่งอัตโนมัติ</div>
+                    <div class='inner-sub-title'>เปรียบเทียบข้อมูลสำคัญระหว่าง B/L, Amendment และ Attached Sheet</div>
                 </div>
             </div>
         """, unsafe_allow_html=True)
         
-        # คลุมพื้นที่ทำงานทั้งหมดด้วยการ์ดขาวขอบมนนุ่มนวล
         st.markdown("<div class='cozy-portal-card' style='text-align: left; padding: 35px 28px;'>", unsafe_allow_html=True)
         
         col1, col2 = st.columns(2)
@@ -382,7 +386,7 @@ else:
         if bl_files and amend_files:
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("🚀 เริ่มการสแกนและเปรียบเทียบข้อมูลเชิงลึก", use_container_width=False):
-                with st.spinner("🤖 น้อง Gemini กำลังแกะอักษรและตรวจสอบความถูกต้องอย่างประณีต..."):
+                with st.spinner("🤖 ระบบกำลังแกะอักษรและตรวจสอบความถูกต้องอย่างประณีต..."):
                     try:
                         contents_payload = []
                         for bl in bl_files:
@@ -393,12 +397,9 @@ else:
                             if amend_part: contents_payload.append(amend_part)
                         
                         prompt_instruction = (
-                            "คุณคือผู้เชี่ยวชาญด้านเอกสารเอกสารโลจิสติกส์และการตรวจปล่อยสินค้า (Import-Export Specialist)\n"
-                            "จงวิเคราะห์ไฟล์ภาพหรือ PDF ของเอกสาร Bill of Lading (B/L) ทุกฉบับ เปรียบเทียบกับ ใบขอแก้ไขข้อมูล (Amendment) และไฟล์ใบแนบ (Attached Sheet) ทั้งหมดที่ส่งไปให้\n\n"
-                            "📊 รูปแบบผลลัพธ์ Markdown ตารางที่ต้องการ:\n\n"
-                            "### 📊 ตารางตรวจสอบเปรียบเทียบข้อมูลจำแนกรายฉบับ (Detailed Comparison)\n"
-                            "| เลขที่ B/L / ข้อมูล D/O | หัวข้อตรวจสอบ | ข้อมูลบนใบ B/L | ข้อมูลบนใบ Amend + Attached Sheet | ผลการตรวจ | หมายเหตุ |\n"
-                            "| :--- | :--- | :--- | :--- | :--- | :--- |\n"
+                            "ไฟลเอกสารที่แนบไปคือไฟล์สำหรับตรวจสอบงานโลจิสติกส์\n"
+                            "กรุณาเปรียบเทียบข้อมูลสำคัญระหว่างเอกสาร Bill of Lading (B/L), Amendment และ Attached Sheet\n"
+                            "และสรุปผลความสอดคล้องออกมาเป็นตารางจำแนกรายฉบับให้ชัดเจน"
                         )
                         contents_payload.append(prompt_instruction)
                         
@@ -412,7 +413,7 @@ else:
         st.markdown("</div>", unsafe_allow_html=True)
 
 
-    # 📦 ================== [ฝั่งที่ 2: บันทึกรับ D/O (ปรับโฉมตามรูปที่ 1)] ==================
+    # 📦 ================== [ฝั่งที่ 2: บันทึกรับ D/O] ==================
     elif st.session_state.current_page == "tracking_page":
         if st.button("⬅   กลับหน้าเมนูหลัก", key="back_from_tracking"):
             st.session_state.current_page = "portal"
