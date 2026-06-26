@@ -16,10 +16,10 @@ st.set_page_config(
 # 🖌️ 2. Inject Advanced Cozy Modern CSS & Pure UI Engine
 st.markdown("""
     <style>
-        /* ดึงฟอนต์ภาษาไทย ฟอนต์หัวข้อ และ Material Symbols (เส้นระบบเดี่ยว) มาใช้งานร่วมกัน */
-        @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700;800&family=Cinzel+Decorative:wght@700;900&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&display=swap');
+        /* ดึงฟอนต์ Manrope (ExtraBold 800) สำหรับตัวหัวข้อหลัก และฟอนต์อื่น ๆ พร้อม Material Symbols */
+        @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700;800&family=Manrope:wght@800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&display=swap');
         
-        /* 1. ฉากหลังแบบ Cozy Modern Gradient + ใส่ Aura วงกลมเบลอสีเขียวหม่นธรรมชาติ */
+        /* 1. พื้นหลังแบบ Cozy Modern Gradient + ใส่ Aura วงกลมเบลอสีเขียวหม่นธรรมชาติ */
         .stApp {
             background: 
                 radial-gradient(circle at 50% 30%, rgba(211, 221, 214, 0.45) 0%, rgba(211, 221, 214, 0) 65%),
@@ -28,19 +28,19 @@ st.markdown("""
             background-attachment: fixed;
         }
         
-        /* 2. ดีไซน์หัวข้อ LOGO (ขนาด 70% ฟอนต์ High-Contrast Serif พร้อมซับไตเติล) */
+        /* 2. จัดแต่งหัวข้อ LOGO ด้วยฟอนต์ Manrope ExtraBold ตามสั่ง */
         .brand-container {
             text-align: center;
             margin-top: 25px;
             margin-bottom: 35px;
         }
         .brand-header {
-            font-family: 'Cinzel Decorative', serif;
+            font-family: 'Manrope', sans-serif;
             color: #3A443E; 
-            font-weight: 900; 
-            font-size: 45px;
-            letter-spacing: 3px;
-            margin-bottom: 5px;
+            font-weight: 800;          /* คุมความหนาระดับ ExtraBold */
+            font-size: 45px;          /* ขนาด 70% สมส่วนพอดีสายตา */
+            letter-spacing: 1px;       /* ปรับระยะห่างตัวอักษรให้ดูโมเดิร์นคลีน */
+            margin-bottom: 8px;
             background: linear-gradient(180deg, #3A443E 0%, #222825 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -70,7 +70,7 @@ st.markdown("""
             margin-bottom: 20px;
         }
         
-        /* เอฟเฟกต์ Hover คุมผ่าน CSS แท้: ลอยขึ้น 6px, เส้นขอบเปลี่ยนเป็นสีเขียว, เงาขยายกว้าง */
+        /* เอฟเฟกต์ Hover: ลอยขึ้น 6px, เส้นขอบเปลี่ยนเป็นสีเขียว, เงาขยายกว้าง */
         .cozy-portal-card:hover {
             transform: translateY(-6px);
             border-color: #557A61;
@@ -173,7 +173,7 @@ def เตรียมไฟล์สำหรับ_gemini(file_uploader_obj):
 if "current_page" not in st.session_state:
     st.session_state.current_page = "portal"
 
-# 🏢 TOP NAVIGATION BRANDING
+# 🏢 TOP NAVIGATION BRANDING (อัปเดตเป็น Manrope ExtraBold เรียบร้อยครับน้า)
 st.markdown("""
     <div class='brand-container'>
         <div class='brand-header'>VERIFYHUB</div>
@@ -188,13 +188,11 @@ else:
 
     # 🚪 ================== [หน้าแรก: Portal เมนูหลัก] ==================
     if st.session_state.current_page == "portal":
-        # ข้อความทักทายภาษาอังกฤษสุดคลีนแบบสากล
         st.markdown("<h4 style='text-align: center; color: #5D6861; font-weight: 400; margin-bottom: 45px;'>Good Morning, What would you like to do today? ✨</h4>", unsafe_allow_html=True)
         
         p_col1, space_col, p_col2 = st.columns([4, 0.8, 4])
         
         with p_col1:
-            # เรนเดอร์การ์ดตรวจสอบเอกสารแบบ Pure HTML (ป้องกันกล่องดำพ่นบั๊กโค้ดดิบ)
             st.markdown("""
                 <div class='cozy-portal-card'>
                     <div class='icon-wrapper'>
@@ -216,7 +214,6 @@ else:
                 st.rerun()
                 
         with p_col2:
-            # เรนเดอร์การ์ดฝั่งบันทึกรับ D/O แบบรัดกุมโครงสร้างบริสุทธิ์
             st.markdown("""
                 <div class='cozy-portal-card'>
                     <div class='icon-wrapper'>
