@@ -257,7 +257,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 🧠 ⚙️ ระบบหลังบ้านประจำชุดข้อมูลและการยืนยันสิทธิ์
-API_KEY = "AQ.Ab8RN6KpGqGhPQq0sHfUVKonhSr_qyYV10OtPHdMVp-JSpOz1g"
+API_KEY = "AQ.Ab8RN6L_4aakR65NA0dsC7T14fbiXe-GvchsfCJBeZvEsGtPHg"
 EXCEL_FILE = "do_database_records.xlsx"
 
 def load_data():
