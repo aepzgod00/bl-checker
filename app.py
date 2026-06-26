@@ -6,61 +6,96 @@ import os
 import pandas as pd
 from datetime import datetime
 
-# 🎨 1. Set Page Configuration (Cozy Enterprise Suite)
+# 🎨 1. Set Page Configuration (Minimal Cozy Enterprise Suite)
 st.set_page_config(
     page_title="VerifyHub - Document Verification System", 
     page_icon="🌿", 
     layout="wide"
 )
 
-# 🖌️ 2. Inject Re-Engineered Light Theme Custom CSS (แก้ไขปัญหารูปอักษรสีขาวกลืนกับพื้นหลัง)
+# 🖌️ 2. Inject Re-Engineered Minimal Cozy Custom CSS
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700;800&family=Manrope:wght@500;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&display=swap');
         
+        /* โครงสร้างพื้นหลังหลักของแอป */
         .stApp {
             background: linear-gradient(180deg, #FAF8F5 0%, #F4F2EE 100%);
             font-family: 'Bai Jamjuree', sans-serif;
             background-attachment: fixed;
         }
         
-        /* 🔥 FIX: บังคับข้อความและตารางจาก st.markdown ให้เป็นสีเข้ม อ่านง่าย ไม่กลืนกับพื้นหลัง */
+        /* 🌿 RE-DESIGN: จัดการกล่องข้อความธรรมดาและตารางของ AI ให้ Minimal & Cozy ขั้นสุด */
         div[data-testid="stMarkdownContainer"] p, 
-        div[data-testid="stMarkdownContainer"] li,
+        div[data-testid="stMarkdownContainer"] li {
+            color: #4A5A4E !important;
+            line-height: 1.625;
+            font-size: 14.5px;
+        }
+        
         div[data-testid="stMarkdownContainer"] h1,
         div[data-testid="stMarkdownContainer"] h2,
         div[data-testid="stMarkdownContainer"] h3,
-        div[data-testid="stMarkdownContainer"] h4,
-        div[data-testid="stMarkdownContainer"] h5,
-        div[data-testid="stMarkdownContainer"] h6 {
+        div[data-testid="stMarkdownContainer"] h4 {
             color: #2D3531 !important;
+            font-family: 'Bai Jamjuree', sans-serif;
+            font-weight: 700;
+            margin-top: 25px;
+            margin-bottom: 12px;
         }
         
-        /* 🔥 FIX: ปรับแต่งตารางสรุปผลของ AI ให้สวยคมชัด */
+        /* รื้อโครงสร้างตาราง HTML ดั้งเดิมให้เป็นแบบ Cozy Flat Design */
         div[data-testid="stMarkdownContainer"] table {
-            color: #2D3531 !important;
-            background-color: #FFFFFF !important;
-            border-collapse: collapse;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(141, 137, 120, 0.05);
-            margin: 15px 0;
-            width: 100%;
+            color: #4A5A4E !important;
+            background-color: #FDFCFA !important;
+            border-collapse: collapse !important;
+            border-radius: 14px !important;
+            overflow: hidden !important;
+            box-shadow: 0 4px 20px rgba(141, 137, 120, 0.04) !important;
+            margin: 20px 0 !important;
+            width: 100% !important;
+            border: none !important;
         }
+        
+        /* หัวตารางคลีน ๆ โทนอุ่น */
         div[data-testid="stMarkdownContainer"] th {
-            background-color: #EDF3EE !important;
-            color: #3A443E !important;
-            font-weight: 700 !important;
-            padding: 12px !important;
-            border: 1px solid #EAE8DF !important;
+            background-color: #F0EDE6 !important;
+            color: #2D3531 !important;
+            font-weight: 600 !important;
+            padding: 14px 16px !important;
+            border: none !important;
+            border-bottom: 2px solid #E4E1D6 !important;
+            font-size: 14px;
+            text-align: left;
         }
+        
+        /* แถวข้อมูล เน้นใช้เส้นคั่นบาง ๆ แทนกล่องสี่เหลี่ยมหนาแบบเก่า */
         div[data-testid="stMarkdownContainer"] td {
             color: #4A5A4E !important;
-            padding: 12px !important;
-            border: 1px solid #EAE8DF !important;
-            background-color: #FFFFFF !important;
+            padding: 14px 16px !important;
+            border: none !important;
+            border-bottom: 1px solid #EAE8DF !important;
+            background-color: #FDFCFA !important;
+            font-size: 13.5px;
+            vertical-align: top;
         }
         
+        /* สลับสีแถวเบา ๆ เพื่อให้อ่านข้อมูลง่ายขึ้น */
+        div[data-testid="stMarkdownContainer"] tr:nth-child(even) td {
+            background-color: #FAF8F4 !important;
+        }
+        
+        /* ปรับไฮไลท์ข้อความสถานะ MATCH / MISMATCH ให้ดูเรียบร้อย */
+        div[data-testid="stMarkdownContainer"] td:contains("MATCH") {
+            color: #487056 !important;
+            font-weight: 600;
+        }
+        div[data-testid="stMarkdownContainer"] td:contains("MISMATCH") {
+            color: #A66E6E !important;
+            font-weight: 600;
+        }
+        
+        /* สไตล์ส่วนหัวและโปรไฟล์ */
         .brand-block {
             text-align: left;
             padding-top: 10px;
@@ -211,19 +246,6 @@ st.markdown("""
             border-color: #557A61 !important;
             background-color: #F3F5F2 !important;
         }
-        div[data-testid="stFileUploader"] section button {
-            background-color: #FFFFFF !important;
-            color: #4A5A4E !important;
-            border: 1px solid #D5D2C1 !important;
-            border-radius: 10px !important;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.02) !important;
-            transition: all 0.2s ease;
-        }
-        div[data-testid="stFileUploader"] section button:hover {
-            border-color: #557A61 !important;
-            color: #557A61 !important;
-            background-color: #FAF8F5 !important;
-        }
 
         div.stButton > button {
             border-radius: 12px !important;
@@ -244,6 +266,7 @@ st.markdown("""
             box-shadow: 0 8px 20px rgba(85, 122, 97, 0.18) !important;
         }
 
+        /* ใช้ควบคุม Header ภายในพื้นที่ทำงาน */
         .inner-header-container {
             display: flex;
             align-items: flex-start;
@@ -266,6 +289,21 @@ st.markdown("""
             font-size: 14px;
             color: #7A857D;
             margin-top: 5px;
+        }
+        
+        /* โครงสร้างครอบคลุมหัวข้อผลลัพธ์แบบ Minimal Title Container */
+        .output-header-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+            margin-bottom: -5px;
+            color: #2D3531;
+        }
+        .output-header-title {
+            font-size: 18px;
+            font-weight: 700;
+            font-family: 'Bai Jamjuree', sans-serif;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -398,7 +436,7 @@ else:
             if bl_files and amend_files:
                 st.markdown("<br>", unsafe_allow_html=True)
                 if st.button("🚀 เริ่มตรวจสอบเปรียบเทียบข้อมูลแบบแยกรายใบ", use_container_width=True):
-                    with st.spinner("🤖 Gemini กำลังรวบรวมไฟล์และแกะรายละเอียดเอกสารทั้งหมดด้วยความยืดหยุ่นขั้นสูง..."):
+                    with st.spinner("🤖 Gemini กำลังวิเคราะห์ชุดเอกสารเพื่อจัดทำรายงานในสไตล์ Minimal Cozy..."):
                         try:
                             contents_payload = []
                             for bl in bl_files:
@@ -408,22 +446,26 @@ else:
                                 amend_part = เตรียมไฟล์สำหรับ_gemini(amend)
                                 if amend_part: contents_payload.append(amend_part)
                             
+                            # 🪄 สั่งให้กำกับ Header ด้วยไอคอน Material Symbols และสร้างตารางแบบ Clean-cut
                             prompt_instruction = (
                                 "คุณคือผู้เชี่ยวชาญด้านเอกสารเอกสารโลจิสติกส์และการตรวจปล่อยสินค้า (Import-Export Specialist) ของ Seabra Trans "
-                                "จงวิเคราะห์ไฟล์ภาพหรือ PDF ของเอกสาร Bill of Lading (B/L) ทุกฉบับ เปรียบเทียบกับ ใบขอแก้ไขข้อมูล (Amendment) และไฟล์ใบแนบ (Attached Sheet) ทั้งหมดที่ส่งไปให้\n\n"
+                                "จงวิเคราะห์ไฟล์เอกสาร Bill of Lading (B/L) ทุกฉบับ เปรียบเทียบกับ ใบขอแก้ไขข้อมูล (Amendment) และไฟล์ใบแนบ (Attached Sheet) ทั้งหมดที่ส่งไปให้\n\n"
                                 
-                                "💡 คำแนะนำพิเศษในการอ่านไฟล์ (CRITICAL FILE READING INSTRUCTION):\n"
-                                "1. จงอ่านและสกัดรายละเอียดเนื้อหาในไฟล์แนบ หรือ ใบ Attached Sheet ทุกใบอย่างละเอียดครบถ้วนทุกบรรทัด "
-                                "โดยข้อมูลใน Attached Sheet มักจะระบุเชื่อมโยงกับเลขที่ D/O หรือลำดับรายการบนใบ Amend หลัก ไม่ใช่เลข B/L ดั้งเดิม ให้คุณทำการรวบรวมและเชื่อมโยงข้อมูลให้ถูกทอดก่อน\n"
-                                "2. โปรดเข้าใจว่ารูปแบบการพิมพ์ของลูกค้าแต่ละใบอาจไม่เหมือนกัน มีการเว้นวรรค พิมพ์ขึ้นบรรทัดใหม่ หรือกด Enter แตกต่างกันไปตามฟอร์มของแต่ละบริษัท "
-                                "ดังนั้นให้เน้นที่ 'ใจความและเนื้อหาข้อมูลสำคัญ' เป็นหลักในการพิจารณาตรวจสอบข้ามเอกสาร\n\n"
+                                "💡 คำแนะนำพิเศษ (CRITICAL FILE READING INSTRUCTION):\n"
+                                "1. สกัดเนื้อหาใน Attached Sheet ทุกใบอย่างละเอียดเพื่อนำมาจับคู่เชื่อมโยงข้อมูลให้ถูกต้อง\n"
+                                "2. ทำความเข้าใจความแตกต่างของฟอร์แมตแต่ละบริษัท โดยเน้นใจความข้อมูลสำคัญเป็นหลักในการตรวจสอบ\n\n"
                                 
-                                "🔍 เกณฑ์การจับคู่แบบไฮบริดดั้งเดิม (Hybrid & Flexible Logic):\n"
-                                "- Description of Goods: หากข้อมูลในใบ Amend/Attached sheet ใส่มาแค่ชื่อสินค้าหลักตรง หรือจำนวนหีบห่อตรงตามหน้า B/L (แม้ข้อความจะสั้นยาวไม่เท่ากัน หรือกด Enter สลับบรรทัดกันมา) ให้ตัดสินเป็น MATCH ทันที\n"
-                                "- Consignee, Shipping Marks, Gross Weight, CBM: ตรวจสอบและเปรียบเทียบข้อมูลรายฉบับด้วยความยืดหยุ่นตามบริบทงานชิปปิ้งจริง\n\n"
+                                "🔍 เกณฑ์การพิจารณา (Flexible Logic):\n"
+                                "- Description of Goods / Consignee / Shipping Marks / Weights / CBM: พิจารณาเปรียบเทียบด้วยความยืดหยุ่นตามบริบทหน้างานขนส่งจริง\n\n"
                                 
-                                "📊 รูปแบบผลลัพธ์ Markdown ตารางที่ต้องการ (แสดงแยก 5 หัวข้อตรวจสอบตามฟอร์แมตดั้งเดิม):\n\n"
-                                "### 📊 ตารางตรวจสอบเปรียบเทียบข้อมูลจำแนกรายฉบับ (Detailed Comparison)\n"
+                                "🎨 ข้อกำหนดสไตล์การส่งข้อมูลกลับ (UI/UX Matching Style Guide):\n"
+                                "- ห้ามใส่รูปอีโมจิแบบดั้งเดิมที่มีสีสันฉูดฉาด (เช่น 📊, 🧮, 🌿) เข้ามาในหัวข้อเด็ดขาด เพราะไม่เข้ากับธีมเว็บไซต์แบบ Minimal Cozy\n"
+                                "- ให้ใช้โครงสร้าง HTML ผสมผสาน Material Icons แทนในการสร้างหัวข้อสรุปผลลัพธ์ เช่น:\n"
+                                "<div class='output-header-box'><span class='material-symbols-outlined' style='font-size:22px; color:#557A61;'>analytics</span><span class='output-header-title'>ตารางตรวจสอบเปรียบเทียบข้อมูลจำแนกรายฉบับ (Detailed Comparison)</span></div>\n\n"
+                                "และสำหรับตารางสรุปสุทธิ:\n"
+                                "<div class='output-header-box'><span class='material-symbols-outlined' style='font-size:22px; color:#557A61;'>calculate</span><span class='output-header-title'>ตารางสรุปยอดรวมสุทธิ (Grand Totals Check)</span></div>\n\n"
+                                
+                                "📊 รูปแบบโครงสร้างตาราง Markdown (ห้ามใช้เส้นตกแต่งพร่ำเพรื่อ):\n"
                                 "| เลขที่ B/L / ข้อมูล D/O | หัวข้อตรวจสอบ | ข้อมูลบนใบ B/L | ข้อมูลบนใบ Amend + Attached Sheet | ผลการตรวจ | หมายเหตุ / วิเคราะห์สาเหตุการอนุโลม |\n"
                                 "| :--- | :--- | :--- | :--- | :--- | :--- |\n"
                                 "| **[เลข B/L]** | Consignee | ... | ... | MATCH / MISMATCH | ... |\n"
@@ -431,13 +473,11 @@ else:
                                 "| **[เลข B/L]** | Description of Goods | ... | ... | MATCH / MISMATCH | ... |\n"
                                 "| **[เลข B/L]** | Gross Weight (G.W.) | ... | ... | MATCH / MISMATCH | ... |\n"
                                 "| **[เลข B/L]** | Measurement (CBM) | ... | ... | MATCH / MISMATCH | ... |\n"
-                                "| --- | --- | --- | --- | --- | --- |\n\n"
-                                
-                                "### 🧮 ตารางสรุปยอดรวมสุทธิ (Grand Totals Check)\n"
+                                "\n\n"
                                 "| หัวข้อตรวจสอบ | ผลรวมจาก B/L ทุกใบรวมกัน | ยอดรวมสุทธิบนใบ Amend | ผลรวมตรงกันไหม | หมายเหตุคำนวณ |\n"
                                 "| :--- | :--- | :--- | :--- | :--- |\n"
-                                "| **Gross Weight รวม** | [เลขรวม] | [เลขรวม] | MATCH / MISMATCH | [แสดงเลขคำนวณ] |\n"
-                                "| **Measurement (CBM) รวม** | [เลขรวม] | [เลขรวม] | MATCH / MISMATCH | [แสดงเลขคำนวณ] |\n"
+                                "| **Gross Weight รวม** | [เลขรวม] | [เลขรวม] | MATCH / MISMATCH | ... |\n"
+                                "| **Measurement (CBM) รวม** | [เลขรวม] | [เลขรวม] | MATCH / MISMATCH | ... |\n"
                             )
                             contents_payload.append(prompt_instruction)
                             
@@ -447,8 +487,8 @@ else:
                             )
                             
                             st.balloons()
-                            st.success("✨ Gemini ตรวจสอบข้อมูลด้วยเวอร์ชันเสถียรและยืดหยุ่นเสร็จสิ้น!")
-                            st.markdown(response.text)
+                            st.success("✨ Gemini ตรวจสอบข้อมูลเสร็จสิ้นแล้วในสไตล์ Minimal Cozy สบายตา!")
+                            st.markdown(response.text, unsafe_allow_html=True)
                             
                         except Exception as e:
                             st.error(f"เกิดข้อผิดพลาดในการประมวลผลของ Gemini: {str(e)}")
@@ -506,7 +546,7 @@ else:
                 else:
                     st.warning("⚠️ โปรดกรอกหมายเลข B/L ก่อนกดยืนยันบันทึก")
 
-        st.markdown("<br><hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 20px 0;'>br>", unsafe_allow_html=True)
+        st.markdown("<br><hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 20px 0;'><br>", unsafe_allow_html=True)
         
         st.markdown("<h4 style='font-weight: 700; color: #2D3531; margin-top:0; display:flex; align-items:center; gap:8px;'><span class='material-symbols-outlined' style='font-size:22px;'>search</span> ค้นหาด่วนประวัติประทับตราสถานะ</h4>", unsafe_allow_html=True)
         search_query = st.text_input("ระบุเลข B/L เพื่อค้นหาแบบเรียลไทม์ (พิมพ์เลขแล้วกด Enter เพื่อตอบ Agent)", placeholder="พิมพ์คำค้นหาตรงนี้...", key="search_query_input")
