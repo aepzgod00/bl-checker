@@ -120,7 +120,7 @@ else:
 
     # 🚪 ================== [หน้าแรก: แบ่งเป็น 2 ฝั่ง] ==================
     if st.session_state.current_page == "portal":
-        st.markdown("<h4 style='text-align: center; color: #5D6861; font-weight: 400; margin-bottom: 40px;'>Good morning! วันนี้ต้องการจัดการงานส่วนไหนดีคะ? ✨</h4>", unsafe_allow_html=True)
+        st.markdown("<h4 style='text-align: center; color: #5D6861; font-weight: 400; margin-bottom: 40px;'>Good morning! What would you like to do today? </h4>", unsafe_allow_html=True)
         
         # จัด Layout แบ่งเป็นสองฝั่งอย่างสมดุลและกว้างพอดีสายตา
         p_col1, space_col, p_col2 = st.columns([4, 0.8, 4])
