@@ -257,7 +257,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ⚙️ 3. การตั้งค่าระบบหลังบ้าน (รวมถึงคีย์ AQ. ตัวใหม่)
-API_KEY = "AQ.Ab8RN6Jp3FRSFTLGrLKEDIcF5vxf-0x8vnFMPOv2Y3mwxqOrcA"
+API_KEY = "AQ.Ab8RN6KpGqGhPQq0sHfUVKonhSr_qyYV10OtPHdMVp-JSpOz1g"
 EXCEL_FILE = "do_database_records.xlsx"
 
 def load_data():
