@@ -6,27 +6,23 @@ from datetime import datetime
 
 st.set_page_config(page_title="ระบบตรวจข้อมูล B/L กับ Amend (Gemini)", layout="wide")
 st.title("🚢 [Gemini 2.5] ระบบตรวจเอกสารและจัดการสถานะส่งมอบ D/O อัจฉริยะ")
-st.subheader("เวอร์ชันสำหรับส่งโครงการ: มีระบบแทร็กประวัติเวลารับ D/O สำหรับตอบ Agent ได้ทันที")
+st.subheader("เวอร์ชันส่งโครงการ: แสดงผลเฉพาะเลข B/L, ชื่อ Consignee และวันที่รับ D/O (คลีนสายตา)")
 
 # 🔑 ใส่รหัส Gemini API Key ของคุณที่นี่ครับ
 API_KEY = "AQ.Ab8RN6KVujoWku4GOWYJbD1uFzhtqUHObm9Y571oqquJ8XrdwQ"
 
-# 🗄️ จำลองฐานข้อมูลเก็บสถานะการแลก D/O (ใช้ Session State)
+# 🗄️ จำลองฐานข้อมูลเก็บสถานะการแลก D/O (ปรับเหลือเฉพาะฟิลด์ที่ต้องการ)
 if "do_database" not in st.session_state:
     st.session_state.do_database = [
         {
-            "bl_no": "PKELCH2660001",
-            "consignee": "SIAM LOGISTICS CO., LTD.",
-            "status": "🟢 รับ D/O เรียบร้อยแล้ว",
-            "pickup_time": "2026-06-25 14:30:15",
-            "agent_remark": "Agent: OOCL / จ่ายเงินครบแล้ว"
+            "เลขที่ B/L": "PKELCH2660001",
+            "ชื่อ Consignee": "SIAM LOGISTICS CO., LTD.",
+            "วันที่รับ D/O": "2026-06-25"
         },
         {
-            "bl_no": "PKELCH2660002",
-            "consignee": "PACIFIC TRADING THAILAND",
-            "status": "🟡 เอกสารผ่านแล้ว (รอเงินเข้า/รอรับ D/O)",
-            "pickup_time": "-",
-            "agent_remark": "Agent: ONE / รอยืนยัน Pay-in"
+            "เลขที่ B/L": "PKELCH2660002",
+            "ชื่อ Consignee": "PACIFIC TRADING THAILAND",
+            "วันที่รับ D/O": "ยังมารับ"
         }
     ]
 
@@ -46,7 +42,7 @@ if not API_KEY or API_KEY.startswith("YOUR"):
 else:
     client = genai.Client(api_key=API_KEY)
     
-    # 🌟 ส่วนที่ 1: หน้าจอหลักสำหรับอัปโหลดและตรวจสอบเอกสาร (Process 1-4)
+    # 🌟 ส่วนที่ 1: หน้าจอหลักสำหรับอัปโหลดและตรวจสอบเอกสาร
     st.markdown("---")
     st.markdown("## 📄 ส่วนที่ 1: อัปโหลดและตรวจสอบเอกสาร (B/L vs Amendment)")
     
@@ -69,76 +65,69 @@ else:
                     
                     prompt_instruction = (
                         "คุณคือผู้เชี่ยวชาญด้านเอกสารเอกสารโลจิสติกส์และการตรวจปล่อยสินค้า (Import-Export Specialist) ของ Seabra Trans "
-                        "จงวิเคราะห์ไฟล์ภาพหรือ PDF ของเอกสาร Bill of Lading (B/L) ทุกฉบับ เปรียบเทียบกับ ใบขอแก้ไขข้อมูล (Amendment/DO รายการ) "
+                        "จงวิเคราะห์ไฟล์ภาพหรือ PDF ของเอกสาร Bill of Lading (B/L) ทุกฉับบ เปรียบเทียบกับ ใบขอแก้ไขข้อมูล (Amendment/DO รายการ) "
                         "โดยแตกแถว (Row) แยกคู่อย่างชัดเจนตามกฎตรวจจับแบบไฮบริด (ชื่อสินค้าตรง หรือจำนวนหีบห่อตรง ให้ปัดเป็น MATCH ทันที)\n\n"
                         "📊 รูปแบบผลลัพธ์ Markdown ตารางที่ต้องการ (กรุณาแสดงผลแยกแถวให้ชัดเจน):\n\n"
                         "### 📊 ตารางตรวจสอบเปรียบเทียบข้อมูลจำแนกรายฉบับ (Detailed Comparison)\n"
                         "| เลขที่ B/L / ข้อมูล D/O | หัวข้อตรวจสอบ | ข้อมูลบนใบ B/L | ข้อมูลบนใบ Amend | ผลการตรวจ | หมายเหตุ / วิเคราะห์สาเหตุการอนุโลม |\n"
                         "| :--- | :--- | :--- | :--- | :--- | :--- |\n"
-                        "| **PKELCH2660001** | Consignee | ... | ... | MATCH | ... |\n"
                         "| [แสดงผลตรวจให้ครบถ้วนตามเกณฑ์เดิม] | ... | ... | ... | ... | ... |\n"
                     )
                     contents_payload.append(prompt_instruction)
                     response = client.models.generate_content(model='gemini-2.5-flash', contents=contents_payload)
                     
-                    st.success("✨ Gemini ตรวจสอบข้อมูลเสร็จสิ้น!")
+                    st.success("✨ Gemini ตรวจสอบข้อมูลเสสิ้น!")
                     st.markdown(response.text)
                     
                 except Exception as e:
                     st.error(f"เกิดข้อผิดพลาดในการประมวลผลของ Gemini: {str(e)}")
 
-    # 🌟 ส่วนที่ 2: ระบบจัดการและบันทึกเวลาการรับ D/O (Process 8)
+    # 🌟 ส่วนที่ 2: ระบบจัดการและบันทึกวันที่รับ D/O (ปรับแต่งตามรีเควส)
     st.markdown("---")
-    st.markdown("## 📦 ส่วนที่ 2: ระบบบริหารสถานะและการส่งมอบ D/O (สำหรับตอบ Agent และลูกค้า)")
+    st.markdown("## 📦 ส่วนที่ 2: ระบบตรวจสอบสถานะการส่งมอบ D/O (สำหรับตอบ Agent และลูกค้า)")
     
-    # ส่วนฟอร์มสำหรับอัปเดตเวลารับ D/O เมื่อลูกค้ามาถึงหน้าเคาน์เตอร์
-    st.markdown("### 📝 บันทึกการรับ D/O หน้างาน (เมื่อลูกค้ามาแลกเอกสาร)")
-    cx1, cx2, cx3 = st.columns([2, 2, 2])
+    # ส่วนฟอร์มบันทึกข้อมูล
+    st.markdown("### 📝 บันทึกการรับ D/O หน้างาน")
+    cx1, cx2 = st.columns(2)
     with cx1:
         input_bl = st.text_input("กรอกเลขที่ B/L ที่ลูกค้ามารับ", placeholder="เช่น PKELCH2660002")
     with cx2:
-        input_agent = st.text_input("ชื่อ Agent / สายเรือ (ถ้ามีข้อมูล)", placeholder="เช่น OOCL, ONE, COSCO")
-    with cx3:
-        st.markdown("<br>", unsafe_allow_html=True) # จัดปุ่มให้ตรงบรรทัด
-        if st.button("💾 บันทึกเวลาจ่าย D/O ทันที", use_container_width=True):
-            if input_bl:
-                found = False
-                # วนลูปเช็กว่ามีเลข B/L นี้ในฐานข้อมูลจำลองไหม
-                for item in st.session_state.do_database:
-                    if item["bl_no"] == input_bl.strip():
-                        item["status"] = "🟢 รับ D/O เรียบร้อยแล้ว"
-                        item["pickup_time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        if input_agent:
-                            item["agent_remark"] = f"Agent: {input_agent}"
-                        found = True
-                        st.success(f"บันทึกเวลารับ D/O ของเลข B/L {input_bl} สำเร็จ!")
-                        break
-                
-                # ถ้าไม่เจอ เลข B/L เดิม ให้แอดเป็นรายการใหม่เข้าไปในตารางเลย
-                if not found:
-                    new_record = {
-                        "bl_no": input_bl.strip(),
-                        "consignee": "ลูกค้าหน้าเคาน์เตอร์",
-                        "status": "🟢 รับ D/O เรียบร้อยแล้ว",
-                        "pickup_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        "agent_remark": f"Agent: {input_agent}" if input_agent else "-"
-                    }
-                    st.session_state.do_database.append(new_record)
-                    st.success(f"สร้างรายการและบันทึกเวลารับ D/O ของเลข B/L {input_bl} สำเร็จ!")
-            else:
-                st.warning("⚠️ โปรดระบุเลขที่ B/L ก่อนกดบันทึก")
+        input_consignee = st.text_input("ชื่อบริษัทลูกค้า / Consignee", placeholder="เช่น SIAM LOGISTICS CO., LTD.")
+        
+    if st.button("💾 บันทึกวันที่จ่าย D/O", use_container_width=True):
+        if input_bl:
+            found = False
+            # ค้นหาและอัปเดตข้อมูลเดิมที่มีอยู่
+            for item in st.session_state.do_database:
+                if item["เลขที่ B/L"] == input_bl.strip():
+                    item["วันที่รับ D/O"] = datetime.now().strftime("%Y-%m-%d") # บันทึกเฉพาะวันที่ ไม่เอาเวลา
+                    if input_consignee:
+                        item["ชื่อ Consignee"] = input_consignee.strip()
+                    found = True
+                    st.success(f"บันทึกวันที่รับ D/O ของเลข B/L {input_bl} สำเร็จ!")
+                    break
+            
+            # ถ้าไม่เจอ ให้แอดเพิ่มแถวใหม่เข้าไปในตารางเลย
+            if not found:
+                new_record = {
+                    "เลขที่ B/L": input_bl.strip(),
+                    "ชื่อ Consignee": input_consignee.strip() if input_consignee else "ลูกค้าหน้าเคาน์เตอร์",
+                    "วันที่รับ D/O": datetime.now().strftime("%Y-%m-%d") # บันทึกเฉพาะวันที่ ไม่เอาเวลา
+                }
+                st.session_state.do_database.append(new_record)
+                st.success(f"บันทึกวันที่รับ D/O ของเลข B/L {input_bl} สำเร็จ!")
+        else:
+            st.warning("⚠️ โปรดระบุเลขที่ B/L ก่อนกดบันทึก")
 
-    # ส่วนตารางมอนิเตอร์สถานะหลัก (Dashboard) ที่เอาไว้เปิดดูเวลา Agent ถาม
-    st.markdown("### 📊 ตารางตรวจสอบสถานะตู้สินค้า และ ประวัติเวลารับ D/O")
-    
-    # ปุ่มสำหรับเคลียร์ค่า หรือเพิ่มช่องค้นหาด่วน
+    # ส่วนตารางมอนิเตอร์สถานะหลัก (ดึงช่องค้นหาและหัวตารางให้คลีนตามสั่ง)
+    st.markdown("### 📊 ตารางประวัติการรับเอกสาร D/O")
     search_query = st.text_input("🔍 ค้นหาด่วนด้วยเลข B/L (พิมพ์เลขแล้วกด Enter เพื่อตอบ Agent)", placeholder="พิมพ์เลข B/L ที่ต้องการเช็กตรงนี้...")
     
-    # แสดงตารางผลลัพธ์
+    # ฟิลเตอร์กรองข้อมูลแสดงในตาราง
     table_data = []
     for item in st.session_state.do_database:
-        # ฟิลเตอร์กรองข้อมูลตามคำค้นหา
-        if search_query.strip() == "" or search_query.strip().lower() in item["bl_no"].lower():
+        if search_query.strip() == "" or search_query.strip().lower() in item["เลขที่ B/L"].lower():
             table_data.append(item)
             
+    # แสดงตารางแบบคลีนๆ มีแค่ 3 คอลัมน์ตามสั่ง
     st.table(table_data)
