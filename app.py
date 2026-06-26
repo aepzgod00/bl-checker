@@ -256,8 +256,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 🧠 ⚙️ การตั้งค่าระบบหลังบ้านและ AI Library Modification (แก้ไขบรรทัด 95-108)
-# ใส่คีย์ AQ ตัวจริงของน้าตรงนี้ครับ
+# 🧠 ⚙️ ระบบหลังบ้านประจำชุดข้อมูลและการยืนยันสิทธิ์
 API_KEY = "AQ.Ab8RN6KpGqGhPQq0sHfUVKonhSr_qyYV10OtPHdMVp-JSpOz1g"
 EXCEL_FILE = "do_database_records.xlsx"
 
@@ -301,14 +300,15 @@ with nav_col2:
 
 st.markdown("<hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 18px 0 25px 0;'>", unsafe_allow_html=True)
 
-# ⚠️ ตรวจสอบคีย์และตั้งค่า Client (ส่วนที่แก้ไขหลัก)
+# ⚠️ จุดแก้ไขหลัก: ตรวจสอบและบายพาสคีย์ประเภทองค์กร (คีย์ AQ.) เพื่อป้องกัน Error 401
 if not API_KEY or API_KEY.startswith("YOUR"):
     st.error("⚠️ โปรดใส่รหัส Gemini API Key ในโค้ดหลังบ้านก่อนนำไปรัน")
 else:
     try:
-        # บังคับส่ง Token ผ่าน Header ตรง ๆ เพื่อรองรับคีย์ประเภทองค์กรแบบ Access Token (แก้ Error 401)
         if API_KEY.startswith("AQ."):
+            # ป้อนค่าว่างหลอกให้ผ่านด่าน SDK พร้อมส่ง Bearer Token ผ่าน Header ตัวจริง
             client = genai.Client(
+                api_key=" ", 
                 http_options={'headers': {'Authorization': f'Bearer {API_KEY}'}}
             )
         else:
@@ -336,14 +336,12 @@ else:
                         เปรียบเทียบข้อมูลไฟล์สแกนและประมวลผลความถูกต้องข้ามเอกสารอัตโนมัติ
                     </p>
                     <div class='custom-code-box'>
-                        <div class='card-checklist'>
-                            <div class='checklist-item'><span class='checklist-item-check'>✓</span> Bill of Lading (B/L)</div>
-                            <div class='checklist-item'><span class='checklist-item-check'>✓</span> Amendment Notice</div>
-                            <div class='checklist-item'><span class='checklist-item-check'>✓</span> Attached Sheet</div>
-                        </div>
+                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Bill of Lading (B/L)</div>
+                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Amendment Notice</div>
+                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Attached Sheet</div>
                     </div>
                 </div>
-            """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True) # <-- ปรับให้แสดงผลเป็น HTML สวยงาม ไม่หลุดข้อความดิบ
             if st.button("Start Verification  →", key="go_audit"):
                 st.session_state.current_page = "audit_page"
                 st.rerun()
@@ -356,7 +354,7 @@ else:
                     </div>
                     <div class='card-title-text'>บันทึกรับ D/O</div>
                     <p class='card-desc-text'>
-                        ประทับตราเคาน์เตอร์และระบบค้นหาประวัติตwarzสอบสถานะส่งมอบแบบเรียลไทม์
+                        ประทับตราเคาน์เตอร์และระบบค้นหาประวัติการตรวจสอบสถานะส่งมอบแบบเรียลไทม์
                     </p>
                     <div class='custom-code-box'>
                         <div class='checklist-item'><span class='checklist-item-check'>✓</span> D/O Release Stamp</div>
@@ -364,7 +362,7 @@ else:
                         <div class='checklist-item'><span class='checklist-item-check'>✓</span> Quick Search History</div>
                     </div>
                 </div>
-            """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True) # <-- จุดที่ 2 แสดงผลเรียบร้อยสมบูรณ์
             if st.button("Open Workspace  →", key="go_tracking"):
                 st.session_state.current_page = "tracking_page"
                 st.rerun()
@@ -412,20 +410,20 @@ else:
                             if amend_part: contents_payload.append(amend_part)
                         
                         prompt_instruction = (
-                            "ไฟลเอกสารที่แนบไปคือไฟล์สำหรับตรวจสอบงานโลจิสติกส์\n"
+                            "ไฟล์เอกสารที่แนบไปคือไฟล์สำหรับตรวจสอบงานโลจิสติกส์\n"
                             "กรุณาเปรียบเทียบข้อมูลสำคัญระหว่างเอกสาร Bill of Lading (B/L), Amendment และ Attached Sheet\n"
                             "และสรุปผลความสอดคล้องออกมาเป็นตารางจำแนกรายฉบับให้ชัดเจน"
                         )
                         contents_payload.append(prompt_instruction)
                         
-                        # 🧠 ✨ อัปเดตเรียกใช้โมเดลเวอร์ชันใหม่ gemini-2.5-flash เพื่อความเสถียร
+                        # ✨ เรียกใช้งานผ่านโมเดล Gemini 2.5 Flash เพื่อการวิเคราะห์ภาพที่รวดเร็วแม่นยำ
                         response = client.models.generate_content(model='gemini-2.5-flash', contents=contents_payload)
                         st.balloons()
                         st.success("✨ ตรวจสอบและสรุปรายงานเรียบร้อยแล้วค่ะ!")
                         st.markdown(response.text)
                         
                     except Exception as e:
-                        st.error(f"เกิดข้อผิดพลาด: {str(e)}")
+                        st.error(f"เกิดข้อผิดพลาดในการประมวลผลโมเดล: {str(e)}")
         st.markdown("</div>", unsafe_allow_html=True)
 
 
@@ -452,7 +450,7 @@ else:
         st.markdown("<div class='cozy-portal-card' style='text-align: left; padding: 35px 28px;'>", unsafe_allow_html=True)
         st.markdown("<div style='background-color: #F4F3ED; padding: 12px 20px; border-radius: 12px; color: #4A5A4E; font-size: 14px; font-weight: 600; margin-bottom: 20px; display:flex; align-items:center; gap:8px;'><span class='material-symbols-outlined' style='font-size:18px;'>edit_square</span> รายการรับเอกสารหน้าเคาน์เตอร์</div>", unsafe_allow_html=True)
         
-        # 🧾 ✅ แก้ไขอาการ rerun loop ข้อมูลหาย โดยเปลี่ยนมาใช้ st.form
+        # 🧾 ครอบฟอร์มสตรีมลิตป้องกันอาการรันซ้ำเพื่อหลีกเลี่ยงข้อผิดพลาด Openpyxl/Pandas
         with st.form(key="do_entry_form", clear_on_submit=True):
             cx1, cx2 = st.columns(2)
             with cx1:
@@ -475,7 +473,6 @@ else:
                     new_row = pd.DataFrame([{"เลขที่ B/L": bl_clean, "ชื่อ Consignee": consignee_clean, "วันที่รับ D/O": today_str}])
                     df_current = pd.concat([df_current, new_row], ignore_index=True)
                     
-                    # บันทึกฐานข้อมูลลงไฟล์ Excel
                     try:
                         df_current.to_excel(EXCEL_FILE, index=False)
                         st.balloons()
@@ -501,14 +498,13 @@ else:
                 
         st.dataframe(df_filtered, use_container_width=True)
         
-        # 🗑️ ✨ เพิ่มฟังก์ชันการล้างข้อมูลประวัติทั้งหมดทิ้ง (Clear History Engine)
+        # 🗑️ โซนล้างฐานข้อมูลประวัติทั้งหมดทิ้งสำหรับลบข้อมูลเก่า
         st.markdown("<hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 30px 0 20px 0;'>", unsafe_allow_html=True)
-        st.markdown("<p style='color: #A66E6E; font-size: 13.0px; font-weight: 600;'>️⚠️ โซนอันตรายสำหรับผู้ดูแลระบบ</p>", unsafe_allow_html=True)
+        st.markdown("<p style='color: #A66E6E; font-size: 13.0px; font-weight: 600;'>⚠️ โซนอันตรายสำหรับผู้ดูแลระบบ</p>", unsafe_allow_html=True)
         
         if st.button("ล้างฐานข้อมูลประวัติทั้งหมด (Reset History)", key="clear_all_history_btn"):
             if os.path.exists(EXCEL_FILE):
                 try:
-                    # ลบไฟล์Excelฐานข้อมูล
                     os.remove(EXCEL_FILE)
                     st.success("🔥 ลบไฟล์ฐานข้อมูล Excel และเคลียร์ประวัติทั้งหมดเรียบร้อยแล้ว แฟ้มข้อมูลถูกรีเซ็ตเป็นตารางว่าง!")
                     st.rerun()
