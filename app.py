@@ -8,7 +8,7 @@ from datetime import datetime
 
 st.set_page_config(page_title="ระบบตรวจข้อมูล B/L กับ Amend (Gemini)", layout="wide")
 st.title("🚢 [Gemini 2.5] ระบบตรวจเอกสารและจัดการสถานะส่งมอบ D/O อัจฉริยะ")
-st.subheader("เวอร์ชันอัปเกรด: รองรับการอัปโหลดใบ Amend และ Attached Sheet หลายไฟล์พร้อมกัน")
+st.subheader("เวอร์ชันอัปเกรด: เพิ่มความแม่นยำขั้นสูง (Strict OCR) ตัวอักษรผิดตัวเดียวขึ้น MISMATCH ทันที")
 
 # 🔑 ใส่รหัส Gemini API Key ของคุณที่นี่ครับ
 API_KEY = "AQ.Ab8RN6KVujoWku4GOWYJbD1uFzhtqUHObm9Y571oqquJ8XrdwQ"
@@ -16,14 +16,12 @@ API_KEY = "AQ.Ab8RN6KVujoWku4GOWYJbD1uFzhtqUHObm9Y571oqquJ8XrdwQ"
 # 📁 ตั้งชื่อไฟล์ Excel สำหรับเก็บข้อมูลหลังบ้านแบบถาวร
 EXCEL_FILE = "do_database_records.xlsx"
 
-# ฟังก์ชันสำหรับโหลดข้อมูลจากไฟล์ Excel
 def load_data():
     if os.path.exists(EXCEL_FILE):
         return pd.read_excel(EXCEL_FILE)
     else:
         return pd.DataFrame(columns=["เลขที่ B/L", "ชื่อ Consignee", "วันที่รับ D/O"])
 
-# ฟังก์ชันสำหรับเตรียมไฟล์ส่งให้ Gemini
 def เตรียมไฟล์สำหรับ_gemini(file_uploader_obj):
     if file_uploader_obj is not None:
         file_bytes = file_uploader_obj.getvalue()
@@ -36,7 +34,7 @@ if not API_KEY or API_KEY.startswith("YOUR"):
 else:
     client = genai.Client(api_key=API_KEY)
     
-    # 🌟 ส่วนที่ 1: หน้าจอหลักสำหรับอัปโหลดและตรวจสอบเอกสาร (ปรับแก้ให้อัปโหลดได้หลายไฟล์ทั้งคู่)
+    # 🌟 ส่วนที่ 1: หน้าจอหลักสำหรับอัปโหลดและตรวจสอบเอกสาร
     st.markdown("---")
     st.markdown("## 📄 ส่วนที่ 1: อัปโหลดและตรวจสอบเอกสาร (B/L vs Amendment & Attached Sheet)")
     
@@ -46,45 +44,56 @@ else:
         bl_files = st.file_uploader("ลากไฟล์ B/L ทั้งหมดมาวางตรงนี้ (เลือกได้หลายไฟล์)", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True, key="bl")
     with col2:
         st.markdown("##### 📥 ไฟล์ใบขอแก้ไข (Amend / Attached Sheet)")
-        # 🛠️ ปรับเป็น accept_multiple_files=True เพื่อให้ใส่อักษรแนบเพิ่มได้ไม่จำกัด
         amend_files = st.file_uploader("ลากไฟล์ใบ Amend และ Attached Sheet ทั้งหมดมาวางตรงนี้", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True, key="amend")
 
     if bl_files and amend_files:
         if st.button("🚀 เริ่มตรวจสอบเปรียบเทียบข้อมูลแบบแยกรายใบ", use_container_width=True):
-            with st.spinner("🤖 Gemini กําลังรวบรวมไฟล์ B/L และใบแนบ Amend ทั้งหมดมาวิเคราะห์พร้อมกัน..."):
+            with st.spinner("🤖 [Strict Mode] Gemini กําลังเพ่งตรวจอักษรและตัวเลขทีละตัวอย่างเข้มงวด..."):
                 try:
                     contents_payload = []
-                    
-                    # 1. รวบรวมไฟล์ B/L ทุกใบ เข้าสู่ระบบ
                     for bl in bl_files:
                         part = เตรียมไฟล์สำหรับ_gemini(bl)
                         if part: contents_payload.append(part)
-                        
-                    # 2. รวบรวมไฟล์ใบ Amend และไฟล์ Attached Sheet ทุกใบ เข้าสู่ระบบ
                     for amend in amend_files:
                         amend_part = เตรียมไฟล์สำหรับ_gemini(amend)
                         if amend_part: contents_payload.append(amend_part)
                     
-                    # 3. ส่งคำสั่ง Prompt Engineering คุมบรีฟไอทีโลจิสติกส์
+                    # 🧠 ปรับกฎเหล็กห้ามปล่อยผ่านตัวอักษรเพี้ยนเด็ดขาด
                     prompt_instruction = (
-                        "คุณคือผู้เชี่ยวชาญด้านเอกสารเอกสารโลจิสติกส์และการตรวจปล่อยสินค้า (Import-Export Specialist) ของ Seabra Trans\n"
-                        "ข้อมูลที่ส่งไปให้คุณประกอบด้วยไฟล์ Bill of Lading (B/L) หลายใบ และไฟล์คำขอแก้ไข (Amendment) "
-                        "ซึ่งอาจจะมีทั้งใบหลักและใบแนบข้อมูลเพิ่มเติม (Attached Sheet) แยกส่งมาด้วยกัน\n\n"
-                        "จงทำการรวบรวมข้อมูลจากใบขอแก้ไขและใบแนบ Attached Sheet ทุกใบเข้าด้วยกันก่อน "
-                        "จากนั้นนำข้อมูลที่รวบรวมได้ไปทำการจับคู่ตรวจสอบกับไฟล์ B/L แต่ละฉบับ แยกตามรายเบอร์ (แตกแถว Row ห้ามยำรวมคอลัมน์)\n\n"
-                        "🔍 เกณฑ์การตัดสินไฮบริดยังคงเดิม:\n"
-                        "- Description of Goods: หากข้อมูลในใบ Amend หรือ Attached Sheet ใส่มาแค่ชื่อสินค้าหลักตรง หรือจำนวนหีบห่อตรง หรือพิมพ์ผสมกันแบบย่อ ให้ตัดสินเป็น MATCH ทันที\n"
-                        "- Consignee / Shipping Marks / Gross Weight / CBM: ตรวจสอบและเปรียบเทียบข้อมูลรายฉบับให้ถูกต้อง\n\n"
+                        "คุณคือผู้เชี่ยวชาญด้านเอกสารเอกสารโลจิสติกส์และการตรวจปล่อยสินค้า (Import-Export Specialist) ของ Seabra Trans "
+                        "ที่มีความละเอียดรอบคอบสูงมาก จงวิเคราะห์และสกัดข้อมูลอักษรจากไฟล์ภาพ/PDF ทั้งหมดอย่างถูกต้องแม่นยำ 100% ห้ามเดาหรือคิดไปเองเด็ดขาด\n\n"
+                        
+                        "🔍 กฎการตรวจสอบความถูกต้องของตัวอักษรอย่างเข้มงวด (STRICT MATCHING RULES):\n"
+                        "1. ข้อมูลจาก Attached Sheet ต้องวิ่งไปจับคู่กับหัวข้อ D/O บนใบ Amend หลักที่มีเลขตรงกันก่อนเสมอ\n"
+                        "2. ฟิลด์ Consignee, Shipping Marks, Gross Weight, CBM: ตัวอักษรและตัวเลขต้องตรงกัน 'แบบตัวต่อตัว' (Exact Match) "
+                        "หากมีการสะกดผิด ตกหล่น สลับตำแหน่ง หรือตัวเลขทศนิยมเพี้ยนไปแม้แต่ตัวเดียว (เช่น ตัวพิมพ์ใหญ่/เล็กผิด, สะกดตกอักษรไป 1 ตัว) "
+                        "ต้องตัดสินผลเป็น 'MISMATCH' ทันที! ห้ามกดอนุโลมให้เด็ดขาด\n"
+                        "3. ฟิลด์ Description of Goods (กฎการยืดหยุ่นที่ต้องสะกดเป๊ะ):\n"
+                        "   - ยินยอมให้อนุโลมเฉพาะกรณีที่ลูกค้าพิมพ์ข้อมูลแบบย่อมา (เช่น ใส่เฉพาะชื่อสินค้าหลัก หรือใส่เฉพาะจำนวนหีบห่อตามหน้างานจริง)\n"
+                        "   - แต่ 'ข้อความที่พิมพ์ย่อมานั้น ต้องสะกดตรงกับคำดั้งเดิมใน B/L เป๊ะๆ' ตัวอย่างเช่น:\n"
+                        "     * ใน B/L พิมพ์ว่า 'SPORTING GOODS' แต่ในใบ Amend ดันสะกดผิดเป็น 'SPORTNG GOODS' (ตกตัว I) -> แบบนี้ต้องขึ้น 'MISMATCH' ทันที ห้ามผ่าน!\n"
+                        "     * หากชื่อสินค้าหลักสะกดตรง หรือตัวเลขหีบห่อตรงเป๊ะ แม้จะเป็นการพิมพ์แบบย่อ -> จึงจะให้ผลเป็น 'MATCH'\n\n"
+                        
                         "📊 รูปแบบผลลัพธ์ Markdown ตารางที่ต้องการ (กรุณาแสดงผลแยกแถวให้ชัดเจน):\n\n"
                         "### 📊 ตารางตรวจสอบเปรียบเทียบข้อมูลจำแนกรายฉบับ (Detailed Comparison)\n"
-                        "| เลขที่ B/L / ข้อมูล D/O | หัวข้อตรวจสอบ | ข้อมูลบนใบ B/L | ข้อมูลบนใบ Amend (รวมใบแนบ) | ผลการตรวจ | หมายเหตุ / วิเคราะห์สาเหตุการอนุโลม |\n"
+                        "| เลขที่ B/L / ข้อมูล D/O | หัวข้อตรวจสอบ | ข้อมูลบนใบ B/L | ข้อมูลบนใบ Amend + Attached Sheet | ผลการตรวจ | หมายเหตุ / วิเคราะห์สาเหตุความไม่สอดคล้อง |\n"
                         "| :--- | :--- | :--- | :--- | :--- | :--- |\n"
-                        "| [แสดงผลตรวจแยกรายคู่และรายฟิลด์ให้ครบถ้วน] | ... | ... | ... | ... | ... |\n"
+                        "| [แสดงผลตรวจแยกรายคู่ ตรวจทานอักษรทีละตัว หากไม่ตรงเป๊ะให้ขึ้น MISMATCH แถบสีแดงระบุจุดผิดชัดเจน] | ... | ... | ... | ... | ... |\n"
                     )
                     contents_payload.append(prompt_instruction)
-                    response = client.models.generate_content(model='gemini-2.5-flash', contents=contents_payload)
                     
-                    st.success("✨ Gemini ประมวลผลเอกสารรวมใบแนบเสร็จสิ้นเรียบร้อย!")
+                    # 🛠️ ปรับ Config ของโมเดล บังคับไม่ให้มีความคิดสร้างสรรค์ (Temperature ต่ำ) เน้นอ่านตามเนื้อผ้า
+                    config = types.GenerateContentConfig(
+                        temperature=0.0,  # ล็อกค่าเป็น 0 เพื่อให้ AI ตอบตามความจริงจากเอกสาร 100% ไม่เดาคำ
+                    )
+                    
+                    response = client.models.generate_content(
+                        model='gemini-2.5-flash', 
+                        contents=contents_payload,
+                        config=config
+                    )
+                    
+                    st.success("✨ Gemini ตรวจเช็กตัวอักษรและตัวเลขแบบ Strict Mode เสร็จสิ้น!")
                     st.markdown(response.text)
                     
                 except Exception as e:
