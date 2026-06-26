@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 🖌️ 2. Inject Clean Enterprise CSS (Fixed Empty Space & Input Borders)
+# 🖌️ 2. Inject Clean Enterprise CSS (Fixed Empty Gaps & Dark Background Artifacts)
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700;800&family=Manrope:wght@500;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&display=swap');
@@ -167,7 +167,7 @@ st.markdown("""
             padding: 25px 20px !important;
         }
 
-        /* ✏️ 3. Clean Text Input Styling (ลบกรอบเข้ม ขอบซ้อน และมุมมืดออก) */
+        /* ✏️ Clean Text Input Styling (แก้ปัญหาขอบซ้อน และครอบคลุมทุก Input ในแอป) */
         div[data-testid="stTextInput"] label {
             color: #3A443E !important;
             font-weight: 600 !important;
@@ -175,14 +175,12 @@ st.markdown("""
             margin-bottom: 8px !important;
         }
         
-        /* ควบคุมรูปลักษณ์ของกรอบชั้นนอกของ Streamlit ไม่ให้ซ้อนขอบดำ */
         div[data-testid="stTextInput"] > div:first-child {
             border: none !important;
             background: transparent !important;
             box-shadow: none !important;
         }
         
-        /* ปรับแต่งช่อง Input จริงให้เป็นเส้นเดี่ยว คลีน นุ่มนวล */
         div[data-testid="stTextInput"] input {
             background-color: #FFFFFF !important;
             color: #2D3531 !important;
@@ -195,7 +193,6 @@ st.markdown("""
             transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
         }
         
-        /* สไตล์เวลา Focus เมาส์คลิก */
         div[data-testid="stTextInput"] input:focus {
             border-color: #557A61 !important;
             box-shadow: 0 0 0 3px rgba(85, 122, 97, 0.12) !important;
@@ -204,6 +201,19 @@ st.markdown("""
         div[data-testid="stTextInput"] input::placeholder {
             color: #A0AAA2 !important;
             opacity: 1 !important;
+        }
+
+        /* 📊 Dataframe Light Styling (แก้ไขพื้นหลังตารางและหัวตารางที่เคยเป็นสีมืดดำ) */
+        div[data-testid="stDataFrame"] {
+            background-color: #FFFFFF !important;
+            border: 1px solid #EAE8DF !important;
+            border-radius: 12px !important;
+            overflow: hidden !important;
+        }
+        
+        /* บังคับสไตล์ตารางด้านในให้เป็นสีสว่างนุ่มนวลทั้งหมด */
+        div[data-testid="stDataFrame"] data-grid {
+            background-color: #FFFFFF !important;
         }
 
         /* 🔘 Buttons Customization */
@@ -437,9 +447,9 @@ else:
         
         df_current = load_data()
         
-        # 🟢 ลบกล่องคลุมชั้นนอกสุดที่เคยทำให้เกิดช่องขาวว่างๆ ออก และใช้โครงสร้างแถวคอลัมน์คลีนๆ แทน
-        st.markdown("<div style='background-color: #FAF8F5; border: 1px solid #EAE8DF; padding: 25px 28px; border-radius: 18px;'>", unsafe_allow_html=True)
-        st.markdown("<div style='background-color: #F4F3ED; padding: 12px 20px; border-radius: 12px; color: #4A5A4E; font-size: 14px; font-weight: 600; margin-bottom: 25px; display:flex; align-items:center; gap:8px;'><span class='material-symbols-outlined' style='font-size:18px;'>edit_square</span> รายการรับเอกสารหน้าเคาน์เตอร์</div>", unsafe_allow_html=True)
+        # 🧾 แผงบันทึกข้อมูลหน้าเคาน์เตอร์
+        st.markdown("<div style='background-color: #FFFFFF; border: 1px solid #EAE8DF; padding: 25px 28px; border-radius: 18px; box-shadow: 0 4px 20px rgba(141, 137, 120, 0.02);'>", unsafe_allow_html=True)
+        st.markdown("<div style='background-color: #F4F3ED; padding: 12px 20px; border-radius: 12px; color: #4A5A4E; font-size: 14px; font-weight: 600; margin-bottom: 20px; display:flex; align-items:center; gap:8px;'><span class='material-symbols-outlined' style='font-size:18px;'>edit_square</span> รายการรับเอกสารหน้าเคาน์เตอร์</div>", unsafe_allow_html=True)
         
         cx1, cx2 = st.columns(2)
         with cx1:
@@ -447,7 +457,7 @@ else:
         with cx2:
             input_consignee = st.text_input("ชื่อบริษัทลูกค้า / Consignee", placeholder="เช่น SIAM LOGISTICS CO., LTD.")
             
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
         if st.button("ยืนยันและบันทึกประวัติ", use_container_width=False):
             if input_bl:
                 bl_clean = input_bl.strip()
@@ -468,17 +478,19 @@ else:
                 st.warning("⚠️ โปรดกรอกหมายเลข B/L")
         st.markdown("</div>", unsafe_allow_html=True)
 
-        st.markdown("<br><br>", unsafe_allow_html=True)
+        # 🔍 กระชับระยะห่าง (ลบช่องว่างยาวๆ ออกแล้ว) และจัดกรอบค้นหาประวัติต่อทันที
+        st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
         
-        # กล่องส่วนแสดงตารางข้อมูลด้านล่าง
-        st.markdown("<div style='background-color: #FFFFFF; border: 1px solid #EAE8DF; padding: 25px 28px; border-radius: 18px; box-shadow: 0 10px 30px rgba(141, 137, 120, 0.03);'>", unsafe_allow_html=True)
-        st.markdown("<h4 style='font-weight: 700; color: #2D3531; margin-top:0; display:flex; align-items:center; gap:8px;'><span class='material-symbols-outlined' style='font-size:22px;'>search</span> ค้นหาประวัติสถานะส่งมอบเอกสาร</h4>", unsafe_allow_html=True)
-        search_query = st.text_input("ระบุเลข B/L เพื่อค้นหาแบบเรียลไทม์", placeholder="พิมพ์คำค้นหาตรงนี้...")
+        st.markdown("<div style='background-color: #FFFFFF; border: 1px solid #EAE8DF; padding: 25px 28px; border-radius: 18px; box-shadow: 0 4px 20px rgba(141, 137, 120, 0.02);'>", unsafe_allow_html=True)
+        st.markdown("<h4 style='font-weight: 700; color: #2D3531; margin-top:0; margin-bottom: 15px; display:flex; align-items:center; gap:8px;'><span class='material-symbols-outlined' style='font-size:22px;'>search</span> ค้นหาประวัติสถานะส่งมอบเอกสาร</h4>", unsafe_allow_html=True)
+        
+        search_query = st.text_input("ระบุเลข B/L เพื่อค้นหาแบบเรียลไทม์", placeholder="พิมพ์คำค้นหาตรงนี้...", key="search_input_field")
         
         if search_query.strip() != "":
             df_filtered = df_current[df_current["เลขที่ B/L"].str.contains(search_query.strip(), case=False, na=False)]
         else:
             df_filtered = df_current
                 
+        st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
         st.dataframe(df_filtered, use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
