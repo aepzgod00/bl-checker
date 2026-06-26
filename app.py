@@ -6,50 +6,70 @@ import os
 import pandas as pd
 from datetime import datetime
 
-# 🎨 1. Set Page Configuration & Inject Cute Custom CSS
+# 🎨 1. Set Page Configuration & Inject Cozy Earthy Custom CSS
 st.set_page_config(
-    page_title="Seabra Trans - Import D/O Mini System", 
-    page_icon="🧸", 
+    page_title="Seabra Trans - Smart Import System", 
+    page_icon="🌿", 
     layout="wide"
 )
 
-# แต่งหน้าตาเว็บให้โค้งมน โทนสีครีม-พาสเทล ละมุนสายตาแบบมินิมอล
+# เนรมิตความนุ่มนวลตามรูปตัวอย่าง: พื้นหลังครีมอุ่น ฟอนต์โค้งมน และการ์ดสีเขียวธรรมชาติ
 st.markdown("""
     <style>
-        /* เปลี่ยนสีพื้นหลังเว็บทั้งหมดเป็นสีครีมอุ่นๆ คลีนๆ */
+        @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600&display=swap');
+        
+        /* 1. คุมโทนพื้นหลังสีครีมงาช้างอบอุ่น (Earthy Off-White) */
         .stApp {
-            background-color: #FAFAFA;
-            font-family: 'Kanit', 'Helvetica Neue', sans-serif;
+            background-color: #F9F8F3;
+            font-family: 'Bai Jamjuree', sans-serif;
         }
-        /* แต่งปุ่มกดทั่วไปให้ขอบโค้งมน ดูนุ่มนิ่ม */
+        
+        /* 2. ดีไซน์ปุ่มทั่วไปให้โค้งมน นุ่มนิ่ม และใช้สีเขียวหม่นธรรมชาติ */
         div.stButton > button:first-child {
-            border-radius: 20px !important;
-            border: 2px solid #E0E0E0 !important;
+            border-radius: 24px !important;
+            border: 1px solid #D5D2C1 !important;
             background-color: #FFFFFF !important;
-            color: #555555 !important;
-            font-weight: bold !important;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            color: #4A5A4E !important;
+            font-weight: 500 !important;
+            padding: 10px 24px !important;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 12px rgba(141, 137, 120, 0.05);
         }
         div.stButton > button:first-child:hover {
-            border-color: #B3E5FC !important;
-            background-color: #F1F8FF !important;
+            border-color: #557A61 !important;
+            background-color: #557A61 !important;
+            color: #FFFFFF !important;
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+            box-shadow: 0 6px 18px rgba(85, 122, 97, 0.15);
         }
-        /* ตกแต่งการ์ดทางเลือกหน้าแรก */
-        .portal-card {
+        
+        /* 3. ตกแต่งการ์ดเลือกฝั่งหน้าแรกให้สวยหรู มินิมอล */
+        .cozy-portal-card {
             background-color: #FFFFFF;
-            padding: 30px;
-            border-radius: 24px;
-            border: 1px solid #ECEFF1;
+            padding: 35px 25px;
+            border-radius: 28px;
+            border: 1px solid #EAE8DF;
             text-align: center;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.02);
+            box-shadow: 0 10px 25px rgba(141, 137, 120, 0.04);
             transition: all 0.3s ease;
         }
-        .portal-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.05);
+        .cozy-portal-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(85, 122, 97, 0.08);
+            border-color: #D3DDD6;
+        }
+        
+        /* 4. กล่องอัปโหลดไฟล์แบบ Soft Form */
+        .uploadedFile {
+            border-radius: 20px !important;
+            border: 2px dashed #D5D2C1 !important;
+            background-color: #FFFFFF !important;
+        }
+        
+        /* หัวข้อสีเทาอบอุ่น */
+        h1, h2, h3, h4 {
+            color: #3A443E !important;
+            font-weight: 500 !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -71,13 +91,14 @@ def เตรียมไฟล์สำหรับ_gemini(file_uploader_obj):
         return types.Part.from_bytes(data=file_bytes, mime_type=mime_type)
     return None
 
-# ใช้ Session State บันทึกว่าตอนนี้ผู้ใช้กำลังเปิดดูฝั่งไหนอยู่ (Default คือหน้าแรก = portal)
+# ตรวจสอบหน้าปัจจุบันด้วย Session State
 if "current_page" not in st.session_state:
     st.session_state.current_page = "portal"
 
-# 🏢 MAIN HEADER
-st.markdown("<h2 style='text-align: center; color: #4A4A4A; font-weight: 300;'>⚓ Seabra Trans</h2>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #8A8A8A; font-size: 14px;'>Smart Import D/O Assistant • Minimalism Version</p>", unsafe_allow_html=True)
+# 🏢 TOP NAVIGATION BRANDING
+st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align: center; color: #4A5A4E; font-weight: 400; letter-spacing: 1px;'>⚓ Seabra Trans</h2>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #8C968E; font-size: 13px; margin-top: -10px;'>Smart Import D/O Assistant • Cozy Minimal Vibe</p>", unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
 
 if not API_KEY or API_KEY.startswith("YOUR"):
@@ -85,61 +106,68 @@ if not API_KEY or API_KEY.startswith("YOUR"):
 else:
     client = genai.Client(api_key=API_KEY)
 
-    # 🚪 ================== [หน้าแรก: ทางเลือก 2 ฝั่ง] ==================
+    # 🚪 ================== [หน้าแรก: แบ่งเป็น 2 ฝั่งตามสั่ง] ==================
     if st.session_state.current_page == "portal":
-        st.markdown("<h4 style='text-align: center; color: #616161; font-weight: 300; margin-bottom: 30px;'>ยินดีต้อนรับค่ะ วันนี้ต้องการจัดการงานส่วนไหนดีคะ? ✨</h4>", unsafe_allow_html=True)
+        st.markdown("<h4 style='text-align: center; color: #5D6861; font-weight: 400; margin-bottom: 40px;'>Good morning! วันนี้ต้องการจัดการงานส่วนไหนดีคะ? ✨</h4>", unsafe_allow_html=True)
         
-        # แบ่งหน้าจอเป็น 2 ฝั่งซ้ายขวาแบบเว้นระยะห่างน่ารักๆ
-        p_col1, space_col, p_col2 = st.columns([4, 1, 4])
+        # จัด Layout แบ่งเป็นสองฝั่งอย่างสมดุลและกว้างพอดีสายตา
+        p_col1, space_col, p_col2 = st.columns([4, 0.8, 4])
         
         with p_col1:
             st.markdown("""
-                <div class='portal-card' style='border-top: 6px solid #B3E5FC;'>
-                    <span style='font-size: 50px;'>🔍</span>
-                    <h3 style='color: #424242; font-weight: 400; margin-top:10px;'>ตรวจสอบเอกสาร</h3>
-                    <p style='color: #9E9E9E; font-size: 13px; margin-bottom: 20px;'>เปรียบเทียบใบ B/L กับใบขอแก้ไข (Amend) และ Attached Sheet ด้วยระบบอัจฉริยะ</p>
+                <div class='cozy-portal-card'>
+                    <div style='background-color: #EDF3EE; width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto;'>
+                        <span style='font-size: 32px;'>🔍</span>
+                    </div>
+                    <h3 style='color: #3A443E; font-weight: 500; font-size: 20px; margin-bottom: 8px;'>ตรวจสอบเอกสาร</h3>
+                    <p style='color: #8C968E; font-size: 13px; line-height: 1.6; margin-bottom: 25px;'>
+                        เปรียบเทียบใบ B/L กับใบแจ้งขอแก้ไข (Amend) <br>และใบแนบ Attached Sheet สแกนข้อมูลรายตัวอักษร
+                    </p>
                 </div>
             """, unsafe_allow_html=True)
-            if st.button("✨ เปิดห้องตรวจเอกสาร", use_container_width=True, key="go_audit"):
+            if st.button("เข้าสู่ห้องตรวจเอกสาร  ➔", use_container_width=True, key="go_audit"):
                 st.session_state.current_page = "audit_page"
                 st.rerun()
                 
         with p_col2:
             st.markdown("""
-                <div class='portal-card' style='border-top: 6px solid #F8BBD0;'>
-                    <span style='font-size: 50px;'>📦</span>
-                    <h3 style='color: #424242; font-weight: 400; margin-top:10px;'>บันทึกรับ D/O</h3>
-                    <p style='color: #9E9E9E; font-size: 13px; margin-bottom: 20px;'>แสตมป์วันที่ลูกค้ามารับใบดีโอหน้างาน ค้นหาประวัติเพื่อตรวจสอบสถานะตอบเอเยนต์</p>
+                <div class='cozy-portal-card'>
+                    <div style='background-color: #FBF0F0; width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto;'>
+                        <span style='font-size: 32px;'>📦</span>
+                    </div>
+                    <h3 style='color: #3A443E; font-weight: 500; font-size: 20px; margin-bottom: 8px;'>บันทึกรับ D/O</h3>
+                    <p style='color: #8C968E; font-size: 13px; line-height: 1.6; margin-bottom: 25px;'>
+                        ประทับตราวันที่ลูกค้ามารับใบดีโอหน้าเคาน์เตอร์ <br>และค้นหาตรวจสอบสถานะเพื่อตอบกลับสายเรือด่วน
+                    </p>
                 </div>
             """, unsafe_allow_html=True)
-            if st.button("🧸 เปิดห้องบันทึกข้อมูล", use_container_width=True, key="go_tracking"):
+            if st.button("เข้าสู่ห้องบันทึกข้อมูล  ➔", use_container_width=True, key="go_tracking"):
                 st.session_state.current_page = "tracking_page"
                 st.rerun()
 
 
     # 🔍 ================== [ฝั่งที่ 1: ตรวจสอบเอกสาร] ==================
     elif st.session_state.current_page == "audit_page":
-        # ปุ่มกดย้อนกลับไปหน้าแรกแบบมินิมอล คลีนๆ
-        if st.button("⬅️ กลับหน้าหลัก (Main Menu)", key="back_from_audit"):
+        if st.button("⬅   กลับหน้าเมนูหลัก", key="back_from_audit"):
             st.session_state.current_page = "portal"
             st.rerun()
             
-        st.markdown("<h3 style='color: #37474F; font-weight: 300;'>✨ ระบบตรวจสอบความถูกต้องเอกสาร (Process 1-4)</h3>", unsafe_allow_html=True)
-        st.markdown("<p style='color: #78909C; font-size: 13px;'>รวบรวมไฟล์แนบตามรายการ D/O และเช็กความถูกต้องระหว่างใบ B/L กับใบแจ้งแก้ไข</p>", unsafe_allow_html=True)
-        st.markdown("---")
+        st.markdown("<h3 style='font-weight: 400; margin-top: 15px;'>🌱 ระบบตรวจสอบความถูกต้องเอกสาร (Process 1-4)</h3>", unsafe_allow_html=True)
+        st.markdown("<p style='color: #8C968E; font-size: 13px; margin-top: -5px;'>ระบบจะช่วยอ่านและประมวลผลความสอดคล้องของชื่อบริษัท เครื่องหมายสินค้า น้ำหนัก และปริมาตรตู้ให้อัตโนมัติ</p>", unsafe_allow_html=True)
+        st.markdown("<hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 20px 0;'>", unsafe_allow_html=True)
         
         col1, col2 = st.columns(2)
         with col1:
-            st.markdown("<div style='background-color:#E1F5FE; padding:12px; border-radius:15px; color:#0288D1; font-size:14px; margin-bottom:10px; font-weight:bold;'>📥 อัปโหลด: ต้นฉบับ Bill of Lading (B/L)</div>", unsafe_allow_html=True)
-            bl_files = st.file_uploader("ลากไฟล์ B/L วางตรงนี้ค่ะ", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True, key="bl_upload")
+            st.markdown("<div style='background-color:#EDF3EE; padding:14px 20px; border-radius:18px; color:#4A5A4E; font-size:14px; margin-bottom:12px; font-weight:500;'>📥 เอกสารต้นฉบับ Bill of Lading (B/L)</div>", unsafe_allow_html=True)
+            bl_files = st.file_uploader("วางไฟล์ภาพหรือ PDF ของ B/L ตรงนี้ค่ะ", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True, key="bl_upload")
         with col2:
-            st.markdown("<div style='background-color:#FCE4EC; padding:12px; border-radius:15px; color:#C2185B; font-size:14px; margin-bottom:10px; font-weight:bold;'>📥 อัปโหลด: ใบแก้ไข Amend & Attached Sheet</div>", unsafe_allow_html=True)
-            amend_files = st.file_uploader("ลากไฟล์ใบ Amend และใบแนบวางตรงนี้ค่ะ", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True, key="amend_upload")
+            st.markdown("<div style='background-color:#F7EFEF; padding:14px 20px; border-radius:18px; color:#A66E6E; font-size:14px; margin-bottom:12px; font-weight:500;'>📥 ใบแก้ไข Amend & Attached Sheet</div>", unsafe_allow_html=True)
+            amend_files = st.file_uploader("วางไฟล์ใบ Amend และใบแนบตรงนี้ค่ะ", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True, key="amend_upload")
 
         if bl_files and amend_files:
             st.markdown("<br>", unsafe_allow_html=True)
-            if st.button("🚀 สั่งการพี่ Gemini ตรวจสอบเอกสารเชิงลึก", use_container_width=True):
-                with st.spinner("🤖 น้อง Gemini กำลังเพ่งตรวจภาษาชิปปิ้งและรวมใบแนบอย่างประณีต..."):
+            if st.button("🚀 เริ่มการสแกนและเปรียบเทียบข้อมูลเชิงลึก", use_container_width=True):
+                with st.spinner("🤖 น้อง Gemini กำลังแกะอักษรและตรวจสอบความถูกต้องอย่างประณีต..."):
                     try:
                         contents_payload = []
                         for bl in bl_files:
@@ -179,8 +207,8 @@ else:
                         contents_payload.append(prompt_instruction)
                         
                         response = client.models.generate_content(model='gemini-2.5-flash', contents=contents_payload)
-                        st.balloons()  # 🎉 ปล่อยลูกโป่งฉลองความสำเร็จน่ารักๆ
-                        st.success("✨ น้อง Gemini สแกนตัวอักษรและสรุปผลให้เรียบร้อยแล้วค่ะ!")
+                        st.balloons()
+                        st.success("✨ ตรวจสอบและสรุปรายงานเรียบร้อยแล้วค่ะ!")
                         st.markdown(response.text)
                         
                     except Exception as e:
@@ -189,26 +217,26 @@ else:
 
     # 📦 ================== [ฝั่งที่ 2: บันทึกรับ D/O] ==================
     elif st.session_state.current_page == "tracking_page":
-        if st.button("⬅️ กลับหน้าหลัก (Main Menu)", key="back_from_tracking"):
+        if st.button("⬅   กลับหน้าเมนูหลัก", key="back_from_tracking"):
             st.session_state.current_page = "portal"
             st.rerun()
             
-        st.markdown("<h3 style='color: #4E342E; font-weight: 300;'>🧸 ระบบบันทึกและตรวจสอบสถานะส่งมอบ D/O (Process 8)</h3>", unsafe_allow_html=True)
-        st.markdown("<p style='color: #8D6E63; font-size: 13px;'>พิมพ์ประทับตราวันที่ลูกค้ารับเอกสารหน้าเคาน์เตอร์ และดึงตารางข้อมูลตอบกลับเอเยนต์สายเรือ</p>", unsafe_allow_html=True)
-        st.markdown("---")
+        st.markdown("<h3 style='font-weight: 400; margin-top: 15px;'>🌾 ระบบบันทึกและตรวจสอบสถานะส่งมอบ D/O (Process 8)</h3>", unsafe_allow_html=True)
+        st.markdown("<p style='color: #8C968E; font-size: 13px; margin-top: -5px;'>บันทึกยืนยันวันที่ชิปปิ้งเข้ามารับชุดเอกสารใบส่งมอบ และค้นหาข้อมูลเพื่ออำนวยความสะดวกในการตอบ Agent ขาเข้า</p>", unsafe_allow_html=True)
+        st.markdown("<hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 20px 0;'>", unsafe_allow_html=True)
         
         df_current = load_data()
         
-        # ฟอร์มกล่องกรอกข้อมูลมนๆ น่ารัก
-        st.markdown("<div style='background-color: #FFF8E1; padding: 20px; border-radius: 20px; margin-bottom: 25px;'><strong>📝 ฟอร์มแสตมป์วันมารับเอกสาร</strong></div>", unsafe_allow_html=True)
+        # ฟอร์มกล่องกรอกข้อมูลมน ๆ โทนอุ่น
+        st.markdown("<div style='background-color: #F3F1E8; padding: 16px 22px; border-radius: 20px; color: #4A5A4E; font-size: 14px; font-weight: 500; margin-bottom: 20px;'>📝 แสตมป์รายการรับเอกสารหน้าเคาน์เตอร์</div>", unsafe_allow_html=True)
         cx1, cx2 = st.columns(2)
         with cx1:
-            input_bl = st.text_input("กรอกหมายเลข B/L ของลูกค้า", placeholder="เช่น PKELCH2660002")
+            input_bl = st.text_input("หมายเลข Bill of Lading (B/L)", placeholder="เช่น PKELCH2660002")
         with cx2:
             input_consignee = st.text_input("ชื่อบริษัทลูกค้า / Consignee", placeholder="เช่น SIAM LOGISTICS CO., LTD.")
             
         st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("💾 บันทึกข้อมูลลงฐานข้อมูลถาวร", use_container_width=True):
+        if st.button("💾 ยืนยันและบันทึกประวัติ", use_container_width=True):
             if input_bl:
                 bl_clean = input_bl.strip()
                 consignee_clean = input_consignee.strip() if input_consignee else "ลูกค้าหน้าเคาน์เตอร์"
@@ -221,20 +249,20 @@ else:
                 df_current = pd.concat([df_current, new_row], ignore_index=True)
                 
                 df_current.to_excel(EXCEL_FILE, index=False)
-                st.balloons()  # 🎉 ปล่อยลูกโป่งฉลองบันทึกข้อมูลเรียบร้อย
-                st.success(f"บันทึกข้อมูลวันรับเอกสารของ B/L {bl_clean} สำเร็จแล้วค่ะ!")
+                st.balloons()
+                st.success(f"บันทึกประวัติการส่งมอบเอกสารของ B/L {bl_clean} เรียบร้อยแล้วค่ะ")
                 st.rerun()
             else:
-                st.warning("⚠️ อย่าลืมใส่หมายเลข B/L ก่อนกดบันทึกนะคะ")
+                st.warning("⚠️ โปรดตรวจสอบและกรอกหมายเลข B/L ให้ถูกต้องก่อนกดบันทึก")
 
         st.markdown("<br><br>", unsafe_allow_html=True)
-        st.markdown("<h4 style='color: #4E342E; font-weight: 300;'>🔍 ค้นหาประวัติการส่งมอบ D/O ด่วน</h4>", unsafe_allow_html=True)
-        search_query = st.text_input("พิมพ์เลข B/L เพื่อกรอกข้อมูลในตารางทันที (สำหรับใช้ตอบโทรศัพท์ Agent)", placeholder="พิมพ์ค้นหาที่นี่...")
+        st.markdown("<h4 style='font-weight: 400;'>🔍 ค้นหาประวัติสถานะส่งมอบเอกสาร</h4>", unsafe_allow_html=True)
+        search_query = st.text_input("ระบุเลข B/L เพื่อค้นหาแบบเรียลไทม์ (พิมพ์แล้วกด Enter ได้เลยค่ะ)", placeholder="ค้นหาด่วนตรงนี้...")
         
         if search_query.strip() != "":
             df_filtered = df_current[df_current["เลขที่ B/L"].str.contains(search_query.strip(), case=False, na=False)]
         else:
             df_filtered = df_current
                 
-        # แสดงตารางแบบคลีนๆ เต็มหน้าจอ
+        # แสดงตารางแบบคลีนมินิมอล
         st.dataframe(df_filtered, use_container_width=True)
