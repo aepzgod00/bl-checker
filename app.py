@@ -485,23 +485,26 @@ else:
                 
         st.dataframe(df_filtered, use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
+        import os
+        import streamlit as st
 
-import os
-import streamlit as st
+        # สมมติว่า EXCEL_FILE คือชื่อไฟล์ที่น้าตั้งไว้ด้านบนของโค้ดนะคับ
+        # EXCEL_FILE = "ชื่อไฟล์ของน้า.xlsx" 
 
-# สมมติว่า EXCEL_FILE คือชื่อไฟล์ที่น้าตั้งไว้ด้านบนของโค้ดนะคับ
-# EXCEL_FILE = "ชื่อไฟล์ของน้า.xlsx" 
+            st.markdown("### ⚠️ จัดการระบบฐานข้อมูล")
+
+            # สร้างปุ่มสำหรับกดล้างประวัติ
+            if st.button("ล้างประวัติข้อมูลทั้งหมด (Clear History)"):
+                if os.path.exists(EXCEL_FILE):
+                    try:
+                        os.remove(EXCEL_FILE)
+                        st.success("🔥 ลบประวัติข้อมูลทั้งหมดเรียบร้อยแล้ว แฟ้มข้อมูลถูกรีเซ็ต!")
+                        # สั่งให้แอปรีเฟรชหน้าจอเพื่ออัปเดตสถานะตารางด้านล่างให้เป็น empty
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"ไม่สามารถลบไฟล์ได้เนื่องจาก: {e}")
+                    else:
+                        st.warning("ไม่มีข้อมูลประวัติให้ลบในระบบ")
 
 
-# สร้างปุ่มสำหรับกดล้างประวัติ
-if st.button("ล้างประวัติข้อมูลทั้งหมด (Clear History)"):
-    if os.path.exists(EXCEL_FILE):
-        try:
-            os.remove(EXCEL_FILE)
-            st.success("🔥 ลบประวัติข้อมูลทั้งหมดเรียบร้อยแล้ว แฟ้มข้อมูลถูกรีเซ็ต!")
-            # สั่งให้แอปรีเฟรชหน้าจอเพื่ออัปเดตสถานะตารางด้านล่างให้เป็น empty
-            st.rerun()
-        except Exception as e:
-            st.error(f"ไม่สามารถลบไฟล์ได้เนื่องจาก: {e}")
-    else:
-        st.warning("ไม่มีข้อมูลประวัติให้ลบในระบบอยู่แล้วครับน้า")
+
