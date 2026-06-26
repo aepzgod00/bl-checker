@@ -13,10 +13,10 @@ st.set_page_config(
     layout="wide"
 )
 
-# เนรมิตความนุ่มนวลตามรูปตัวอย่าง: เพิ่มฟอนต์ Cinzel Decorative สำหรับหัวข้อสไตล์ดิสเพลย์หรูหรา
+# เนรมิตความนุ่มนวล: นำเข้าฟอนต์ Fredoka เพื่อให้หัวข้อหนา อ้วนกลม เป็นกันเองตามรูปตัวอย่าง
 st.markdown("""
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700;800&family=Cinzel+Decorative:wght@700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700;800&family=Fredoka:wght@600;700;900&display=swap');
         
         /* 1. คุมโทนพื้นหลังสีครีมงาช้างอบอุ่น (Earthy Off-White) */
         .stApp {
@@ -24,19 +24,16 @@ st.markdown("""
             font-family: 'Bai Jamjuree', sans-serif;
         }
         
-        /* สไตล์พิเศษสำหรับหัวข้อใหญ่ VERIFYHUB ให้ได้ฟีลลิ่ง High-Contrast Serif แบบรูปตัวอย่าง */
+        /* สไตล์พิเศษสำหรับหัวข้อใหญ่ VERIFYHUB ให้เป็นฟอนต์อ้วนกลมหนานุ่มสไตล์การ์ตูน */
         .brand-header {
-            font-family: 'Oswald', serif;
+            font-family: 'Fredoka', sans-serif;
             text-align: center; 
             color: #3A443E; 
-            font-weight: 900; 
-            font-size: 64px;          /* ปรับขนาดให้ใหญ่เด่นชัด */
-            letter-spacing: 2px;      /* เว้นระยะตัวอักษรให้อ่านง่ายและดูแพง */
+            font-weight: 700;          /* ความหนากำลังดีตามสไตล์ Chubby */
+            font-size: 60px;           /* ขนาดใหญ่เห็นชัดเจน */
+            letter-spacing: 1px;       /* ระยะห่างพอดีคำ */
             margin-top: 20px;
-            margin-bottom: 35px;
-            background: linear-gradient(180deg, #3A443E 0%, #252B28 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
         }
         
         /* 2. ดีไซน์ปุ่มทั่วไปให้โค้งมน นุ่มนิ่ม และใช้สีเขียวหม่นธรรมชาติ */
@@ -110,7 +107,7 @@ def เตรียมไฟล์สำหรับ_gemini(file_uploader_obj):
 if "current_page" not in st.session_state:
     st.session_state.current_page = "portal"
 
-# 🏢 TOP NAVIGATION BRANDING (ปรับเป็นสไตล์ Modern Elegant Serif แล้วครับน้า 🌿)
+# 🏢 TOP NAVIGATION BRANDING (ปรับเป็น Font อ้วนกลม น่ารัก มินิมอล ตามรูปแบบเรียบร้อยครับน้า 🌿)
 st.markdown("<div class='brand-header'>VERIFYHUB</div>", unsafe_allow_html=True)
 
 if not API_KEY or API_KEY.startswith("YOUR"):
@@ -120,7 +117,7 @@ else:
 
     # 🚪 ================== [หน้าแรก: แบ่งเป็น 2 ฝั่ง] ==================
     if st.session_state.current_page == "portal":
-        st.markdown("<h4 style='text-align: center; color: #5D6861; font-weight: 400; margin-bottom: 40px;'>Good morning! What would you like to do today? </h4>", unsafe_allow_html=True)
+        st.markdown("<h4 style='text-align: center; color: #5D6861; font-weight: 400; margin-bottom: 40px;'>Good morning! วันนี้ต้องการจัดการงานส่วนไหนดีคะ? ✨</h4>", unsafe_allow_html=True)
         
         # จัด Layout แบ่งเป็นสองฝั่งอย่างสมดุลและกว้างพอดีสายตา
         p_col1, space_col, p_col2 = st.columns([4, 0.8, 4])
@@ -195,7 +192,7 @@ else:
                             "💡 คำแนะนำพิเศษในการอ่านไฟล์ (CRITICAL FILE READING INSTRUCTION):\n"
                             "1. จงอ่านและสกัดรายละเอียดเนื้อหาในไฟล์แนบ หรือ ใบ Attached Sheet ทุกใบอย่างละเอียดครบถ้วนทุกบรรทัด "
                             "โดยข้อมูลใน Attached Sheet มักจะระบุเชื่อมโยงกับเลขที่ D/O หรือลำดับรายการบนใบ Amend หลัก ไม่ใช่เลข B/L ดั้งเดิม ให้คุณทำการรวบรวมและเชื่อมโยงข้อมูลให้ถูกทอดก่อน\n"
-                            "2. โปรดเข้าใจว่ารูปแบบการพิมพ์ของลูกค้าแต่ละใบอาจไม่เหมือนกัน มีการเว้นวรรค พิมพ์ขึ้นบรรทัดใหม่ หรือกด Enter แต่างกันไปตามฟอร์มของแต่ละบริษัท "
+                            "2. โปรดเข้าใจว่ารูปแบบการพิมพ์ของลูกค้าแต่ละใบอาจไม่เหมือนกัน มีการเว้นวรรค พิมพ์ขึ้นบรรทัดใหม่ หรือกด Enter แตกต่างกันไปตามฟอร์มของแต่ละบริษัท "
                             "ดังนั้นให้เน้นที่ 'ใจความและเนื้อหาข้อมูลสำคัญ' เป็นหลักในการพิจารณาตรวจสอบข้ามเอกสาร\n\n"
                             "🔍 เกณฑ์การจับคู่แบบไฮบริดดั้งเดิม (Hybrid & Flexible Logic):\n"
                             "- Description of Goods: หากข้อมูลในใบ Amend/Attached sheet ใส่มาแค่ชื่อสินค้าหลักตรง หรือจำนวนหีบห่อตรงตามหน้า B/L (แม้ข้อความจะสั้นยาวไม่เท่ากัน หรือกด Enter สลับบรรทัดกันมา) ให้ตัดสินเป็น MATCH ทันที\n"
