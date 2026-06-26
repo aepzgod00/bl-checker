@@ -137,28 +137,8 @@ st.markdown("""
             line-height: 1.45; 
             margin-bottom: 0;
         }
-        
-        .card-checklist {
-            text-align: left;
-            max-width: 220px;
-            margin: 18px auto 0 auto;
-            border-top: 1px solid #F1EFE8;
-            padding-top: 15px;
-        }
-        .checklist-item {
-            font-size: 14px;
-            color: #5A665E;
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .checklist-item-check {
-            color: #557A61;
-            font-weight: 700;
-        }
 
-        /* 🧺 3. Cozy Cream Code Box (แก้ปัญหากล่องสีดำ) */
+        /* 🧺 3. Cozy Cream Code & Link Box (ปรับจากกล่องสีดำเป็นสีครีมมูดยุโรป) */
         .custom-code-box {
             background-color: #FAF8F5 !important;
             border: 1px solid #EAE8DF !important;
@@ -178,17 +158,53 @@ st.markdown("""
             margin: 0 !important;
         }
         
+        /* ☁️ 4. แก้กล่องดำอัปโหลดไฟล์ (Streamlit File Uploader Overrides) */
+        div[data-testid="stFileUploader"] {
+            background-color: #FAF8F5 !important;
+            border: 1.5px dashed #DCD9CD !important;
+            border-radius: 16px !important;
+            padding: 25px 20px !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        div[data-testid="stFileUploader"]:hover {
+            border-color: #557A61 !important;
+            background-color: #F3F5F2 !important;
+        }
+        /* แก้ปุ่ม Browse Files ด้านใน */
+        div[data-testid="stFileUploader"] section button {
+            background-color: #FFFFFF !important;
+            color: #4A5A4E !important;
+            border: 1px solid #D5D2C1 !important;
+            border-radius: 10px !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02) !important;
+            transition: all 0.2s ease;
+        }
+        div[data-testid="stFileUploader"] section button:hover {
+            border-color: #557A61 !important;
+            color: #557A61 !important;
+            background-color: #FAF8F5 !important;
+        }
+        /* แก้สีข้อความอธิบายการลากไฟล์ */
+        div[data-testid="stFileUploaderText"] > span {
+            color: #7A857D !important;
+            font-size: 13.5px !important;
+        }
+        /* ล้างสีพื้นหลังสีดำเดิมของโครงสร้างเบื้องหลัง */
+        div[data-testid="stFileUploader"] > section {
+            background-color: transparent !important;
+        }
+
         div.stButton > button:first-child {
             border-radius: 12px !important;
             border: 1px solid #557A61 !important;
             background-color: #FFFFFF !important;
             color: #557A61 !important;
-            font-family: 'Manrope', sans-serif !important;
-            font-weight: 700 !important;
-            font-size: 14px !important;
-            padding: 8px 22px !important;
+            font-family: 'Bai Jamjuree', sans-serif !important;
+            font-weight: 600 !important;
+            font-size: 14.5px !important;
+            padding: 10px 24px !important;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(85, 122, 97, 0.04);
+            box-shadow: 0 4px 12px rgba(85, 122, 97, 0.05);
             margin: 0 auto;
             display: block;
             width: auto !important;
@@ -197,7 +213,7 @@ st.markdown("""
             background-color: #557A61 !important;
             color: #FFFFFF !important;
             transform: translateY(-2px) !important;
-            box-shadow: 0 8px 16px rgba(85, 122, 97, 0.15) !important;
+            box-shadow: 0 8px 20px rgba(85, 122, 97, 0.18) !important;
         }
         
         div.stButton > button[key^="back_"] {
@@ -233,29 +249,6 @@ st.markdown("""
             font-size: 14px;
             color: #7A857D;
             margin-top: 5px;
-        }
-
-        div[data-testid="stFileUploader"] {
-            background-color: #FAFAF9 !important;
-            border: 1.5px dashed #E2E0D5 !important;
-            border-radius: 16px !important;
-            padding: 18px !important;
-            transition: all 0.3s ease;
-        }
-        div[data-testid="stFileUploader"]:hover {
-            border-color: #557A61 !important;
-            background-color: #F4F6F4 !important;
-        }
-        div[data-testid="stFileUploader"] section button {
-            background-color: #FFFFFF !important;
-            color: #4A5A4E !important;
-            border: 1px solid #E2E0D5 !important;
-            border-radius: 10px !important;
-            box-shadow: none !important;
-        }
-        div[data-testid="stFileUploaderText"] > span {
-            color: #7A857D !important;
-            font-size: 13px !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -434,7 +427,7 @@ else:
         df_current = load_data()
         
         st.markdown("<div class='cozy-portal-card' style='text-align: left; padding: 35px 28px;'>", unsafe_allow_html=True)
-        st.markdown("<div style='background-color: #F4F3ED; padding: 12px 20px; border-radius: 12px; color: #4A5A4E; font-size: 14px; font-weight: 600; margin-bottom: 20px; display:flex; align-items:center; gap:8px;'><span class='material-symbols-outlined' style='font-size:18px;'>edit_square</span> แสตมป์รายการรับเอกสารหน้าเคาน์เตอร์</div>", unsafe_allow_html=True)
+        st.markdown("<div style='background-color: #F4F3ED; padding: 12px 20px; border-radius: 12px; color: #4A5A4E; font-size: 14px; font-weight: 600; margin-bottom: 20px; display:flex; align-items:center; gap:8px;'><span class='material-symbols-outlined' style='font-size:18px;'>edit_square</span> รายการรับเอกสารหน้าเคาน์เตอร์</div>", unsafe_allow_html=True)
         
         cx1, cx2 = st.columns(2)
         with cx1:
@@ -443,7 +436,8 @@ else:
             input_consignee = st.text_input("ชื่อบริษัทลูกค้า / Consignee", placeholder="เช่น SIAM LOGISTICS CO., LTD.")
             
         st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("💾 ยืนยันและบันทึกประวัติ", use_container_width=False):
+        # นำรูปไอคอนเซฟแผ่นดิสก์เวอร์ชันเก่าออก เปลี่ยนเป็นปุ่มสไตล์โมเดิร์นมินิมอลเรียบร้อยครับ
+        if st.button("ยืนยันและบันทึกประวัติ", use_container_width=False):
             if input_bl:
                 bl_clean = input_bl.strip()
                 consignee_clean = input_consignee.strip() if input_consignee else "ลูกค้าหน้าเคาน์เตอร์"
