@@ -1,50 +1,31 @@
 import streamlit as st
-from anthropic import Anthropic
-import base64
+from google import genai
+from google.genai import types
 import io
-import pdfplumber
-from PIL import Image
 
-st.set_page_config(page_title="ระบบตรวจข้อมูล B/L กับ Amend", layout="wide")
-st.title("🚢 [Claude 3.5 Sonnet] ระบบตรวจเปรียบเทียบข้อมูล B/L หลายฉบับ กับ ใบ Amend")
-st.subheader("เวอร์ชันแก้ Error: บังคับแปลงเป็นรูปภาพคมชัดสูงก่อนส่งให้ Claude 3.5 สแกนสายตา")
+st.set_page_config(page_title="ระบบตรวจข้อมูล B/L กับ Amend (Gemini)", layout="wide")
+st.title("🚢 [Gemini 2.5] ระบบตรวจเปรียบเทียบข้อมูล B/L หลายฉบับ กับ ใบ Amend")
+st.subheader("เวอร์ชันเสถียรสูงสุด: อัปเกรดระบบ Prompt อัจฉริยะ คาดการณ์คำและสรุปผลแม่นยำ")
 
-# ⚠️ ใส่รหัส Claude API Key (sk-ant-...) ของคุณด้านล่างนี้ครับ
-API_KEY = "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"
+# 🔑 ใส่รหัส Gemini API Key ของคุณที่นี่ครับ (ใช้ง่าย ไม่ล็อก 401 วุ่นวาย)
+API_KEY = "AQ.Ab8RN6KVujoWku4GOWYJbD1uFzhtqUHObm9Y571oqquJ8XrdwQ"
 
-# ฟังก์ชันแปลงไฟล์ทุกประเภท (รวมถึง PDF) ให้กลายเป็นภาพ JPEG และทำเป็น Base64
-def แปลงไฟล์เป็นภาพ_base64(file_uploader_obj):
-    file_bytes = file_uploader_obj.getvalue()
-    file_name = file_uploader_obj.name.lower()
-    
-    # 📄 เคสไฟล์ PDF: ใช้ pdfplumber ดึงหน้าแรกออกมาแปลงเป็นรูปภาพ
-    if file_name.endswith('.pdf'):
-        try:
-            with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
-                if pdf.pages:
-                    # ดึงหน้าแรกของ PDF ออกมา (ส่วนใหญ่ B/L และ Amend มีหน้าเดียวหรืออยู่หน้าแรก)
-                    first_page = pdf.pages[0]
-                    # แปลงหน้านี้ให้กลายเป็นภาพออบเจกต์ของ PIL (ความละเอียดสูง)
-                    pil_img = first_page.to_image(resolution=150).original
-                    
-                    # เซฟภาพลงหน่วยความจำบัฟเฟอร์ให้เป็น JPEG
-                    img_byte_arr = io.BytesIO()
-                    pil_img.convert('RGB').save(img_byte_arr, format='JPEG')
-                    base64_data = base64.b64encode(img_byte_arr.getvalue()).decode("utf-8")
-                    return base64_data
-        except Exception as e:
-            st.error(f"ไม่สามารถอ่านไฟล์ PDF {file_uploader_obj.name} ได้: {str(e)}")
-            return None
-            
-    # 🖼️ เคสไฟล์รูปภาพปกติ (PNG, JPG, JPEG)
-    else:
-        base64_data = base64.b64encode(file_bytes).decode("utf-8")
-        return base64_data
+# ฟังก์ชันสำหรับเตรียมไฟล์ส่งให้ Gemini
+def เตรียมไฟล์สำหรับ_gemini(file_uploader_obj):
+    if file_uploader_obj is not None:
+        file_bytes = file_uploader_obj.getvalue()
+        mime_type = file_uploader_obj.type
+        return types.Part.from_bytes(
+            data=file_bytes,
+            mime_type=mime_type
+        )
+    return None
 
 if not API_KEY or API_KEY.startswith("YOUR"):
-    st.error("⚠️ โปรดใส่รหัส Claude API Key จริงของคุณในโค้ดหลังบ้านก่อนนำไปรัน")
+    st.error("⚠️ โปรดใส่รหัส Gemini API Key จริงของคุณในโค้ดหลังบ้านก่อนนำไปรัน")
 else:
-    client = Anthropic(api_key=API_KEY)
+    # เริ่มต้นเชื่อมต่อกับเซิร์ฟเวอร์ Google GenAI
+    client = genai.Client(api_key=API_KEY)
     
     col1, col2 = st.columns(2)
     with col1:
@@ -55,77 +36,65 @@ else:
         amend_file = st.file_uploader("ลากไฟล์ใบ Amend มาวางตรงนี้", type=["pdf", "png", "jpg", "jpeg"], key="amend")
 
     if bl_files and amend_file:
-        if st.button("🚀 เริ่มตรวจสอบเปรียบเทียบข้อมูลด้วย Claude 3.5", use_container_width=True):
-            with st.spinner("🤖 Claude 3.5 Sonnet กําลังใช้เลนส์สายตาแกะฟอนต์เอกสารอย่างละเอียด..."):
+        if st.button("🚀 เริ่มตรวจสอบเปรียบเทียบข้อมูลด้วย Gemini อัจฉริยะ", use_container_width=True):
+            with st.spinner("🤖 Gemini กําลังวิเคราะห์โครงสร้างเอกสารและคำนวเนตัวเลขทั้งหมด..."):
                 try:
-                    # ส่วนผสมคอนเทนต์ที่จะส่งให้ Claude (บังคับเป็น Image ชัดเจน)
-                    message_content = []
+                    # 1. รวบรวมชิ้นส่วนไฟล์ทั้งหมดส่งไปให้โมเดลประมวลผลพร้อมกันทีเดียว
+                    contents_payload = []
                     
-                    # 🔄 1. วนลูปแปลงไฟล์ B/L ทุกใบให้เป็นรูปภาพ และแอดเข้าสู่ระบบ
-                    for bl_file in bl_files:
-                        b64_img = แปลงไฟล์เป็นภาพ_base64(bl_file)
-                        if b64_img:
-                            message_content.append({
-                                "type": "image",
-                                "source": {
-                                    "type": "base64",
-                                    "media_type": "image/jpeg",
-                                    "data": b64_img
-                                }
-                            })
+                    # วนลูปแอดไฟล์ B/L ทุกใบ
+                    for idx, bl in enumerate(bl_files):
+                        part = เตรียมไฟล์สำหรับ_gemini(bl)
+                        if part:
+                            contents_payload.append(part)
+                            
+                    # แอดไฟล์ใบ Amend ปิดท้าย
+                    amend_part = เตรียมไฟล์สำหรับ_gemini(amend_file)
+                    if amend_part:
+                        contents_payload.append(amend_part)
                     
-                    # 📝 2. แปลงไฟล์ใบ Amend ให้เป็นรูปภาพ และแอดเข้าสู่ระบบ
-                    amend_b64 = แปลงไฟล์เป็นภาพ_base64(amend_file)
-                    if amend_b64:
-                        message_content.append({
-                            "type": "image",
-                            "source": {
-                                "type": "base64",
-                                "media_type": "image/jpeg",
-                                "data": amend_b64
-                            }
-                        })
-                    
-                    # 🧠 3. สั่ง Prompt กฎเหล็กโลจิสติกส์ปิดท้าย เพื่อให้มันวิเคราะห์ภาพด้านบนทั้งหมด
-                    system_instruction = (
-                        "คุณคือผู้เชี่ยวชาญด้านเอกสารโลจิสติกส์ มีความแม่นยำสูงมากในการตรวจสอบเอกสาร Bill of Lading (B/L) หลายๆ ใบ เทียบกับใบขอแก้ไขข้อมูล (Amendment) ใบเดียว\n\n"
-                        "ภารกิจของคุณ:\n"
-                        "ให้เปรียบเทียบและตรวจสอบความถูกต้องจากภาพเอกสารด้านบนทั้งหมด โดยเน้น 5 ฟิลด์หลักดังนี้:\n"
-                        "1. Consignee (เอาแค่ชื่อบริษัท ไม่เอาที่อยู่ ใช้ Logic ตัดคำพวก ., ออกเองเลย)\n"
-                        "2. Shipping Marks & Numbers (เอาตามที่ลูกค้ากรอกหรือติ๊กเลือก)\n"
-                        "3. Description of Goods (รายละเอียดสินค้าทั้งหมด)\n"
-                        "4. Gross Weight (G.W.) (รวมมูลค่าตัวเลขจาก B/L ทุกใบมาเทียบกับใบ Amend ว่าตรงกันไหม)\n"
-                        "5. Measurement (M3/CBM) (รวมมูลค่าตัวเลขจาก B/L ทุกใบมาเทียบกับใบ Amend ว่าตรงกันไหม)\n\n"
-                        "⚠️ กฎเหล็กในการตรวจจับอักษร (CRITICAL LOGIC):\n"
-                        "- ในช่อง Description of Goods หากคุณอ่านเจอคำว่า 'Hi Alumina sand #35S' หรือ '#22S' แล้วฟอนต์มันเบียดกันจนดูเพี้ยน แต่ในใบ Amend ระบุเป็น #35S ชัดเจน ให้คุณใช้ Logic คาดการณ์บริบทความน่าจะเป็น (Contextual Logic) ว่ามันคือตัวเดียวกัน และตัดสินผลเป็น 'MATCH' ทันที (แต่ให้เขียนหมายเหตุบอกสั้นๆ ว่าปรับปรุงจากฟอนต์เอกสารเบียดกัน)\n"
-                        "- ต้องพิจารณาถึงความแตกต่างเล็กน้อย เช่น การเว้นวรรค (Spacing) หรือการสลับตำแหน่งของคำ (เช่น MADE IN TAIWAN vs IN TAIWAN MADE) โดยต้องมองว่าเป็นจุดที่ต้องแก้ไข (MISMATCH)\n\n"
-                        "📋 รูปแบบการรายงานผลลัพธ์ (กรุณาแสดงผลเป็นตาราง Markdown แยกตามหัวข้ออย่างชัดเจน):\n\n"
+                    # 2. ข้อความสั่งงานระดับเซียนโลจิสติกส์ (Advanced Prompt Engineering)
+                    prompt_instruction = (
+                        "คุณคือผู้ตรวจสอบเอกสารฝ่ายขาเข้า-ขาออก (Import-Export Specialist) ที่มีความละเอียดรอบคอบระดับสูงสุด "
+                        "จงทำการวิเคราะห์รูปภาพหรือไฟล์ PDF ของ Bill of Lading (B/L) ทุกๆ ใบที่อัปโหลดมา นำข้อมูลมารวมกัน "
+                        "แล้วนำไปเปรียบเทียบกับเอกสารใบขอแก้ไขข้อมูล (Amendment) อย่างเข้มงวดตามหลักการดังนี้:\n\n"
+                        
+                        "🔍 ฟิลด์บังคับตรวจสอบเปรียบเทียบ (5 Core Fields):\n"
+                        "1. Consignee: ตรวจสอบเฉพาะชื่อบริษัทหลัก (ตัดเครื่องหมายจุด, คอมมา หรือคำลงท้ายสร้อยออกเพื่อเทียบความถูกต้อง)\n"
+                        "2. Shipping Marks & Numbers: ตรวจสอบเครื่องหมายบนหีบห่อตามที่ระบุในเอกสาร\n"
+                        "3. Description of Goods: รายละเอียดสินค้าทั้งหมด\n"
+                        "4. Gross Weight (G.W.): ทำการหาผลรวมตัวเลข Gross Weight จาก B/L ทุกใบที่ส่งมา แล้วนำยอดรวมนั้นไปเช็กว่าตรงกับค่าบนใบ Amend ไหม\n"
+                        "5. Measurement (M3/CBM): ทำการหาผลรวมตัวเลข CBM จาก B/L ทุกใบที่ส่งมา แล้วนำยอดรวมนั้นไปเช็กว่าตรงกับค่าบนใบ Amend ไหม\n\n"
+                        
+                        "🧠 กฎเหล็ก Logic คาดการณ์บริบทคำผิด (Contextual Font Logic):\n"
+                        "- หากในช่อง Description of Goods ของ B/L มีคำที่ฟอนต์เบียดหรือจาง เช่น ระบบอาจจะสแกนเห็นเป็นเลขอื่นแทนเครื่องหมาย '#' (เช่น 'Hi Alumina sand 35S' หรือเพี้ยนเป็นอักษรอื่น) แต่ในเอกสารใบ Amend เขียนระบุชัดเจนว่าต้องแก้ไขเป็น '#35S' หรือ '#22S' ให้คุณพิจารณาตามความน่าจะเป็นเชิงบริบท (Contextual Logic) ว่ามันคือตัวเดียวกัน และตัดสินผลการตรวจสอบช่องนั้นเป็น 'MATCH' ทันที! แต่ให้ระบุในหมายเหตุว่า 'ผ่านการปรับปรุงความเพี้ยนของฟอนต์ตัวอักษรเบียด'\n"
+                        "- อย่างไรก็ตาม หากมีความแตกต่างด้านการสลับโครงสร้างคำที่มีผลต่อความหมาย เช่น 'MADE IN TAIWAN' กับ 'IN TAIWAN MADE' หรือการเว้นวรรคผิดจุดที่ส่งผลต่อรหัสสินค้า ให้ตัดสินเป็น 'MISMATCH'\n\n"
+                        
+                        "📋 รูปแบบการแสดงผล (ต้องแสดงเป็นตาราง Markdown แยกหัวข้อให้ชัดเจนและอ่านง่ายที่สุด):\n\n"
                         "### 📊 ตารางเปรียบเทียบข้อมูลเอกสาร B/L ทั้งหมด และ ใบ Amend\n"
-                        "| หัวข้อตรวจสอบ | ข้อมูลรวมจาก B/L ทุกใบ | ข้อมูลบนใบ Amend | ผลการตรวจ | หมายเหตุ / สาเหตุที่ผิดพลาด |\n"
+                        "| หัวข้อตรวจสอบ | ข้อมูลรวมจาก B/L ทุกใบ | ข้อมูลบนใบ Amend | ผลการตรวจ | หมายเหตุ / วิเคราะห์สาเหตุ |\n"
                         "| :--- | :--- | :--- | :--- | :--- |\n"
                         "| **Consignee** | [ข้อมูล] | [ข้อมูล] | MATCH หรือ MISMATCH | [รายละเอียด] |\n"
                         "| **Shipping Marks** | [ข้อมูล] | [ข้อมูล] | MATCH หรือ MISMATCH | [รายละเอียด] |\n"
-                        "| **Description of Goods** | [ข้อมูล] | [ข้อมูล] | MATCH หรือ MISMATCH | [รายละเอียดเคสพิเศษ] |\n"
-                        "| **Gross Weight (G.W.)** | [ข้อมูล] | [ข้อมูล] | MATCH หรือ MISMATCH | [คำนวณสรุป] |\n"
-                        "| **Measurement (CBM)** | [ข้อมูล] | [ข้อมูล] | MATCH หรือ MISMATCH | [คำนวณสรุป] |\n\n"
-                        "### 📢 สรุปข้อแนะนำการ Amend เอกสาร\n"
-                        "**สรุปภาพรวม:** (วิเคราะห์ภาพรวมให้ชัดเจนแบบมืออาชีพ Import-Export)"
+                        "| **Description of Goods** | [ข้อมูล] | [ข้อมูล] | MATCH หรือ MISMATCH | [วิเคราะห์เคสพิเศษฟอนต์เบียด] |\n"
+                        "| **Gross Weight (G.W.)** | [ข้อมูลรวมคณิตศาสตร์] | [ข้อมูล] | MATCH หรือ MISMATCH | [แสดงเลขบวกกันให้เห็น] |\n"
+                        "| **Measurement (CBM)** | [ข้อมูลรวมคณิตศาสตร์] | [ข้อมูล] | MATCH หรือ MISMATCH | [แสดงเลขบวกกันให้เห็น] |\n\n"
+                        
+                        "### 📢 สรุปข้อแนะนำการ Amend และจุดที่ต้องระวัง\n"
+                        "**วิเคราะห์ภาพรวม:** (เขียนสรุปให้คำแนะนำในมุมมองผู้ตรวจปล่อยสินค้าอย่างมืออาชีพ)"
                     )
                     
-                    # แอดคำสั่ง Text บรีฟงานเข้าไปเป็นส่วนสุดท้ายของกล่องคำสั่ง
-                    message_content.append({"type": "text", "text": system_instruction})
+                    contents_payload.append(prompt_instruction)
                     
-                    # ยิงข้อมูลเรียกใช้งาน Claude 3.5 Sonnet
-                    response = client.messages.create(
-                        model="claude-3-5-sonnet-20241022",
-                        max_tokens=4000,
-                        temperature=0.1,
-                        messages=[{"role": "user", "content": message_content}]
+                    # 3. ส่งคำสั่งไปประมวลผลที่โมเดลรุ่นเก่งและนิ่งที่สุด Gemini 2.5 Flash
+                    response = client.models.generate_content(
+                        model='gemini-2.5-flash',
+                        contents=contents_payload
                     )
                     
-                    st.success("✨ Claude 3.5 ตรวจสอบข้อมูลเสร็จสิ้นเรียบร้อย!")
+                    st.success("✨ Gemini ตรวจสอบและคำนวณข้อมูลให้เสร็จสิ้นเรียบร้อย!")
                     st.markdown("### 📊 ผลการตรวจสอบเปรียบเทียบเชิงลึก")
-                    st.markdown(response.content[0].text)
+                    st.markdown(response.text)
                     
                 except Exception as e:
-                    st.error(f"เกิดข้อผิดพลาดในการประมวลผลของ Claude: {str(e)}")
+                    st.error(f"เกิดข้อผิดพลาดในการประมวลผลของ Gemini: {str(e)}")
