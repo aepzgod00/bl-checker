@@ -94,7 +94,7 @@ else:
                     
                     # ปล่อยให้ Gemini ประมวลผลแบบเป็นธรรมชาติ ยืดหยุ่น และดึงประสิทธิภาพ OCR สูงสุดออกมา
                     response = client.models.generate_content(
-                        model='gemini-2.5-flash', 
+                        model='gemini-2.5-pro', 
                         contents=contents_payload
                     )
                     
