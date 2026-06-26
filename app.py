@@ -18,14 +18,13 @@ st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700;800&family=Manrope:wght@500;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&display=swap');
         
-        /* โครงสร้างพื้นหลังหลักของแอป */
         .stApp {
             background: linear-gradient(180deg, #FAF8F5 0%, #F4F2EE 100%);
             font-family: 'Bai Jamjuree', sans-serif;
             background-attachment: fixed;
         }
         
-        /* 🌿 RE-DESIGN: จัดการกล่องข้อความธรรมดาและตารางของ AI ให้ Minimal & Cozy ขั้นสุด */
+        /* 🌿 Minimalist AI Output Styling */
         div[data-testid="stMarkdownContainer"] p, 
         div[data-testid="stMarkdownContainer"] li {
             color: #4A5A4E !important;
@@ -38,13 +37,13 @@ st.markdown("""
         div[data-testid="stMarkdownContainer"] h3,
         div[data-testid="stMarkdownContainer"] h4 {
             color: #2D3531 !important;
-            font-family: 'Bai Jamjuree', sans-serif;
+            font-family: 'Manrope', sans-serif;
             font-weight: 700;
             margin-top: 25px;
             margin-bottom: 12px;
         }
         
-        /* รื้อโครงสร้างตาราง HTML ดั้งเดิมให้เป็นแบบ Cozy Flat Design */
+        /* Cozy Flat Design Tables */
         div[data-testid="stMarkdownContainer"] table {
             color: #4A5A4E !important;
             background-color: #FDFCFA !important;
@@ -57,7 +56,6 @@ st.markdown("""
             border: none !important;
         }
         
-        /* หัวตารางคลีน ๆ โทนอุ่น */
         div[data-testid="stMarkdownContainer"] th {
             background-color: #F0EDE6 !important;
             color: #2D3531 !important;
@@ -65,11 +63,12 @@ st.markdown("""
             padding: 14px 16px !important;
             border: none !important;
             border-bottom: 2px solid #E4E1D6 !important;
-            font-size: 14px;
+            font-size: 13.5px;
             text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
-        /* แถวข้อมูล เน้นใช้เส้นคั่นบาง ๆ แทนกล่องสี่เหลี่ยมหนาแบบเก่า */
         div[data-testid="stMarkdownContainer"] td {
             color: #4A5A4E !important;
             padding: 14px 16px !important;
@@ -80,22 +79,31 @@ st.markdown("""
             vertical-align: top;
         }
         
-        /* สลับสีแถวเบา ๆ เพื่อให้อ่านข้อมูลง่ายขึ้น */
         div[data-testid="stMarkdownContainer"] tr:nth-child(even) td {
             background-color: #FAF8F4 !important;
         }
         
-        /* ปรับไฮไลท์ข้อความสถานะ MATCH / MISMATCH ให้ดูเรียบร้อย */
-        div[data-testid="stMarkdownContainer"] td:contains("MATCH") {
-            color: #487056 !important;
-            font-weight: 600;
+        /* Status Badge Highlights */
+        .status-badge-match {
+            color: #3B664B !important;
+            background-color: #E6F0EA;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 0.5px;
         }
-        div[data-testid="stMarkdownContainer"] td:contains("MISMATCH") {
-            color: #A66E6E !important;
-            font-weight: 600;
+        .status-badge-mismatch {
+            color: #A65252 !important;
+            background-color: #FAEAEA;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 0.5px;
         }
         
-        /* สไตล์ส่วนหัวและโปรไฟล์ */
+        /* Header & Core Brand UI */
         .brand-block {
             text-align: left;
             padding-top: 10px;
@@ -171,7 +179,6 @@ st.markdown("""
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             margin-bottom: 15px;
         }
-        
         .cozy-portal-card:hover {
             transform: translateY(-5px);
             border-color: #557A61;
@@ -190,7 +197,6 @@ st.markdown("""
             color: #4A5A4E;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        
         .cozy-portal-card:hover .icon-wrapper {
             transform: scale(1.05);
             background-color: #EDF3EE;
@@ -226,9 +232,6 @@ st.markdown("""
             display: flex;
             align-items: center;
             gap: 10px;
-        }
-        .checklist-item:last-child {
-            margin-bottom: 0;
         }
         .checklist-item-check {
             color: #557A61;
@@ -266,7 +269,6 @@ st.markdown("""
             box-shadow: 0 8px 20px rgba(85, 122, 97, 0.18) !important;
         }
 
-        /* ใช้ควบคุม Header ภายในพื้นที่ทำงาน */
         .inner-header-container {
             display: flex;
             align-items: flex-start;
@@ -291,19 +293,19 @@ st.markdown("""
             margin-top: 5px;
         }
         
-        /* โครงสร้างครอบคลุมหัวข้อผลลัพธ์แบบ Minimal Title Container */
         .output-header-box {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-top: 30px;
+            margin-top: 32px;
             margin-bottom: -5px;
             color: #2D3531;
         }
         .output-header-title {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 700;
-            font-family: 'Bai Jamjuree', sans-serif;
+            font-family: 'Manrope', sans-serif;
+            letter-spacing: 0.2px;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -436,7 +438,7 @@ else:
             if bl_files and amend_files:
                 st.markdown("<br>", unsafe_allow_html=True)
                 if st.button("🚀 เริ่มตรวจสอบเปรียบเทียบข้อมูลแบบแยกรายใบ", use_container_width=True):
-                    with st.spinner("🤖 Gemini กำลังวิเคราะห์ชุดเอกสารเพื่อจัดทำรายงานในสไตล์ Minimal Cozy..."):
+                    with st.spinner("🤖 กำลังดำเนินการตรวจทานข้อมูลเอกสารขนส่งสินค้า..."):
                         try:
                             contents_payload = []
                             for bl in bl_files:
@@ -446,38 +448,39 @@ else:
                                 amend_part = เตรียมไฟล์สำหรับ_gemini(amend)
                                 if amend_part: contents_payload.append(amend_part)
                             
-                            # 🪄 สั่งให้กำกับ Header ด้วยไอคอน Material Symbols และสร้างตารางแบบ Clean-cut
+                            # 🪄 ปรับปรุง Prompt ให้เป็นทางการ ตัดคำพูด AI ทิ้ง และใช้ภาษาแบบ Freight Forwarder ระบบสากล
                             prompt_instruction = (
-                                "คุณคือผู้เชี่ยวชาญด้านเอกสารเอกสารโลจิสติกส์และการตรวจปล่อยสินค้า (Import-Export Specialist) ของ Seabra Trans "
-                                "จงวิเคราะห์ไฟล์เอกสาร Bill of Lading (B/L) ทุกฉบับ เปรียบเทียบกับ ใบขอแก้ไขข้อมูล (Amendment) และไฟล์ใบแนบ (Attached Sheet) ทั้งหมดที่ส่งไปให้\n\n"
+                                "You are an automated Document Audit System operating within Seabra Trans Freight Forwarding Architecture. "
+                                "Your core task is to strictly audit and verify the details listed on Bill of Lading (B/L) manifests against the received Amendment Notices and Attached Sheets.\n\n"
                                 
-                                "💡 คำแนะนำพิเศษ (CRITICAL FILE READING INSTRUCTION):\n"
-                                "1. สกัดเนื้อหาใน Attached Sheet ทุกใบอย่างละเอียดเพื่อนำมาจับคู่เชื่อมโยงข้อมูลให้ถูกต้อง\n"
-                                "2. ทำความเข้าใจความแตกต่างของฟอร์แมตแต่ละบริษัท โดยเน้นใจความข้อมูลสำคัญเป็นหลักในการตรวจสอบ\n\n"
+                                "📢 OUTPUT CONSTRAINT (CRITICAL):\n"
+                                "- DO NOT include any conversational greetings, introductions, or AI self-references (e.g., Avoid 'สวัสดีครับ', 'ในฐานะผู้เชี่ยวชาญ', 'พบผลการเปรียบเทียบดังนี้ค่ะ').\n"
+                                "- Start directly with the structured HTML headers and data tables.\n"
+                                "- No casual emojis are allowed under any circumstances.\n\n"
                                 
-                                "🔍 เกณฑ์การพิจารณา (Flexible Logic):\n"
-                                "- Description of Goods / Consignee / Shipping Marks / Weights / CBM: พิจารณาเปรียบเทียบด้วยความยืดหยุ่นตามบริบทหน้างานขนส่งจริง\n\n"
+                                "🔍 INTAKE ANALYSIS LOGIC:\n"
+                                "1. Attached Sheet Matching: Map data accurately since line items might connect directly to specific D/O numbers or sub-items rather than the primary B/L index.\n"
+                                "2. Flexible Discrepancy Tolerance: Standard spacing differences or shifting of text wraps on fields like 'Description of Goods' should be marked as MATCH if the item criteria, volume, and specifications remain equivalent.\n\n"
                                 
-                                "🎨 ข้อกำหนดสไตล์การส่งข้อมูลกลับ (UI/UX Matching Style Guide):\n"
-                                "- ห้ามใส่รูปอีโมจิแบบดั้งเดิมที่มีสีสันฉูดฉาด (เช่น 📊, 🧮, 🌿) เข้ามาในหัวข้อเด็ดขาด เพราะไม่เข้ากับธีมเว็บไซต์แบบ Minimal Cozy\n"
-                                "- ให้ใช้โครงสร้าง HTML ผสมผสาน Material Icons แทนในการสร้างหัวข้อสรุปผลลัพธ์ เช่น:\n"
-                                "<div class='output-header-box'><span class='material-symbols-outlined' style='font-size:22px; color:#557A61;'>analytics</span><span class='output-header-title'>ตารางตรวจสอบเปรียบเทียบข้อมูลจำแนกรายฉบับ (Detailed Comparison)</span></div>\n\n"
-                                "และสำหรับตารางสรุปสุทธิ:\n"
-                                "<div class='output-header-box'><span class='material-symbols-outlined' style='font-size:22px; color:#557A61;'>calculate</span><span class='output-header-title'>ตารางสรุปยอดรวมสุทธิ (Grand Totals Check)</span></div>\n\n"
+                                "🎨 RENDER TARGET (HTML Headers + Markdown Table Integration):\n"
+                                "Generate exactly the following sections without any leading chat text:\n\n"
                                 
-                                "📊 รูปแบบโครงสร้างตาราง Markdown (ห้ามใช้เส้นตกแต่งพร่ำเพรื่อ):\n"
-                                "| เลขที่ B/L / ข้อมูล D/O | หัวข้อตรวจสอบ | ข้อมูลบนใบ B/L | ข้อมูลบนใบ Amend + Attached Sheet | ผลการตรวจ | หมายเหตุ / วิเคราะห์สาเหตุการอนุโลม |\n"
+                                "<div class='output-header-box'><span class='material-symbols-outlined' style='font-size:22px; color:#557A61;'>analytics</span><span class='output-header-title'>Detailed Discrepancy & Verification Report</span></div>\n\n"
+                                
+                                "| B/L No. / D/O Ref | Audit Field | Original Bill of Lading (B/L) | Amendment & Attached Sheet | Status | Remarks / Discrepancy Analysis |\n"
                                 "| :--- | :--- | :--- | :--- | :--- | :--- |\n"
-                                "| **[เลข B/L]** | Consignee | ... | ... | MATCH / MISMATCH | ... |\n"
-                                "| **[เลข B/L]** | Shipping Marks | ... | ... | MATCH / MISMATCH | ... |\n"
-                                "| **[เลข B/L]** | Description of Goods | ... | ... | MATCH / MISMATCH | ... |\n"
-                                "| **[เลข B/L]** | Gross Weight (G.W.) | ... | ... | MATCH / MISMATCH | ... |\n"
-                                "| **[เลข B/L]** | Measurement (CBM) | ... | ... | MATCH / MISMATCH | ... |\n"
-                                "\n\n"
-                                "| หัวข้อตรวจสอบ | ผลรวมจาก B/L ทุกใบรวมกัน | ยอดรวมสุทธิบนใบ Amend | ผลรวมตรงกันไหม | หมายเหตุคำนวณ |\n"
+                                "| **[B/L Number]** | Consignee | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
+                                "| **[B/L Number]** | Shipping Marks | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
+                                "| **[B/L Number]** | Description of Goods | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
+                                "| **[B/L Number]** | Gross Weight (G.W.) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
+                                "| **[B/L Number]** | Measurement (CBM) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n\n"
+                                
+                                "<div class='output-header-box'><span class='material-symbols-outlined' style='font-size:22px; color:#557A61;'>calculate</span><span class='output-header-title'>Manifest Manifestation Summary (Grand Totals Check)</span></div>\n\n"
+                                
+                                "| Audit Parameter | Total B/L Accumulated Value | Aggregated Amendment Value | Validation Result | Calculation Summary |\n"
                                 "| :--- | :--- | :--- | :--- | :--- |\n"
-                                "| **Gross Weight รวม** | [เลขรวม] | [เลขรวม] | MATCH / MISMATCH | ... |\n"
-                                "| **Measurement (CBM) รวม** | [เลขรวม] | [เลขรวม] | MATCH / MISMATCH | ... |\n"
+                                "| **Total Gross Weight** | [Value] | [Value] | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | [Note] |\n"
+                                "| **Total Measurement (CBM)** | [Value] | [Value] | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | [Note] |\n"
                             )
                             contents_payload.append(prompt_instruction)
                             
@@ -487,11 +490,10 @@ else:
                             )
                             
                             st.balloons()
-                            st.success("✨ Gemini ตรวจสอบข้อมูลเสร็จสิ้นแล้วในสไตล์ Minimal Cozy สบายตา!")
                             st.markdown(response.text, unsafe_allow_html=True)
                             
                         except Exception as e:
-                            st.error(f"เกิดข้อผิดพลาดในการประมวลผลของ Gemini: {str(e)}")
+                            st.error(f"ระบบขัดข้องในการส่งข้อมูลชุดเอกสาร: {str(e)}")
 
     # 📦 ================== [ฝั่งที่ 2: บันทึกรับ D/O] ==================
     elif st.session_state.current_page == "tracking_page":
