@@ -363,8 +363,8 @@ else:
     
     # 🚪 ================== [หน้าแรก: Portal เมนูหลัก] ==================
     if st.session_state.current_page == "portal":
-        st.markdown("<div class='workspace-title'>ยินดีต้อนรับกลับมาค่ะ</div>", unsafe_allow_html=True)
-        st.markdown("<div class='workspace-subtitle'>กรุณาเลือกพื้นที่ทำงานที่ต้องการจัดการข้อมูลเพื่อดำเนินการต่อ</div>", unsafe_allow_html=True)
+        st.markdown("<div class='workspace-title'>Welcome Back.</div>", unsafe_allow_html=True)
+        st.markdown("<div class='workspace-subtitle'>Choose a workspace to continue your operations.</div>", unsafe_allow_html=True)
         
         p_col1, space_col, p_col2 = st.columns([4, 0.6, 4])
         
@@ -376,7 +376,7 @@ else:
                     </div>
                     <div class='card-title-text'>ตรวจสอบเอกสาร</div>
                     <p class='card-desc-text'>
-                        เปรียบเทียบข้อมูลไฟล์สแกนและประมวลผลความถูกต้องข้ามเอกสารอัตโนมัติด้วยระบบอัจฉริยะยืดหยุ่นสูง
+                        เปรียบเทียบข้อมูลไฟล์สแกนและประมวลผลความถูกต้องเอกสารอัตโนมัติ
                     </p>
                     <div class='custom-code-box'>
                         <div class='checklist-item'><span class='checklist-item-check'>✓</span> Bill of Lading (B/L)</div>
@@ -395,14 +395,14 @@ else:
                     <div class='icon-wrapper'>
                         <span class="material-symbols-outlined" style="font-size: 26px;">archive</span>
                     </div>
-                    <div class='card-title-text'>ระบบจัดการสถานะ D/O</div>
+                    <div class='card-title-text'>บันทึกรับ D/O</div>
                     <p class='card-desc-text'>
-                        บันทึกการปล่อยเอกสารหน้าเคาน์เตอร์ และค้นหาข้อมูลประวัติแบบเรียลไทม์เพื่อตอบลูกค้าและเอเย่นต์
+                        บันทึกการปล่อยเอกสารหน้าเคาน์เตอร์ และค้นหาข้อมูลประวัติเพื่อตอบลูกค้าและเอเย่นต์
                     </p>
                     <div class='custom-code-box'>
-                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> บันทึกการรับ D/O หน้างาน</div>
-                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> ระบบสืบค้นด่วนแบบ Real-time</div>
-                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> สรุปรายงานฐานข้อมูล Excel ถาวร</div>
+                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> D/O Release</div>
+                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Consignee Tracking</div>
+                        <div class='checklist-item'><span class='checklist-item-check'>✓</span> Quick Search History</div>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
