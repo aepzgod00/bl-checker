@@ -250,7 +250,7 @@ st.markdown("""
             background-color: #F3F5F2 !important;
         }
 
-        /* 💾 RE-DESIGN BUTTONS: ปรับแต่งปุ่มให้ดูโปรระดับ Enterprise (ลบอิโมจิพื้นบ้านออก) */
+        /* 💾 ENTERPRISE UI BUTTONS: ปรับแต่งปุ่มให้คลีน ไร้อิโมจิกวนสายตา */
         div.stButton > button {
             border-radius: 12px !important;
             border: 1px solid #557A61 !important;
@@ -450,19 +450,25 @@ else:
                                 amend_part = เตรียมไฟล์สำหรับ_gemini(amend)
                                 if amend_part: contents_payload.append(amend_part)
                             
-                            # 🪄 ปรับปรุงฟอร์แมตคำพูดไอที: ใช้ภาษาไทยทางการ ตัดการทักทายเล่น ๆ ออก คุมโทนระบบ Enterprise 
+                            # 🪄 CORE AUDIT LOGIC RE-ENGINEERING
                             prompt_instruction = (
-                                "You are a central automated Data Compliance Audit Engine configured for Seabra Trans. "
+                                "You are an automated Data Compliance Audit Engine configured specifically for Seabra Trans Freight Forwarding Operations. "
                                 "Your task is to analyze and compare logistics manifests (B/L) with requested adjustments (Amendments & Attached Sheets).\n\n"
                                 
-                                "📢 OUTPUT RULE & LANGUAGE SPECIFICATION:\n"
-                                "- DO NOT include any casual AI introductions, greetings, pleasantries, or feedback remarks (e.g., No 'สวัสดีครับ', 'ยินดีด้วยค่ะ', 'นี่คือรายงาน').\n"
-                                "- Start rendering data immediately with the specific structural HTML title elements defined below.\n"
-                                "- The labels and headers inside the table rows MUST be in formal Thai language suitable for operations staff.\n"
-                                "- Raw text data inside cell values (such as company names, addresses, item configurations) must retain their exact raw English format as shown in the original files.\n"
-                                "- Absolutely no emojis are allowed.\n\n"
+                                "📢 STRICT OUTPUT CONSTRAINT:\n"
+                                "- DO NOT include any chat introductions, summaries, conversational phrases, or greeting logs (e.g., Absolutely delete sentences like 'ในฐานะผู้เชี่ยวชาญ...', 'จากตรวจสอบ...', 'พบความสอดคล้องกันอย่างสมบูรณ์').\n"
+                                "- Start rendering the structural output directly from the HTML code segments below.\n"
+                                "- Absolutely no emojis are allowed in the text output.\n\n"
                                 
-                                "🎨 FORMAT STRUCTURES TO INJECT:\n"
+                                "🔍 LOGISTIC AUDIT RULES (CRITICAL PROMPT LOGIC):\n"
+                                "1. ผู้รับสินค้า (Consignee) Verification:\n"
+                                "   - Focus exclusively on the COMPANY NAME and corporate identity spelling accuracy.\n"
+                                "   - IGNORE discrepancies related to the office address, building names, zip codes, or locations. If the company entity name perfectly matches, you MUST mark the row status as MATCH.\n"
+                                "2. รายละเอียดสินค้า (Description of Goods) Verification:\n"
+                                "   - Focus on product categories, major cargo identifiers, key item tags, and package unit volume (e.g., 12 PAPER PALLETS).\n"
+                                "   - Ignore stylistic spacing, line breaks (Enters), or additional text shifts. If the fundamental product details and quantities correspond across sheets, you MUST mark the row status as MATCH.\n\n"
+                                
+                                "🎨 FORMAT STRUCTURES TO RENDER:\n"
                                 "Generate exactly the following sections without any pre-text:\n\n"
                                 
                                 "<div class='output-header-box'><span class='material-symbols-outlined' style='font-size:22px; color:#557A61;'>analytics</span><span class='output-header-title'>รายงานผลการตรวจสอบเปรียบเทียบข้อมูลเอกสารรายฉบับ</span></div>\n\n"
