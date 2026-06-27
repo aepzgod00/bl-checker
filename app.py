@@ -356,7 +356,7 @@ with nav_col1:
     st.markdown("""
         <div class='brand-block'>
             <div class='brand-header'>VERIFYHUB</div>
-            <div class='brand-subtitle'>ระบบตรวจเอกสารและจัดการสถานะส่งมอบ D/O อัจฉริยะ</div>
+            <div class='brand-subtitle'>DOCUMENT VERIFICATION SYSTEM</div>
         </div>
     """, unsafe_allow_html=True)
 
