@@ -250,7 +250,7 @@ st.markdown("""
             background-color: #F3F5F2 !important;
         }
 
-        /* 💾 ENTERPRISE UI BUTTONS: ปรับแต่งปุ่มให้คลีน ไร้อิโมจิกวนสายตา */
+        /* 💾 ENTERPRISE UI BUTTONS */
         div.stButton > button {
             border-radius: 12px !important;
             border: 1px solid #557A61 !important;
@@ -450,13 +450,13 @@ else:
                                 amend_part = เตรียมไฟล์สำหรับ_gemini(amend)
                                 if amend_part: contents_payload.append(amend_part)
                             
-                            # 🪄 CORE AUDIT LOGIC RE-ENGINEERING
+                            # 🪄 ADJUSTED PROMPT LOGIC FOR DETAILED CALCULATION & QUANTITY
                             prompt_instruction = (
                                 "You are an automated Data Compliance Audit Engine configured specifically for Seabra Trans Freight Forwarding Operations. "
                                 "Your task is to analyze and compare logistics manifests (B/L) with requested adjustments (Amendments & Attached Sheets).\n\n"
                                 
                                 "📢 STRICT OUTPUT CONSTRAINT:\n"
-                                "- DO NOT include any chat introductions, summaries, conversational phrases, or greeting logs (e.g., Absolutely delete sentences like 'ในฐานะผู้เชี่ยวชาญ...', 'จากตรวจสอบ...', 'พบความสอดคล้องกันอย่างสมบูรณ์').\n"
+                                "- DO NOT include any conversational text, chat introductions, greetings, summaries, or post-analysis notes (e.g., Absolutely remove statements like 'นี่คือตาราง...', 'พบความถูกต้อง...').\n"
                                 "- Start rendering the structural output directly from the HTML code segments below.\n"
                                 "- Absolutely no emojis are allowed in the text output.\n\n"
                                 
@@ -464,9 +464,17 @@ else:
                                 "1. ผู้รับสินค้า (Consignee) Verification:\n"
                                 "   - Focus exclusively on the COMPANY NAME and corporate identity spelling accuracy.\n"
                                 "   - IGNORE discrepancies related to the office address, building names, zip codes, or locations. If the company entity name perfectly matches, you MUST mark the row status as MATCH.\n"
-                                "2. รายละเอียดสินค้า (Description of Goods) Verification:\n"
-                                "   - Focus on product categories, major cargo identifiers, key item tags, and package unit volume (e.g., 12 PAPER PALLETS).\n"
-                                "   - Ignore stylistic spacing, line breaks (Enters), or additional text shifts. If the fundamental product details and quantities correspond across sheets, you MUST mark the row status as MATCH.\n\n"
+                                "2. จำนวนสินค้า (Quantity) Verification:\n"
+                                "   - Verify the package count and specific unit description (e.g., 12 PAPER PALLETS, 50 CARTONS).\n"
+                                "   - Ignore how the client breaks lines or formats spaces. If numbers and packing units are fundamentally identical, mark as MATCH.\n"
+                                "3. รายละเอียดสินค้า (Description of Goods) Verification:\n"
+                                "   - Focus on product categories, major cargo identifiers, and key item tags.\n"
+                                "   - Ignore stylistic spacing, line breaks (Enters), or additional text shifts. If the core product names match, mark as MATCH.\n\n"
+                                
+                                "🧮 MATHEMATICAL AGGREGATION RULE (CRITICAL):\n"
+                                "- Inside the total accumulation summary table, DO NOT just show a final combined sum value.\n"
+                                "- Under the column 'รายละเอียดประกอบการคำนวณ', you MUST show the explicit step-by-step addition string demonstrating the values extracted from each individual B/L number.\n"
+                                "- Example format: '6,526.00 KGS (จาก LCJU-26L53854) + 4,200.00 KGS (จาก LCJU-26L53855) = 10,726.00 KGS'\n\n"
                                 
                                 "🎨 FORMAT STRUCTURES TO RENDER:\n"
                                 "Generate exactly the following sections without any pre-text:\n\n"
@@ -476,6 +484,7 @@ else:
                                 "| เลขที่ B/L / ข้อมูล D/O | หัวข้อตรวจสอบ | ข้อมูลต้นฉบับบนใบ B/L | ข้อมูลบนใบ Amend + Attached Sheet | ผลการตรวจสอบ | หมายเหตุคำวิเคราะห์ / เกณฑ์การอนุโลม |\n"
                                 "| :--- | :--- | :--- | :--- | :--- | :--- |\n"
                                 "| **[B/L Number]** | ผู้รับสินค้า (Consignee) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
+                                "| **[B/L Number]** | จำนวนสินค้า (Quantity) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
                                 "| **[B/L Number]** | เครื่องหมายขนส่ง (Shipping Marks) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
                                 "| **[B/L Number]** | รายละเอียดสินค้า (Description of Goods) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
                                 "| **[B/L Number]** | น้ำหนักมวลรวม (Gross Weight) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
@@ -483,10 +492,10 @@ else:
                                 
                                 "<div class='output-header-box'><span class='material-symbols-outlined' style='font-size:22px; color:#557A61;'>calculate</span><span class='output-header-title'>ตารางสรุปการกระทบยอดน้ำหนักและปริมาตรสุทธิ</span></div>\n\n"
                                 
-                                "| พารามิเตอร์ที่ตรวจสอบ | ผลรวมคำนวณจาก B/L ทุกฉบับ | ยอดรวมสุทธิบนใบขอแก้ไข (Amend) | สถานะความถูกต้อง | รายละเอียดประกอบการคำนวณ |\n"
+                                "| พารามิเตอร์ที่ตรวจสอบ | ผลรวมคำนวณจาก B/L ทุกฉบับ | ยอดรวมสุทธิบนใบขอแก้ไข (Amend) | สถานะความถูกต้อง | รายละเอียดประกอบการคำนวณ (แสดงสูตรการบวกจริงแบบแยกรายฉบับ) |\n"
                                 "| :--- | :--- | :--- | :--- | :--- |\n"
-                                "| **น้ำหนักมวลรวมสะสม (Total G.W.)** | [Value] | [Value] | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
-                                "| **ปริมาตรสินค้ารวมสะสม (Total CBM)** | [Value] | [Value] | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
+                                "| **น้ำหนักมวลรวมสะสม (Total G.W.)** | [Value] | [Value] | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | [สูตรการบวกเลขจริงรายฉบับ] |\n"
+                                "| **ปริมาตรสินค้ารวมสะสม (Total CBM)** | [Value] | [Value] | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | [สูตรการบวกเลขจริงรายฉบับ] |\n"
                             )
                             contents_payload.append(prompt_instruction)
                             
