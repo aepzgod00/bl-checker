@@ -226,7 +226,7 @@ else:
                         
                         # ✨ แนะนำให้เปลี่ยนไปใช้ gemini-2.5-pro เพื่อตาสว่างและอ่านคมชัดกว่ารุ่น flash ครับ
                         response = client.models.generate_content(
-                            model='gemini-3.5-flash', 
+                            model='gemini-2.5-flash', 
                             contents=contents_payload
                         )
                         
