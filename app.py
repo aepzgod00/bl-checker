@@ -250,26 +250,42 @@ st.markdown("""
             background-color: #F3F5F2 !important;
         }
 
-        /* 💾 💊 ENTERPRISE PILL-SHAPED UI BUTTONS (Updated per feedback) */
-        div.stButton > button, div[data-testid="stForm"]  .stButton > button {
-            border-radius: 50px !important; /* เปลี่ยนเป็นทรงแคปซูลโค้งมนสมบูรณ์ */
-            border: 1px solid #557A61 !important;
+        /* 💾 💊 PILL-SHAPED UI BUTTONS (RE-ENGINEERED FOR PERFECT PROPORTIONS) */
+        div.stButton > button, div[data-testid="stForm"] .stButton > button {
+            border-radius: 100px !important; /* บังคับโค้ดมนเป็นทรงแคปซูลสมบูรณ์แบบ */
+            border: 2px solid #557A61 !important; /* เพิ่มความหนาของเส้นขอบให้คมชัดขึ้น */
             background-color: #FFFFFF !important;
             color: #557A61 !important;
             font-family: 'Bai Jamjuree', sans-serif !important;
-            font-weight: 600 !important;
-            font-size: 14.5px !important;
-            padding: 12px 32px !important; /* เพิ่ม Padding ซ้าย-ขวา ให้สมส่วนกับทรงแคปซูล */
-            letter-spacing: 0.3px;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 4px 14px rgba(85, 122, 97, 0.08) !important; /* เพิ่มเงานุ่มๆ ท้ายปุ่ม */
+            font-weight: 700 !important; /* ตัวอักษรหนาขึ้นแบบในรูป */
+            font-size: 15px !important;
+            
+            /* 📐 สัดส่วนความอวบอิ่มแบบโมเดิร์น */
+            padding: 14px 42px !important; /* อัปเกรดความสูง-กว้างให้ปุ่มดูนุ่มฟูมีพื้นที่หายใจ */
+            min-height: 48px !important; /* กำหนดความสูงขั้นต่ำของตัวปุ่ม */
+            min-width: 180px !important; /* กำหนดความกว้างขั้นต่ำไม่ให้ปุ่มดูสั้นเกินไป */
+            
+            letter-spacing: 0.5px;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* เพิ่มความสมูทตอนเด้งตอบสนอง */
+            
+            /* 👥 เงาสามมิติแบบฟุ้งละมุน */
+            box-shadow: 0 4px 6px rgba(85, 122, 97, 0.05), 0 10px 20px rgba(85, 122, 97, 0.08) !important;
         }
         
         div.stButton > button:hover, div[data-testid="stForm"] .stButton > button:hover {
             background-color: #557A61 !important;
             color: #FFFFFF !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 8px 24px rgba(85, 122, 97, 0.22) !important; /* เงาจะชัดขึ้นเวลาลอยเด่นตอน Hover */
+            transform: translateY(-3px) !important; /* ลอยขึ้นสูงขึ้นเล็กน้อยเพื่อมิติที่ชัดเจน */
+            box-shadow: 0 8px 16px rgba(85, 122, 97, 0.15), 0 16px 32px rgba(85, 122, 97, 0.15) !important; /* เงาเข้มข้นขึ้นตอนเอาเมาส์ชี้ */
+        }
+        
+        /* แก้ไขลักษณะเฉพาะสำหรับปุ่มที่ต้องการให้ขยายเต็มความกว้าง (ถ้ามี) */
+        div.stButton > button[disabled] {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .inner-header-container {
@@ -451,7 +467,6 @@ else:
                                 amend_part = เตรียมไฟล์สำหรับ_gemini(amend)
                                 if amend_part: contents_payload.append(amend_part)
                             
-                            # 🪄 ADJUSTED PROMPT LOGIC FOR DETAILED CALCULATION & QUANTITY
                             prompt_instruction = (
                                 "You are an automated Data Compliance Audit Engine configured specifically for Seabra Trans Freight Forwarding Operations. "
                                 "Your task is to analyze and compare logistics manifests (B/L) with requested adjustments (Amendments & Attached Sheets).\n\n"
