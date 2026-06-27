@@ -37,7 +37,7 @@ st.markdown("""
         div[data-testid="stMarkdownContainer"] h3,
         div[data-testid="stMarkdownContainer"] h4 {
             color: #2D3531 !important;
-            font-family: 'Manrope', sans-serif;
+            font-family: 'Bai Jamjuree', sans-serif;
             font-weight: 700;
             margin-top: 25px;
             margin-bottom: 12px;
@@ -63,10 +63,8 @@ st.markdown("""
             padding: 14px 16px !important;
             border: none !important;
             border-bottom: 2px solid #E4E1D6 !important;
-            font-size: 13.5px;
+            font-size: 14px;
             text-align: left;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
         
         div[data-testid="stMarkdownContainer"] td {
@@ -87,20 +85,22 @@ st.markdown("""
         .status-badge-match {
             color: #3B664B !important;
             background-color: #E6F0EA;
-            padding: 3px 8px;
+            padding: 4px 10px;
             border-radius: 6px;
             font-weight: 700;
             font-size: 12px;
             letter-spacing: 0.5px;
+            display: inline-block;
         }
         .status-badge-mismatch {
             color: #A65252 !important;
             background-color: #FAEAEA;
-            padding: 3px 8px;
+            padding: 4px 10px;
             border-radius: 6px;
             font-weight: 700;
             font-size: 12px;
             letter-spacing: 0.5px;
+            display: inline-block;
         }
         
         /* Header & Core Brand UI */
@@ -250,6 +250,7 @@ st.markdown("""
             background-color: #F3F5F2 !important;
         }
 
+        /* 💾 RE-DESIGN BUTTONS: ปรับแต่งปุ่มให้ดูโปรระดับ Enterprise (ลบอิโมจิพื้นบ้านออก) */
         div.stButton > button {
             border-radius: 12px !important;
             border: 1px solid #557A61 !important;
@@ -259,6 +260,7 @@ st.markdown("""
             font-weight: 600 !important;
             font-size: 14.5px !important;
             padding: 10px 24px !important;
+            letter-spacing: 0.3px;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(85, 122, 97, 0.05);
         }
@@ -304,7 +306,7 @@ st.markdown("""
         .output-header-title {
             font-size: 17px;
             font-weight: 700;
-            font-family: 'Manrope', sans-serif;
+            font-family: 'Bai Jamjuree', sans-serif;
             letter-spacing: 0.2px;
         }
     </style>
@@ -383,7 +385,7 @@ else:
                     </div>
                 </div>
             """, unsafe_allow_html=True)
-            if st.button("เริ่มการตรวจสอบเอกสาร  →", key="go_audit", use_container_width=True):
+            if st.button("เริ่มการตรวจสอบเอกสาร", key="go_audit", use_container_width=True):
                 st.session_state.current_page = "audit_page"
                 st.rerun()
                 
@@ -404,13 +406,13 @@ else:
                     </div>
                 </div>
             """, unsafe_allow_html=True)
-            if st.button("เปิดพื้นที่จัดการสถานะ  →", key="go_tracking", use_container_width=True):
+            if st.button("เปิดพื้นที่จัดการสถานะ", key="go_tracking", use_container_width=True):
                 st.session_state.current_page = "tracking_page"
                 st.rerun()
 
     # 🔍 ================== [ฝั่งที่ 1: ตรวจสอบเอกสาร] ==================
     elif st.session_state.current_page == "audit_page":
-        if st.button("⬅   กลับหน้าเมนูหลัก", key="back_from_audit"):
+        if st.button("กลับหน้าเมนูหลัก", key="back_from_audit"):
             st.session_state.current_page = "portal"
             st.rerun()
             
@@ -437,8 +439,8 @@ else:
 
             if bl_files and amend_files:
                 st.markdown("<br>", unsafe_allow_html=True)
-                if st.button("🚀 เริ่มตรวจสอบเปรียบเทียบข้อมูลแบบแยกรายใบ", use_container_width=True):
-                    with st.spinner("🤖 กำลังดำเนินการตรวจทานข้อมูลเอกสารขนส่งสินค้า..."):
+                if st.button("ประมวลผลการเปรียบเทียบข้อมูลเอกสาร", use_container_width=True):
+                    with st.spinner("กำลังดำเนินการตรวจสอบความถูกต้องของระบบเอกสาร..."):
                         try:
                             contents_payload = []
                             for bl in bl_files:
@@ -448,39 +450,37 @@ else:
                                 amend_part = เตรียมไฟล์สำหรับ_gemini(amend)
                                 if amend_part: contents_payload.append(amend_part)
                             
-                            # 🪄 ปรับปรุง Prompt ให้เป็นทางการ ตัดคำพูด AI ทิ้ง และใช้ภาษาแบบ Freight Forwarder ระบบสากล
+                            # 🪄 ปรับปรุงฟอร์แมตคำพูดไอที: ใช้ภาษาไทยทางการ ตัดการทักทายเล่น ๆ ออก คุมโทนระบบ Enterprise 
                             prompt_instruction = (
-                                "You are an automated Document Audit System operating within Seabra Trans Freight Forwarding Architecture. "
-                                "Your core task is to strictly audit and verify the details listed on Bill of Lading (B/L) manifests against the received Amendment Notices and Attached Sheets.\n\n"
+                                "You are a central automated Data Compliance Audit Engine configured for Seabra Trans. "
+                                "Your task is to analyze and compare logistics manifests (B/L) with requested adjustments (Amendments & Attached Sheets).\n\n"
                                 
-                                "📢 OUTPUT CONSTRAINT (CRITICAL):\n"
-                                "- DO NOT include any conversational greetings, introductions, or AI self-references (e.g., Avoid 'สวัสดีครับ', 'ในฐานะผู้เชี่ยวชาญ', 'พบผลการเปรียบเทียบดังนี้ค่ะ').\n"
-                                "- Start directly with the structured HTML headers and data tables.\n"
-                                "- No casual emojis are allowed under any circumstances.\n\n"
+                                "📢 OUTPUT RULE & LANGUAGE SPECIFICATION:\n"
+                                "- DO NOT include any casual AI introductions, greetings, pleasantries, or feedback remarks (e.g., No 'สวัสดีครับ', 'ยินดีด้วยค่ะ', 'นี่คือรายงาน').\n"
+                                "- Start rendering data immediately with the specific structural HTML title elements defined below.\n"
+                                "- The labels and headers inside the table rows MUST be in formal Thai language suitable for operations staff.\n"
+                                "- Raw text data inside cell values (such as company names, addresses, item configurations) must retain their exact raw English format as shown in the original files.\n"
+                                "- Absolutely no emojis are allowed.\n\n"
                                 
-                                "🔍 INTAKE ANALYSIS LOGIC:\n"
-                                "1. Attached Sheet Matching: Map data accurately since line items might connect directly to specific D/O numbers or sub-items rather than the primary B/L index.\n"
-                                "2. Flexible Discrepancy Tolerance: Standard spacing differences or shifting of text wraps on fields like 'Description of Goods' should be marked as MATCH if the item criteria, volume, and specifications remain equivalent.\n\n"
+                                "🎨 FORMAT STRUCTURES TO INJECT:\n"
+                                "Generate exactly the following sections without any pre-text:\n\n"
                                 
-                                "🎨 RENDER TARGET (HTML Headers + Markdown Table Integration):\n"
-                                "Generate exactly the following sections without any leading chat text:\n\n"
+                                "<div class='output-header-box'><span class='material-symbols-outlined' style='font-size:22px; color:#557A61;'>analytics</span><span class='output-header-title'>รายงานผลการตรวจสอบเปรียบเทียบข้อมูลเอกสารรายฉบับ</span></div>\n\n"
                                 
-                                "<div class='output-header-box'><span class='material-symbols-outlined' style='font-size:22px; color:#557A61;'>analytics</span><span class='output-header-title'>Detailed Discrepancy & Verification Report</span></div>\n\n"
-                                
-                                "| B/L No. / D/O Ref | Audit Field | Original Bill of Lading (B/L) | Amendment & Attached Sheet | Status | Remarks / Discrepancy Analysis |\n"
+                                "| เลขที่ B/L / ข้อมูล D/O | หัวข้อตรวจสอบ | ข้อมูลต้นฉบับบนใบ B/L | ข้อมูลบนใบ Amend + Attached Sheet | ผลการตรวจสอบ | หมายเหตุคำวิเคราะห์ / เกณฑ์การอนุโลม |\n"
                                 "| :--- | :--- | :--- | :--- | :--- | :--- |\n"
-                                "| **[B/L Number]** | Consignee | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
-                                "| **[B/L Number]** | Shipping Marks | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
-                                "| **[B/L Number]** | Description of Goods | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
-                                "| **[B/L Number]** | Gross Weight (G.W.) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
-                                "| **[B/L Number]** | Measurement (CBM) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n\n"
+                                "| **[B/L Number]** | ผู้รับสินค้า (Consignee) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
+                                "| **[B/L Number]** | เครื่องหมายขนส่ง (Shipping Marks) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
+                                "| **[B/L Number]** | รายละเอียดสินค้า (Description of Goods) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
+                                "| **[B/L Number]** | น้ำหนักมวลรวม (Gross Weight) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
+                                "| **[B/L Number]** | ปริมาตรสินค้า (Measurement CBM) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n\n"
                                 
-                                "<div class='output-header-box'><span class='material-symbols-outlined' style='font-size:22px; color:#557A61;'>calculate</span><span class='output-header-title'>Manifest Manifestation Summary (Grand Totals Check)</span></div>\n\n"
+                                "<div class='output-header-box'><span class='material-symbols-outlined' style='font-size:22px; color:#557A61;'>calculate</span><span class='output-header-title'>ตารางสรุปการกระทบยอดน้ำหนักและปริมาตรสุทธิ</span></div>\n\n"
                                 
-                                "| Audit Parameter | Total B/L Accumulated Value | Aggregated Amendment Value | Validation Result | Calculation Summary |\n"
+                                "| พารามิเตอร์ที่ตรวจสอบ | ผลรวมคำนวณจาก B/L ทุกฉบับ | ยอดรวมสุทธิบนใบขอแก้ไข (Amend) | สถานะความถูกต้อง | รายละเอียดประกอบการคำนวณ |\n"
                                 "| :--- | :--- | :--- | :--- | :--- |\n"
-                                "| **Total Gross Weight** | [Value] | [Value] | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | [Note] |\n"
-                                "| **Total Measurement (CBM)** | [Value] | [Value] | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | [Note] |\n"
+                                "| **น้ำหนักมวลรวมสะสม (Total G.W.)** | [Value] | [Value] | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
+                                "| **ปริมาตรสินค้ารวมสะสม (Total CBM)** | [Value] | [Value] | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
                             )
                             contents_payload.append(prompt_instruction)
                             
@@ -497,7 +497,7 @@ else:
 
     # 📦 ================== [ฝั่งที่ 2: บันทึกรับ D/O] ==================
     elif st.session_state.current_page == "tracking_page":
-        if st.button("⬅   กลับหน้าเมนูหลัก", key="back_from_tracking"):
+        if st.button("กลับหน้าเมนูหลัก", key="back_from_tracking"):
             st.session_state.current_page = "portal"
             st.rerun()
             
@@ -525,7 +525,7 @@ else:
                 input_consignee = st.text_input("ชื่อบริษัทลูกค้า / Consignee", placeholder="เช่น SIAM LOGISTICS CO., LTD.", key="entry_con_input")
                 
             st.markdown("<br>", unsafe_allow_html=True)
-            submit_save = st.form_submit_button("💾 บันทึกวันรับ D/O", use_container_width=True)
+            submit_save = st.form_submit_button("บันทึกข้อมูลการรับมอบเอกสาร", use_container_width=True)
             
             if submit_save:
                 if input_bl:
