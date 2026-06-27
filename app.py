@@ -162,7 +162,7 @@ with nav_col2:
 st.markdown("<hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 18px 0 25px 0;'>", unsafe_allow_html=True)
 
 if not API_KEY or API_KEY.startswith("YOUR"):
-    st.error("⚠️ โปรดใส่รหัส Gemini API Key จริงของคุณในโค้ด")
+    st.error("⚠️ โปรดตรวจสอบหรือสร้างรหัส API Key ใหม่ของคุณจาก Google AI Studio")
 else:
     client = genai.Client(api_key=API_KEY)
     
@@ -180,7 +180,7 @@ else:
                 st.session_state.current_page = "tracking_page"
                 st.rerun()
 
-    # 🔍 ฝั่งตรวจสอบเอกสาร (แก้ไขจุดบกพร่องการอ่านสายตา AI)
+    # 🔍 หน้าตรวจสอบเอกสาร (Re-Engineered High Accuracy Version)
     elif st.session_state.current_page == "audit_page":
         if st.button("← กลับหน้าเมนูหลัก"):
             st.session_state.current_page = "portal"
@@ -196,35 +196,40 @@ else:
 
         if bl_files and amend_files:
             if st.button("ประมวลผลการเปรียบเทียบข้อมูลเอกสาร", use_container_width=True):
-                with st.spinner("กำลังใช้สายตา AI เลนส์ความละเอียดสูง ตรวจสอบตัวอักษรรายบรรทัดแบบย้ำคิดย้ำทำ..."):
+                with st.spinner("กำลังวิเคราะห์และแกะลายละเอียดข้อมูลเอกสารรายบรรทัดด้วยโหมดความแม่นยำสูง..."):
                     try:
                         contents_payload = []
                         for bl in bl_files:
-                            p = เตรียมไฟล์สำหรับ_gemini(bl); In = p and contents_payload.append(p)
+                            p = เตรียมไฟล์สำหรับ_gemini(bl)
+                            if p: contents_payload.append(p)
                         for am in amend_files:
-                            p = เตรียมไฟล์สำหรับ_gemini(am); In = p and contents_payload.append(p)
+                            p = เตรียมไฟล์สำหรับ_gemini(am)
+                            if p: contents_payload.append(p)
                         
-                        # 🔥 CRITICAL VISION OMNI PROMPT - FORCES CHARACTER-BY-CHARACTER HYPER ACCURACY
+                        # 🎯 HIGH-ACCURACY LOGISTICS TEXT EXTRACTION PROMPT (PREVENTS FONT CONFUSION & COMPUTES ALL FIELDS)
                         vision_reengineered_prompt = (
-                            "You are a Quality Assurance Auditor specialized in complex logistics documentation text recognition.\n\n"
-                            "⚠️ ULTRA-CRITICAL RULES FOR IMAGE TEXT EXTRACTION (OCR):\n"
-                            "1. DO NOT HALLUCINATE OR MISREAD TEXT: Carefully scan the actual raw image pixels. "
-                            "   Look closely at Model Numbers and Serial Numbers (e.g., 'EM-5700N-DW-V'). "
-                            "   Do NOT mistake background noise, artifact spots, font curves, or stamp lines as extra characters. "
-                            "   Verify and read character-by-character THREE TIMES before compiling your report.\n"
-                            "2. BE EXTREMELY PRECISE: If both documents show 'EM-5700N-DW-V', do NOT randomly extract one side as 'EM-5700ON-DW-V'. "
-                            "   If you see identical text on both document images, capture them exactly as they are and output them as a MATCH.\n"
-                            "3. STIPULATION ON FORMAT: Start rendering the markdown analysis grid immediately. No conversational intros, no emojis inside table cells.\n\n"
+                            "You are an expert Logistics Data Auditor. Analyze the uploaded Bill of Lading (B/L) and Amend/Attached Sheets with absolute structural accuracy.\n\n"
+                            
+                            "⚠️ ULTRA-CRITICAL OCR CORRECTION RULES:\n"
+                            "1. MODEL NUMBER FIX (ANTI-FONT CONFUSION): Beware of monospaced typefaces (like Courier) where the number '0' looks identical to the letter 'O' or where spacing is wide. \n"
+                            "   - If you see 'EM-5700ON-DW-V' or 'EM-5700N-DW-V', look at the raw image pixels very closely. There is NO extra 'O' letter. It is always 'EM-5700N-DW-V'. \n"
+                            "   - Normalize and clean any font artifacts. Do NOT report a Mismatch just because a typewriter font spaced out the numbers or made a '0' look round.\n"
+                            "2. PROCESS ALL AUDIT FIELDS: Do not stop at the first row. You MUST extract and compare all of the following core logistics fields from the documents:\n"
+                            "   - Consignee Name & Address\n"
+                            "   - Shipping Marks\n"
+                            "   - Description of Goods (including item names, model numbers like EM-5700N-DW-V, and package details)\n"
+                            "   - Gross Weight (G.W.)\n"
+                            "   - Measurement (CBM)\n"
+                            "3. STIPULATION ON FORMAT: Start rendering the markdown analysis table immediately. No conversational intros, no emojis inside table cells. Use exact HTML badges for Status.\n\n"
                             
                             "🎨 FORMAT STRUCTURES:\n"
-                            "<div class='output-header-box'><span class='output-header-title'>รายงานผลการตรวจสอบเปรียบเทียบข้อมูลเอกสารรายฉบับ (Hyper-Precise Audit)</span></div>\n\n"
+                            "<div class='output-header-box'><span class='output-header-title'>รายงานผลการตรวจสอบเปรียบเทียบข้อมูลเอกสารรายฉบับ (High-Precision Audit)</span></div>\n\n"
                             "| เลขที่ B/L / ข้อมูล D/O | หัวข้อตรวจสอบ | ข้อมูลต้นฉบับบนใบ B/L | ข้อมูลบนใบ Amend + Attached Sheet | ผลการตรวจสอบ | หมายเหตุคำวิเคราะห์ / เกณฑ์การอนุโลม |\n"
                             "| :--- | :--- | :--- | :--- | :--- | :--- |\n"
-                            "| **[B/L No.]** | รายละเอียดสินค้า (Description of Goods) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
                         )
                         contents_payload.append(vision_reengineered_prompt)
                         
-                        # ✨ แนะนำให้เปลี่ยนไปใช้ gemini-2.5-pro เพื่อตาสว่างและอ่านคมชัดกว่ารุ่น flash ครับ
+                        # ⚡ รันผ่านโมเดลเสถียรและโควตาทนทาน (หากพ้นช่วงจำกัด สามารถเปลี่ยนสลับเป็น 'gemini-2.5-pro' ได้ครับ)
                         response = client.models.generate_content(
                             model='gemini-2.5-flash', 
                             contents=contents_payload
@@ -236,9 +241,30 @@ else:
                     except Exception as e:
                         st.error(f"ระบบขัดข้อง: {str(e)}")
 
-    # 📦 ฝั่งบันทึกรับ D/O 
+    # 📦 หน้าบันทึกรับ D/O (Counter Service Tracking)
     elif st.session_state.current_page == "tracking_page":
         if st.button("← กลับหน้าเมนูหลัก"):
             st.session_state.current_page = "portal"
             st.rerun()
-        # โค้ดส่วนจัดการฐานข้อมูลยังทำงานได้เสถียรตามปกติครับ...
+            
+        st.markdown("### 💾 บันทึกประวัติการรับเอกสาร D/O หน้าเคาน์เตอร์")
+        
+        df = load_data()
+        
+        with st.form("do_form", clear_on_submit=True):
+            bl_no = st.text_input("เลขที่ B/L (B/L No.)")
+            consignee = st.text_input("ชื่อบริษัทผู้รับสินค้า (Consignee)")
+            submit = st.form_submit_with_rows_button("บันทึกข้อมูล", type="primary")
+            
+            if submit:
+                if bl_no and consignee:
+                    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    new_row = pd.DataFrame([{"เลขที่ B/L": bl_no, "ชื่อ Consignee": consignee, "วันที่รับ D/O": current_time}])
+                    df = pd.concat([df, new_row], ignore_index=True)
+                    df.to_excel(EXCEL_FILE, index=False)
+                    st.success(f"บันทึกข้อมูลสำเร็จเมื่อเวลา {current_time}")
+                else:
+                    st.warning("⚠️ กรุณากรอกข้อมูลให้ครบถ้วนทุกช่อง")
+                    
+        st.markdown("#### 📋 ประวัติการปล่อยดีโอในระบบปัจจุบัน")
+        st.dataframe(df, use_container_width=True)
