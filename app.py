@@ -402,7 +402,7 @@ else:
                     </div>
                 </div>
             """, unsafe_allow_html=True)
-            if st.button("เริ่มการตรวจสอบเอกสาร", key="go_audit", use_container_width=True):
+            if st.button("Start Verification", key="go_audit", use_container_width=True):
                 st.session_state.current_page = "audit_page"
                 st.rerun()
                 
@@ -423,7 +423,7 @@ else:
                     </div>
                 </div>
             """, unsafe_allow_html=True)
-            if st.button("เปิดพื้นที่จัดการสถานะ", key="go_tracking", use_container_width=True):
+            if st.button("Open Workspace", key="go_tracking", use_container_width=True):
                 st.session_state.current_page = "tracking_page"
                 st.rerun()
 
