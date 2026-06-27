@@ -250,25 +250,26 @@ st.markdown("""
             background-color: #F3F5F2 !important;
         }
 
-        /* 💾 ENTERPRISE UI BUTTONS */
-        div.stButton > button {
-            border-radius: 12px !important;
+        /* 💾 💊 ENTERPRISE PILL-SHAPED UI BUTTONS (Updated per feedback) */
+        div.stButton > button, div[data-testid="stForm"]  .stButton > button {
+            border-radius: 50px !important; /* เปลี่ยนเป็นทรงแคปซูลโค้งมนสมบูรณ์ */
             border: 1px solid #557A61 !important;
             background-color: #FFFFFF !important;
             color: #557A61 !important;
             font-family: 'Bai Jamjuree', sans-serif !important;
             font-weight: 600 !important;
             font-size: 14.5px !important;
-            padding: 10px 24px !important;
+            padding: 12px 32px !important; /* เพิ่ม Padding ซ้าย-ขวา ให้สมส่วนกับทรงแคปซูล */
             letter-spacing: 0.3px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(85, 122, 97, 0.05);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 14px rgba(85, 122, 97, 0.08) !important; /* เพิ่มเงานุ่มๆ ท้ายปุ่ม */
         }
-        div.stButton > button:hover {
+        
+        div.stButton > button:hover, div[data-testid="stForm"] .stButton > button:hover {
             background-color: #557A61 !important;
             color: #FFFFFF !important;
             transform: translateY(-2px) !important;
-            box-shadow: 0 8px 20px rgba(85, 122, 97, 0.18) !important;
+            box-shadow: 0 8px 24px rgba(85, 122, 97, 0.22) !important; /* เงาจะชัดขึ้นเวลาลอยเด่นตอน Hover */
         }
 
         .inner-header-container {
