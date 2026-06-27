@@ -137,7 +137,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 🧠 ⚙️ CONFIGURATION
-API_KEY = "AQ.Ab8RN6I6laxWePmvYG1jGjbMflb4GtDkCcF3mnrBBe2nDb5SYw"
+API_KEY = "AQ.Ab8RN6KZDZcc0ZbbZdzcy1YeqD0I0Aqmtatl1UzeMa6AA73tgw"
 EXCEL_FILE = "do_database_records.xlsx"
 
 def load_data():
