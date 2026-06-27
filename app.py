@@ -422,8 +422,8 @@ else:
                     <span class="material-symbols-outlined" style="font-size: 26px;">pageview</span>
                 </div>
                 <div class='inner-title-block'>
-                    <div class='inner-main-title'>ระบบตรวจสอบความสอดคล้องของข้อมูลเอกสารขนส่งอัตโนมัติ</div>
-                    <div class='inner-sub-title'>เปรียบเทียบข้อมูลสำคัญแบบไฮบริดดั้งเดิมระหว่างไฟล์ชุด B/L, Amendment และ Attached Sheet</div>
+                    <div class='inner-main-title'>Automated Document Verification</div>
+                    <div class='inner-sub-title'>Compare company name, shipping marks, weight and container volume across documents.</div>
                 </div>
             </div>
         """, unsafe_allow_html=True)
