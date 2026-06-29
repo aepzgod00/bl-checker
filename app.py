@@ -259,7 +259,7 @@ else:
                         
                         # สั่งทำงานผ่านโมเดลเรือธงคู่กับคีย์ชุดใหม่
                         response = client.models.generate_content(
-                            model='gemini-2.5-pro', 
+                            model='gemini-2.5-flash', 
                             contents=contents_payload
                         )
                         st.balloons()
