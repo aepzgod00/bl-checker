@@ -18,16 +18,15 @@ if "GEMINI_API_KEY" in st.secrets:
 else:
     API_KEY = "AQ.Ab8RN6KfAAI3LV9KOfLxE7OFDtcqamABiIk3IY24OYGUkmZtHw"
 
-# 🖌️ 2. Inject Custom CSS (Cozy Modern Style)
+# 🖌️ 2. Inject Custom CSS (Cozy Modern Style - Exactly matching the image)
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
         
         /* Global App Styling */
         .stApp {
-            background: linear-gradient(180deg, #FAF9F6 0%, #F5F3EF 100%);
+            background: #FAF8F5 !important;
             font-family: 'Bai Jamjuree', sans-serif;
-            background-attachment: fixed;
         }
         
         /* Typography */
@@ -36,13 +35,6 @@ st.markdown("""
             color: #5A665E !important;
             line-height: 1.65;
             font-size: 14.5px;
-        }
-        div[data-testid="stMarkdownContainer"] h1,
-        div[data-testid="stMarkdownContainer"] h2,
-        div[data-testid="stMarkdownContainer"] h3 {
-            color: #2D3531 !important;
-            font-family: 'Bai Jamjuree', sans-serif;
-            font-weight: 700;
         }
         
         /* Main Navigation Header */
@@ -67,125 +59,155 @@ st.markdown("""
             border: 1px solid #EAE8DF;
         }
         
-        /* Workspace Portal Cards (UI Matching the image) */
-        .workspace-container {
-            background: #FFFFFF;
-            border: 1px solid #EAE8DF;
-            border-radius: 24px;
-            padding: 40px 32px;
-            box-shadow: 0 4px 24px rgba(141, 137, 120, 0.03);
-            text-align: center;
-            height: 100%;
+        /* Breadcrumb Bar */
+        .breadcrumb-text {
+            font-size: 13px;
+            color: #8C968E;
+            margin-bottom: 25px;
+        }
+        
+        /* Workspace Header Section (Matching the Image) */
+        .workspace-header-card {
             display: flex;
-            flex-direction: column;
+            align-items: center;
             justify-content: space-between;
+            margin-bottom: 35px;
+            background: transparent;
         }
-        .workspace-badge {
-            background: #F4F3EE;
-            color: #7A857D;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 4px 12px;
-            border-radius: 20px;
-            display: inline-block;
-            align-self: flex-end;
-            margin-top: -15px;
+        .header-left-zone {
+            display: flex;
+            align-items: center;
+            gap: 20px;
         }
-        .workspace-icon-circle {
-            width: 56px; height: 56px;
+        .search-icon-circle {
+            width: 54px; height: 54px;
             border-radius: 50%;
             border: 1px solid #EAE8DF;
+            background: #FFFFFF;
             display: flex; align-items: center; justify-content: center;
-            margin: 10px auto 24px auto;
             color: #2D3531;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.01);
         }
-        .workspace-title {
-            font-size: 22px; font-weight: 700; color: #2D3531; margin-bottom: 12px;
+        .workspace-title-main {
+            font-size: 24px; font-weight: 700; color: #2D3531; letter-spacing: -0.3px;
         }
-        .workspace-desc {
-            font-size: 14px; color: #7A857D; line-height: 1.5; margin-bottom: 24px;
+        .workspace-subtitle-main {
+            font-size: 14px; color: #8C968E; margin-top: 2px;
         }
         
-        /* Feature Checklist Box inside Card */
-        .workspace-checklist {
-            background: #FAF9F5;
-            border-radius: 16px;
-            padding: 20px;
-            text-align: left;
-            margin-bottom: 30px;
+        /* ================= UI CUSTOM FILE UPLOADER ================= */
+        /* Header tabs above uploader */
+        .uploader-header-tab {
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 10px 16px;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: -2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
-        .checklist-line {
-            font-size: 13.5px; color: #4A5A4E; margin-bottom: 10px;
-            display: flex; align-items: center; gap: 10px;
-        }
-        .checklist-line:last-child { margin-bottom: 0; }
-        .checklist-icon { color: #607366; font-weight: bold; }
+        .tab-bl { background-color: #EEF3EF; color: #3E5C47; }
+        .tab-amend { background-color: #FAF1F1; color: #A45353; }
         
-        /* Streamlit Button Overrides to look like Seamless Link Actions */
-        div.stButton > button {
+        /* Seamlessly override Streamlit File Uploader Box to match the exact image look */
+        div[data-testid="stFileUploader"] {
+            background-color: #FFFFFF !important; 
+            border: 1.5px dashed #D3CFC4 !important;
+            border-radius: 20px !important; 
+            padding: 40px 20px !important;
+            text-align: center !important;
+            box-shadow: 0 4px 16px rgba(141, 137, 120, 0.02) !important;
+            transition: all 0.2s ease;
+        }
+        div[data-testid="stFileUploader"]:hover {
+            border-color: #2D3531 !important;
+        }
+        /* Hide default streamlit icon & text styling to let it look cozy */
+        div[data-testid="stFileUploader"] section button {
+            background-color: transparent !important;
+            border: none !important;
+            color: #4A5A4E !important;
+            text-decoration: underline !important;
+            font-weight: 500 !important;
+            padding: 0 !important;
+            display: inline !important;
+        }
+        div[data-testid="stFileUploader"] section p {
+            color: #8C968E !important;
+            font-size: 13px !important;
+        }
+        
+        /* ================= BUTTONS DESIGN ================= */
+        /* 1. Back button (Upper Right) */
+        div.stButton > button[key*="back_from_audit"] {
             border-radius: 20px !important; 
             border: 1px solid #EAE8DF !important;
             background-color: #FFFFFF !important; 
             color: #2D3531 !important;
-            font-family: 'Bai Jamjuree', sans-serif !important; 
-            font-weight: 600 !important;
-            font-size: 14px !important;
-            padding: 10px 24px !important;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
+            font-size: 13.5px !important;
+            padding: 8px 20px !important;
+            font-weight: 500 !important;
         }
-        div.stButton > button:hover {
+        div.stButton > button[key*="back_from_audit"]:hover {
+            background-color: #F5F3EF !important;
             border-color: #2D3531 !important;
-            background-color: #2D3531 !important;
+        }
+        
+        /* 2. Primary Audit Action Button (Centered Bottom - Solid Sage Green color in image) */
+        div.stButton > button[key*="process_audit"] {
+            background-color: #A9B3A7 !important; /* Sage green muted tint from the image */
+            color: #FFFFFF !important;
+            border: none !important;
+            border-radius: 24px !important;
+            padding: 14px 40px !important;
+            font-size: 15px !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.2px;
+            box-shadow: 0 4px 15px rgba(169, 179, 167, 0.2) !important;
+            display: block;
+            margin: 30px auto 0 auto !important;
+            width: auto !important;
+            min-width: 280px;
+        }
+        div.stButton > button[key*="process_audit"]:hover {
+            background-color: #8F9A8D !important;
             color: #FFFFFF !important;
         }
         
-        /* Core Form & Uploader Customization */
-        div[data-testid="stFileUploader"] {
-            background-color: #FFFFFF !important; 
-            border: 1px dashed #D3CFC4 !important;
-            border-radius: 16px !important; 
-            padding: 20px !important;
+        /* Portal Card Layout Overrides */
+        .workspace-container {
+            background: #FFFFFF; border: 1px solid #EAE8DF; border-radius: 24px;
+            padding: 40px 32px; box-shadow: 0 4px 24px rgba(141, 137, 120, 0.03);
+            text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: space-between;
         }
-        div[data-testid="stFileUploader"] section { padding: 10px !important; }
+        .workspace-badge {
+            background: #F4F3EE; color: #7A857D; font-size: 11px; font-weight: 600;
+            padding: 4px 12px; border-radius: 20px; display: inline-block; align-self: flex-end; margin-top: -15px;
+        }
+        .workspace-icon-circle {
+            width: 56px; height: 56px; border-radius: 50%; border: 1px solid #EAE8DF;
+            display: flex; align-items: center; justify-content: center; margin: 10px auto 24px auto; color: #2D3531;
+        }
+        .workspace-title { font-size: 22px; font-weight: 700; color: #2D3531; margin-bottom: 12px; }
+        .workspace-desc { font-size: 14px; color: #7A857D; line-height: 1.5; margin-bottom: 24px; }
+        .workspace-checklist { background: #FAF9F5; border-radius: 16px; padding: 20px; text-align: left; margin-bottom: 30px; }
+        .checklist-line { font-size: 13.5px; color: #4A5A4E; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .checklist-icon { color: #607366; font-weight: bold; }
         
         /* Data Tables Styling */
         div[data-testid="stMarkdownContainer"] table {
-            color: #4A5A4E !important;
-            background-color: #FFFFFF !important;
-            border-collapse: collapse !important;
-            border-radius: 16px !important;
-            overflow: hidden !important;
-            box-shadow: 0 4px 20px rgba(141, 137, 120, 0.02) !important;
-            margin: 20px 0 !important;
-            width: 100% !important;
-            border: 1px solid #EAE8DF !important;
+            color: #4A5A4E !important; background-color: #FFFFFF !important; border-collapse: collapse !important;
+            border-radius: 16px !important; overflow: hidden !important; box-shadow: 0 4px 20px rgba(141, 137, 120, 0.02) !important;
+            margin: 20px 0 !important; width: 100% !important; border: 1px solid #EAE8DF !important;
         }
         div[data-testid="stMarkdownContainer"] th {
-            background-color: #F5F3EF !important;
-            color: #2D3531 !important;
-            font-weight: 600 !important;
-            padding: 14px 16px !important;
-            border-bottom: 1.5px solid #EAE8DF !important;
-            font-size: 14px;
+            background-color: #F5F3EF !important; color: #2D3531 !important; font-weight: 600 !important;
+            padding: 14px 16px !important; border-bottom: 1.5px solid #EAE8DF !important; font-size: 14px;
         }
-        div[data-testid="stMarkdownContainer"] td {
-            padding: 14px 16px !important;
-            border-bottom: 1px solid #F0EDE8 !important;
-            font-size: 13.5px;
-        }
-        div[data-testid="stMarkdownContainer"] tr:last-child td { border-bottom: none !important; }
-        
-        /* Status Badges */
-        .status-badge-match {
-            color: #2E593A !important; background-color: #E8F2EA;
-            padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 12px; display: inline-block;
-        }
-        .status-badge-mismatch {
-            color: #9C4141 !important; background-color: #FCEAEA;
-            padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 12px; display: inline-block;
-        }
-        
+        div[data-testid="stMarkdownContainer"] td { padding: 14px 16px !important; border-bottom: 1px solid #F0EDE8 !important; font-size: 13.5px; }
+        .status-badge-match { color: #2E593A !important; background-color: #E8F2EA; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 12px; display: inline-block; }
+        .status-badge-mismatch { color: #9C4141 !important; background-color: #FCEAEA; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 12px; display: inline-block; }
         .output-header-box { display: flex; align-items: center; gap: 10px; margin-top: 35px; margin-bottom: 10px; color: #2D3531; }
         .output-header-title { font-size: 16px; font-weight: 700; letter-spacing: -0.2px; }
     </style>
@@ -224,11 +246,11 @@ with nav_col2:
         </div>
     """, unsafe_allow_html=True)
 
-st.markdown("<hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 20px 0 30px 0;'>", unsafe_allow_html=True)
+st.markdown("<hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 20px 0 15px 0;'>", unsafe_allow_html=True)
 
 # 🔐 เช็คและเปิดใช้งานโมเดล
 if not API_KEY or API_KEY == "":
-    st.error("⚠️ ไม่พบรหัสผ่าน API Key ในระบบ กรุณาฝังรหัส AQ... ของคุณในโค้ดก่อนใช้งาน")
+    st.error("⚠️ ไม่พบรหัสผ่าน API Key ในระบบ")
 else:
     client = genai.Client(api_key=API_KEY)
     
@@ -239,7 +261,6 @@ else:
         st.markdown("<div style='font-size:15px; color:#5A665E; margin-bottom:40px;'>Ready to verify your shipping documents.</div>", unsafe_allow_html=True)
         
         p_col1, space_col, p_col2 = st.columns([4.5, 1, 4.5])
-        
         with p_col1:
             st.markdown("""
                 <div class='workspace-container'>
@@ -280,30 +301,52 @@ else:
                 st.session_state.current_page = "tracking_page"
                 st.rerun()
 
-    # 🔍 ================== [ฝั่งที่ 1: ตรวจสอบเอกสาร] ==================
+    # 🔍 ================== [ฝั่งที่ 1: ตรวจสอบเอกสาร - MATCH LOOK WITH IMAGE] ==================
     elif st.session_state.current_page == "audit_page":
-        if st.button("← กลับหน้าเมนูหลัก", key="back_from_audit"):
-            st.session_state.current_page = "portal"
-            st.rerun()
-            
-        st.markdown("""
-            <div style='margin-top:20px; margin-bottom:25px;'>
-                <div style='font-size: 24px; font-weight: 700; color: #2D3531;'>Automated Document Verification</div>
-                <div style='font-size: 14px; color: #7A857D; margin-top:4px;'>Compare company name, shipping marks, weight and container volume across documents.</div>
-            </div>
-        """, unsafe_allow_html=True)
+        # Render Breadcrumb
+        st.markdown("<div class='breadcrumb-text'>Home › <b>Document Audit</b></div>", unsafe_allow_html=True)
         
+        # Header Layout Zone (Title + Back Button on the right)
+        head_col1, head_col2 = st.columns([8, 2])
+        with head_col1:
+            st.markdown("""
+                <div class='header-left-zone'>
+                    <div class='search-icon-circle'>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </div>
+                    <div>
+                        <div class='workspace-title-main'>Document Audit Workspace</div>
+                        <div class='workspace-subtitle-main'>อัปโหลดเอกสารเพื่อเปรียบเทียบข้อมูลจำเพาะ</div>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+        with head_col2:
+            # Align the button to match the mockup location
+            st.markdown("<div style='text-align: right; margin-top: 5px;'>", unsafe_allow_html=True)
+            if st.button("🏠 กลับหน้าหลัก", key="back_from_audit"):
+                st.session_state.current_page = "portal"
+                st.rerun()
+            st.markdown("</div>", unsafe_allow_html=True)
+            
+        st.markdown("<div style='margin-top: 30px;'></div>", unsafe_allow_html=True)
+        
+        # Two-Column File Upload Layout (Exactly mirroring the input containers)
         col1, col2 = st.columns(2)
         with col1:
-            st.markdown("<div style='background-color:#EDF3EE; padding:10px 16px; border-radius:10px; color:#2E593A; font-size:13.5px; font-weight:600; margin-bottom:10px;'>📄 เอกสารต้นฉบับ Bill of Lading (B/L)</div>", unsafe_allow_html=True)
-            bl_files = st.file_uploader("ลากไฟล์ B/L ทั้งหมดมาวางตรงนี้", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True, key="bl_upload")
+            st.markdown("<div class='uploader-header-tab tab-bl'>📄 1. ไฟล์เอกสาร B/L ตัวหลัก</div>", unsafe_allow_html=True)
+            bl_files = st.file_uploader("ลากไฟล์มาวางตรงนี้ หรือ เลือกไฟล์จากเครื่อง", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True, key="bl_upload")
         with col2:
-            st.markdown("<div style='background-color:#FAF2F2; padding:10px 16px; border-radius:10px; color:#9C4141; font-size:13.5px; font-weight:600; margin-bottom:10px;'>📝 ใบแก้ไข Amend & Attached Sheet</div>", unsafe_allow_html=True)
-            amend_files = st.file_uploader("ลากไฟล์ใบ Amend ทั้งหมดมาวางตรงนี้", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True, key="amend_upload")
+            st.markdown("<div class='uploader-header-tab tab-amend'>📄 2. ไฟล์ใบแก้ไข AMENDMENT NOTICE</div>", unsafe_allow_html=True)
+            amend_files = st.file_uploader("ลากไฟล์มาวางตรงนี้ หรือ เลือกไฟล์จากเครื่อง", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True, key="amend_upload")
 
-        if bl_files and amend_files:
-            st.markdown("<br>", unsafe_allow_html=True)
-            if st.button("ประมวลผลการเปรียบเทียบข้อมูลเอกสาร", use_container_width=True):
+        # Centered Process Action Button at the bottom
+        st.markdown("<div style='text-align: center; margin-top: 10px;'>", unsafe_allow_html=True)
+        process_clicked = st.button("เริ่มกระบวนการตรวจสอบเอกสาร", key="process_audit")
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        # Logic Execution Block
+        if process_clicked:
+            if bl_files and amend_files:
                 with st.spinner("กำลังใช้โมเดลวิเคราะห์ข้อมูลเอกสารคู่ขนาน..."):
                     try:
                         prompt_instruction = (
@@ -341,9 +384,8 @@ else:
                         
                     except Exception as e:
                         st.error(f"ระบบขัดข้องในการส่งข้อมูลชุดเอกสาร: {str(e)}")
-        else:
-            st.markdown("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
-            st.info("💡 กรุณาอัปโหลดเอกสารทั้งสองฝั่งให้ครบถ้วนก่อนระบุคำสั่งประมวลผล")
+            else:
+                st.warning("⚠️ กรุณาอัปโหลดเอกสารให้ครบทั้งสองฝั่งก่อนเริ่มกระบวนการตรวจสอบ")
 
     # 📦 ================== [ฝั่งที่ 2: บันทึกรับ D/O] ==================
     elif st.session_state.current_page == "tracking_page":
