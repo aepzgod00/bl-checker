@@ -18,12 +18,16 @@ if "GEMINI_API_KEY" in st.secrets:
 else:
     API_KEY = "AQ.Ab8RN6KfAAI3LV9KOfLxE7OFDtcqamABiIk3IY24OYGUkmZtHw"
 
-# 🖌️ 2. Inject Custom CSS (Cozy Modern Style - Exactly matching the image)
+# 🖌️ 2. Inject Custom CSS (Cozy Modern - Pure Light Mode Enforcement)
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
         
-        /* Global App Styling */
+        /* 💡 FORCE LIGHT THEME BASE & PREVENT DARK MODE OVERRIDES */
+        html, body, [data-testid="stAppViewContainer"] {
+            background-color: #FAF8F5 !important;
+            color: #4A5A4E !important;
+        }
         .stApp {
             background: #FAF8F5 !important;
             font-family: 'Bai Jamjuree', sans-serif;
@@ -31,174 +35,203 @@ st.markdown("""
         
         /* Typography */
         div[data-testid="stMarkdownContainer"] p, 
-        div[data-testid="stMarkdownContainer"] li {
+        div[data-testid="stMarkdownContainer"] li,
+        div[data-testid="stMarkdownContainer"] span {
             color: #5A665E !important;
             line-height: 1.65;
             font-size: 14.5px;
         }
+        div[data-testid="stMarkdownContainer"] h1,
+        div[data-testid="stMarkdownContainer"] h2,
+        div[data-testid="stMarkdownContainer"] h3 {
+            color: #2D3531 !important;
+            font-family: 'Bai Jamjuree', sans-serif;
+            font-weight: 700;
+        }
         
-        /* Main Navigation Header */
+        /* Navigation Header */
         .brand-block { text-align: left; }
         .brand-header {
             font-family: 'Manrope', sans-serif;
-            color: #2D3531; 
-            font-weight: 800;
-            font-size: 24px;
-            letter-spacing: -0.5px;
+            color: #2D3531 !important; 
+            font-weight: 800; font-size: 24px; letter-spacing: -0.5px;
         }
         .brand-subtitle {
             font-family: 'Manrope', sans-serif;
-            color: #8C968E;
-            font-size: 12px;
-            font-weight: 500;
-            margin-top: -2px;
+            color: #8C968E !important; font-size: 12px; font-weight: 500; margin-top: -2px;
         }
         .user-profile-box {
             display: flex; align-items: center; justify-content: flex-end; gap: 12px;
-            background-color: #FFFFFF; padding: 8px 16px; border-radius: 12px;
-            border: 1px solid #EAE8DF;
+            background-color: #FFFFFF !important; padding: 8px 16px; border-radius: 12px;
+            border: 1px solid #EAE8DF !important;
+        }
+        .user-profile-box span, .user-profile-box div {
+            color: #4A5A4E !important;
+        }
+        
+        /* Top Horizontal Rule */
+        .custom-hr {
+            border: 0; border-top: 1px solid #EAE8DF; margin: 20px 0 15px 0;
         }
         
         /* Breadcrumb Bar */
-        .breadcrumb-text {
-            font-size: 13px;
-            color: #8C968E;
-            margin-bottom: 25px;
+        .breadcrumb-text { font-size: 13px; color: #8C968E !important; margin-bottom: 25px; }
+        .breadcrumb-text b { color: #2D3531 !important; }
+
+        /* ================= PORTAL PAGE CARDS (EXACT MATCH) ================= */
+        .main-portal-container {
+            margin-top: 10px;
+        }
+        .portal-meta-line {
+            font-size: 13px; color: #8C968E !important; font-weight: 500; margin-bottom: 6px;
+        }
+        .portal-title-headline {
+            font-size: 42px; font-weight: 700; color: #2D3531 !important; letter-spacing: -0.8px; margin-bottom: 12px;
+        }
+        .portal-subtitle-headline {
+            font-size: 16px; color: #5A665E !important; margin-bottom: 45px;
+        }
+        .section-divider-title {
+            font-size: 11px; font-weight: 700; color: #A4ABA5 !important; letter-spacing: 1.5px; text-transform: uppercase;
+            border-bottom: 1px solid #EAE8DF; padding-bottom: 10px; margin-bottom: 30px;
         }
         
-        /* Workspace Header Section (Matching the Image) */
-        .workspace-header-card {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 35px;
-            background: transparent;
+        .workspace-card-grid {
+            background: #FFFFFF !important;
+            border: 1px solid #EAE8DF !important;
+            border-radius: 24px !important;
+            padding: 35px 30px !important;
+            box-shadow: 0 4px 24px rgba(141, 137, 120, 0.02) !important;
+            text-align: center;
+            display: flex; flex-direction: column; justify-content: space-between;
+            min-height: 500px;
         }
-        .header-left-zone {
-            display: flex;
-            align-items: center;
-            gap: 20px;
+        .card-top-meta {
+            display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 15px;
         }
+        .card-icon-box {
+            width: 48px; height: 48px; border-radius: 50%; border: 1px solid #EAE8DF !important;
+            background: #FFFFFF !important; display: flex; align-items: center; justify-content: center;
+            color: #5F7464 !important;
+        }
+        .card-badge-tag {
+            background: #F4F3EE !important; color: #7A857D !important; font-size: 11px; font-weight: 600;
+            padding: 5px 14px; border-radius: 20px;
+        }
+        .card-title-text {
+            font-size: 22px; font-weight: 700; color: #2D3531 !important; margin-top: 15px; margin-bottom: 12px;
+        }
+        .card-desc-text {
+            font-size: 14px; color: #7A857D !important; line-height: 1.5; margin-bottom: 25px; padding: 0 10px;
+        }
+        .card-inner-checklist-box {
+            background: #F7F5F0 !important; border-radius: 16px; padding: 20px 22px; text-align: left; margin-bottom: 30px;
+        }
+        .card-checklist-item {
+            font-size: 13.5px; color: #4A5A4E !important; margin-bottom: 10px; display: flex; align-items: center; gap: 12px;
+        }
+        .card-checklist-item:last-child { margin-bottom: 0; }
+        .card-checklist-icon { color: #5F7464 !important; font-weight: 800; }
+
+        /* ================= AUDIT WORKSPACE HEADER ================= */
+        .workspace-header-card { display: flex; align-items: center; justify-content: space-between; margin-bottom: 35px; }
+        .header-left-zone { display: flex; align-items: center; gap: 20px; }
         .search-icon-circle {
-            width: 54px; height: 54px;
-            border-radius: 50%;
-            border: 1px solid #EAE8DF;
-            background: #FFFFFF;
-            display: flex; align-items: center; justify-content: center;
-            color: #2D3531;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.01);
+            width: 54px; height: 54px; border-radius: 50%; border: 1px solid #EAE8DF !important;
+            background: #FFFFFF !important; display: flex; align-items: center; justify-content: center; color: #5F7464 !important;
         }
-        .workspace-title-main {
-            font-size: 24px; font-weight: 700; color: #2D3531; letter-spacing: -0.3px;
-        }
-        .workspace-subtitle-main {
-            font-size: 14px; color: #8C968E; margin-top: 2px;
-        }
+        .workspace-title-main { font-size: 24px; font-weight: 700; color: #2D3531 !important; letter-spacing: -0.3px; }
+        .workspace-subtitle-main { font-size: 14px; color: #8C968E !important; margin-top: 2px; }
         
-        /* ================= UI CUSTOM FILE UPLOADER ================= */
-        /* Header tabs above uploader */
+        /* ================= FIXED FILE UPLOADER (ANTI-DARK MODE) ================= */
         .uploader-header-tab {
-            font-size: 13.5px;
-            font-weight: 600;
-            padding: 10px 16px;
-            border-radius: 8px 8px 0 0;
-            margin-bottom: -2px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            font-size: 13.5px; font-weight: 600; padding: 10px 16px; border-radius: 8px 8px 0 0; margin-bottom: -2px; display: inline-flex; align-items: center; gap: 8px;
         }
-        .tab-bl { background-color: #EEF3EF; color: #3E5C47; }
-        .tab-amend { background-color: #FAF1F1; color: #A45353; }
+        .tab-bl { background-color: #EEF3EF !important; color: #3E5C47 !important; }
+        .tab-amend { background-color: #FAF1F1 !important; color: #A45353 !important; }
         
-        /* Seamlessly override Streamlit File Uploader Box to match the exact image look */
+        /* Strict Overrides to guarantee White Background and Dark Text even in dark mode */
         div[data-testid="stFileUploader"] {
             background-color: #FFFFFF !important; 
             border: 1.5px dashed #D3CFC4 !important;
             border-radius: 20px !important; 
             padding: 40px 20px !important;
             text-align: center !important;
-            box-shadow: 0 4px 16px rgba(141, 137, 120, 0.02) !important;
-            transition: all 0.2s ease;
+            box-shadow: 0 4px 16px rgba(141, 137, 120, 0.01) !important;
         }
-        div[data-testid="stFileUploader"]:hover {
-            border-color: #2D3531 !important;
-        }
-        /* Hide default streamlit icon & text styling to let it look cozy */
-        div[data-testid="stFileUploader"] section button {
+        div[data-testid="stFileUploader"] * {
+            color: #4A5A4E !important; /* Force all internal text to be dark grey/green */
             background-color: transparent !important;
-            border: none !important;
-            color: #4A5A4E !important;
+        }
+        div[data-testid="stFileUploader"] section button {
+            color: #5F7464 !important;
             text-decoration: underline !important;
-            font-weight: 500 !important;
-            padding: 0 !important;
+            font-weight: 600 !important;
             display: inline !important;
         }
         div[data-testid="stFileUploader"] section p {
             color: #8C968E !important;
             font-size: 13px !important;
         }
-        
-        /* ================= BUTTONS DESIGN ================= */
-        /* 1. Back button (Upper Right) */
-        div.stButton > button[key*="back_from_audit"] {
-            border-radius: 20px !important; 
+        /* Style the 'No files uploaded' text container below uploader */
+        div[data-testid="stFileUploaderDropzone"] + div {
+            color: #8C968E !important;
+            text-align: center !important;
+        }
+
+        /* ================= OVERRIDE STREAMLIT BUTTONS ================= */
+        /* 1. Global/Outline Action Buttons (Card Action Links) */
+        div.stButton > button {
+            border-radius: 24px !important; 
             border: 1px solid #EAE8DF !important;
             background-color: #FFFFFF !important; 
             color: #2D3531 !important;
-            font-size: 13.5px !important;
-            padding: 8px 20px !important;
-            font-weight: 500 !important;
+            font-family: 'Bai Jamjuree', sans-serif !important; 
+            font-weight: 600 !important; font-size: 14px !important;
+            padding: 10px 24px !important;
+            transition: all 0.2s ease;
+            width: 100% !important;
         }
-        div.stButton > button[key*="back_from_audit"]:hover {
-            background-color: #F5F3EF !important;
-            border-color: #2D3531 !important;
+        div.stButton > button:hover {
+            border-color: #5F7464 !important;
+            background-color: #5F7464 !important;
+            color: #FFFFFF !important;
         }
         
-        /* 2. Primary Audit Action Button (Centered Bottom - Solid Sage Green color in image) */
+        /* 2. Specific Back button overriding layout positioning */
+        div.stButton > button[key*="back_from_audit"],
+        div.stButton > button[key*="back_from_tracking"] {
+            border-radius: 20px !important; border: 1px solid #EAE8DF !important;
+            background-color: #FFFFFF !important; color: #2D3531 !important;
+            font-size: 13.5px !important; padding: 8px 20px !important; font-weight: 500 !important;
+            width: auto !important;
+        }
+        div.stButton > button[key*="back_from_audit"]:hover,
+        div.stButton > button[key*="back_from_tracking"]:hover {
+            border-color: #5F7464 !important; background-color: #F5F3EF !important; color: #5F7464 !important;
+        }
+        
+        /* 3. Main Audit Process Action Button (Solid Sage Green #5F7464) */
         div.stButton > button[key*="process_audit"] {
-            background-color: #A9B3A7 !important; /* Sage green muted tint from the image */
+            background-color: #5F7464 !important;
             color: #FFFFFF !important;
             border: none !important;
             border-radius: 24px !important;
-            padding: 14px 40px !important;
-            font-size: 15px !important;
-            font-weight: 600 !important;
-            letter-spacing: 0.2px;
-            box-shadow: 0 4px 15px rgba(169, 179, 167, 0.2) !important;
-            display: block;
-            margin: 30px auto 0 auto !important;
-            width: auto !important;
-            min-width: 280px;
+            padding: 14px 45px !important;
+            font-size: 15px !important; font-weight: 600 !important;
+            box-shadow: 0 4px 15px rgba(95, 116, 100, 0.15) !important;
+            display: block; margin: 35px auto 0 auto !important;
+            width: auto !important; min-width: 290px;
         }
         div.stButton > button[key*="process_audit"]:hover {
-            background-color: #8F9A8D !important;
+            background-color: #4D5E51 !important;
             color: #FFFFFF !important;
         }
-        
-        /* Portal Card Layout Overrides */
-        .workspace-container {
-            background: #FFFFFF; border: 1px solid #EAE8DF; border-radius: 24px;
-            padding: 40px 32px; box-shadow: 0 4px 24px rgba(141, 137, 120, 0.03);
-            text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: space-between;
-        }
-        .workspace-badge {
-            background: #F4F3EE; color: #7A857D; font-size: 11px; font-weight: 600;
-            padding: 4px 12px; border-radius: 20px; display: inline-block; align-self: flex-end; margin-top: -15px;
-        }
-        .workspace-icon-circle {
-            width: 56px; height: 56px; border-radius: 50%; border: 1px solid #EAE8DF;
-            display: flex; align-items: center; justify-content: center; margin: 10px auto 24px auto; color: #2D3531;
-        }
-        .workspace-title { font-size: 22px; font-weight: 700; color: #2D3531; margin-bottom: 12px; }
-        .workspace-desc { font-size: 14px; color: #7A857D; line-height: 1.5; margin-bottom: 24px; }
-        .workspace-checklist { background: #FAF9F5; border-radius: 16px; padding: 20px; text-align: left; margin-bottom: 30px; }
-        .checklist-line { font-size: 13.5px; color: #4A5A4E; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
-        .checklist-icon { color: #607366; font-weight: bold; }
         
         /* Data Tables Styling */
         div[data-testid="stMarkdownContainer"] table {
             color: #4A5A4E !important; background-color: #FFFFFF !important; border-collapse: collapse !important;
-            border-radius: 16px !important; overflow: hidden !important; box-shadow: 0 4px 20px rgba(141, 137, 120, 0.02) !important;
+            border-radius: 16px !important; overflow: hidden !important; box-shadow: 0 4px 20px rgba(141, 137, 120, 0.01) !important;
             margin: 20px 0 !important; width: 100% !important; border: 1px solid #EAE8DF !important;
         }
         div[data-testid="stMarkdownContainer"] th {
@@ -208,7 +241,7 @@ st.markdown("""
         div[data-testid="stMarkdownContainer"] td { padding: 14px 16px !important; border-bottom: 1px solid #F0EDE8 !important; font-size: 13.5px; }
         .status-badge-match { color: #2E593A !important; background-color: #E8F2EA; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 12px; display: inline-block; }
         .status-badge-mismatch { color: #9C4141 !important; background-color: #FCEAEA; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 12px; display: inline-block; }
-        .output-header-box { display: flex; align-items: center; gap: 10px; margin-top: 35px; margin-bottom: 10px; color: #2D3531; }
+        .output-header-box { display: flex; align-items: center; gap: 10px; margin-top: 35px; margin-bottom: 10px; color: #2D3531 !important; }
         .output-header-title { font-size: 16px; font-weight: 700; letter-spacing: -0.2px; }
     </style>
 """, unsafe_allow_html=True)
@@ -237,7 +270,7 @@ with nav_col1:
 with nav_col2:
     st.markdown(f"""
         <div class='user-profile-box'>
-            <div style='font-size: 13px; color: #7A857D;'>📅 {datetime.now().strftime('%a, %d %b %Y')}</div>
+            <div style='font-size: 13px; color: #7A857D;'>📅 Mon, 29 Jun 2026</div>
             <div style='border-left: 1px solid #EAE8DF; height: 18px;'></div>
             <div style='font-size:13px; color:#4A5A4E; text-align:right;'>
                 <span style='font-weight:700; color:#2D3531;'>Seabra Team</span>
@@ -246,7 +279,7 @@ with nav_col2:
         </div>
     """, unsafe_allow_html=True)
 
-st.markdown("<hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 20px 0 15px 0;'>", unsafe_allow_html=True)
+st.markdown("<div class='custom-hr'></div>", unsafe_allow_html=True)
 
 # 🔐 เช็คและเปิดใช้งานโมเดล
 if not API_KEY or API_KEY == "":
@@ -254,59 +287,70 @@ if not API_KEY or API_KEY == "":
 else:
     client = genai.Client(api_key=API_KEY)
     
-    # 🚪 ================== [หน้าหลัก Menu Portal] ==================
+    # 🚪 ================== [หน้าหลัก Menu Portal - EXACT REPLICA] ==================
     if st.session_state.current_page == "portal":
-        st.markdown("<div style='font-size:13px; color:#7A857D; margin-bottom:2px; font-weight:500;'>● 2 Workspaces Available</div>", unsafe_allow_html=True)
-        st.markdown("<div style='font-size:36px; font-weight:700; color:#2D3531; letter-spacing:-0.5px; margin-bottom:8px;'>Welcome back.</div>", unsafe_allow_html=True)
-        st.markdown("<div style='font-size:15px; color:#5A665E; margin-bottom:40px;'>Ready to verify your shipping documents.</div>", unsafe_allow_html=True)
+        st.markdown("""
+            <div class='main-portal-container'>
+                <div class='portal-meta-line'>● 2 Workspaces Available · 29 มิ.ย. 2569</div>
+                <div class='portal-title-headline'>Welcome back.</div>
+                <div class='portal-subtitle-headline'>Ready to verify your shipping documents.</div>
+                <div class='section-divider-title'>Workspaces</div>
+            </div>
+        """, unsafe_allow_html=True)
         
-        p_col1, space_col, p_col2 = st.columns([4.5, 1, 4.5])
+        p_col1, space_col, p_col2 = st.columns([4.6, 0.8, 4.6])
         with p_col1:
             st.markdown("""
-                <div class='workspace-container'>
-                    <div class='workspace-badge'>Document Audit</div>
-                    <div class='workspace-icon-circle'>
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <div class='workspace-card-grid'>
+                    <div class='card-top-meta'>
+                        <div class='card-icon-box'>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        </div>
+                        <div class='card-badge-tag'>Document Audit</div>
                     </div>
-                    <div class='workspace-title'>ตรวจสอบเอกสาร</div>
-                    <div class='workspace-desc'>เปรียบเทียบข้อมูล B/L กับ Amendment อัตโนมัติ พร้อมรายงานผลแบบ field-by-field</div>
-                    <div class='workspace-checklist'>
-                        <div class='checklist-line'><span class='checklist-icon'>✓</span> Bill of Lading (B/L)</div>
-                        <div class='checklist-line'><span class='checklist-icon'>✓</span> Amendment Notice</div>
-                        <div class='checklist-line'><span class='checklist-icon'>✓</span> Attached Sheet & ไฟล์แนบ</div>
+                    <div>
+                        <div class='card-title-text'>ตรวจสอบเอกสาร</div>
+                        <div class='card-desc-text'>เปรียบเทียบข้อมูล B/L กับ Amendment อัตโนมัติ พร้อมรายงานผลแบบ field-by-field</div>
+                    </div>
+                    <div class='card-inner-checklist-box'>
+                        <div class='card-checklist-item'><span class='card-checklist-icon'>✓</span> Bill of Lading (B/L)</div>
+                        <div class='card-checklist-item'><span class='card-checklist-icon'>✓</span> Amendment Notice</div>
+                        <div class='card-checklist-item'><span class='card-checklist-icon'>✓</span> Attached Sheet & ไฟล์แนบ</div>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
-            if st.button("เริ่มตรวจสอบเอกสาร →", key="go_audit", use_container_width=True):
+            if st.button("เริ่มตรวจสอบเอกสาร →", key="go_audit"):
                 st.session_state.current_page = "audit_page"
                 st.rerun()
                 
         with p_col2:
             st.markdown("""
-                <div class='workspace-container'>
-                    <div class='workspace-badge'>D/O Management</div>
-                    <div class='workspace-icon-circle'>
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8V21H3V8"></path><path d="M23 3H1V8H23V3Z"></path><path d="M10 12H14"></path></svg>
+                <div class='workspace-card-grid'>
+                    <div class='card-top-meta'>
+                        <div class='card-icon-box'>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 8V21H3V8"></path><path d="M23 3H1V8H23V3Z"></path><path d="M10 12H14"></path></svg>
+                        </div>
+                        <div class='card-badge-tag'>D/O Management</div>
                     </div>
-                    <div class='workspace-title'>บันทึกรับ D/O</div>
-                    <div class='workspace-desc'>บันทึกและค้นหาประวัติการรับมอบเอกสาร D/O หน้าเคาน์เตอร์ พร้อมระบบ search realtime</div>
-                    <div class='workspace-checklist'>
-                        <div class='checklist-line'><span class='checklist-icon'>✓</span> D/O Release Logging</div>
-                        <div class='checklist-line'><span class='checklist-icon'>✓</span> Consignee Tracking</div>
-                        <div class='checklist-line'><span class='checklist-icon'>✓</span> Quick Search History</div>
+                    <div>
+                        <div class='card-title-text'>บันทึกรับ D/O</div>
+                        <div class='card-desc-text'>บันทึกและค้นหาประวัติการรับมอบเอกสาร D/O หน้าเคาน์เตอร์ พร้อมระบบ search realtime</div>
+                    </div>
+                    <div class='card-inner-checklist-box'>
+                        <div class='card-checklist-item'><span class='card-checklist-icon'>✓</span> D/O Release Logging</div>
+                        <div class='card-checklist-item'><span class='card-checklist-icon'>✓</span> Consignee Tracking</div>
+                        <div class='card-checklist-item'><span class='card-checklist-icon'>✓</span> Quick Search History</div>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
-            if st.button("เปิดพื้นที่จัดการ D/O →", key="go_tracking", use_container_width=True):
+            if st.button("เปิดพื้นที่จัดการ D/O →", key="go_tracking"):
                 st.session_state.current_page = "tracking_page"
                 st.rerun()
 
-    # 🔍 ================== [ฝั่งที่ 1: ตรวจสอบเอกสาร - MATCH LOOK WITH IMAGE] ==================
+    # 🔍 ================== [ฝั่งที่ 1: ตรวจสอบเอกสาร - REPLICA FROM IMAGE] ==================
     elif st.session_state.current_page == "audit_page":
-        # Render Breadcrumb
         st.markdown("<div class='breadcrumb-text'>Home › <b>Document Audit</b></div>", unsafe_allow_html=True)
         
-        # Header Layout Zone (Title + Back Button on the right)
         head_col1, head_col2 = st.columns([8, 2])
         with head_col1:
             st.markdown("""
@@ -321,7 +365,6 @@ else:
                 </div>
             """, unsafe_allow_html=True)
         with head_col2:
-            # Align the button to match the mockup location
             st.markdown("<div style='text-align: right; margin-top: 5px;'>", unsafe_allow_html=True)
             if st.button("🏠 กลับหน้าหลัก", key="back_from_audit"):
                 st.session_state.current_page = "portal"
@@ -330,7 +373,6 @@ else:
             
         st.markdown("<div style='margin-top: 30px;'></div>", unsafe_allow_html=True)
         
-        # Two-Column File Upload Layout (Exactly mirroring the input containers)
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("<div class='uploader-header-tab tab-bl'>📄 1. ไฟล์เอกสาร B/L ตัวหลัก</div>", unsafe_allow_html=True)
@@ -339,12 +381,8 @@ else:
             st.markdown("<div class='uploader-header-tab tab-amend'>📄 2. ไฟล์ใบแก้ไข AMENDMENT NOTICE</div>", unsafe_allow_html=True)
             amend_files = st.file_uploader("ลากไฟล์มาวางตรงนี้ หรือ เลือกไฟล์จากเครื่อง", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True, key="amend_upload")
 
-        # Centered Process Action Button at the bottom
-        st.markdown("<div style='text-align: center; margin-top: 10px;'>", unsafe_allow_html=True)
         process_clicked = st.button("เริ่มกระบวนการตรวจสอบเอกสาร", key="process_audit")
-        st.markdown("</div>", unsafe_allow_html=True)
 
-        # Logic Execution Block
         if process_clicked:
             if bl_files and amend_files:
                 with st.spinner("กำลังใช้โมเดลวิเคราะห์ข้อมูลเอกสารคู่ขนาน..."):
@@ -389,11 +427,18 @@ else:
 
     # 📦 ================== [ฝั่งที่ 2: บันทึกรับ D/O] ==================
     elif st.session_state.current_page == "tracking_page":
-        if st.button("← กลับหน้าเมนูหลัก", key="back_from_tracking"):
-            st.session_state.current_page = "portal"
-            st.rerun()
+        st.markdown("<div class='breadcrumb-text'>Home › <b>D/O Management</b></div>", unsafe_allow_html=True)
+        
+        track_col1, track_col2 = st.columns([8, 2])
+        with track_col1:
+            st.markdown("<div style='font-size: 24px; font-weight: 700; color: #2D3531;'>ระบบจัดการและตรวจสอบสถานะการส่งมอบ D/O</div>", unsafe_allow_html=True)
+        with track_col2:
+            st.markdown("<div style='text-align: right;'>", unsafe_allow_html=True)
+            if st.button("🏠 กลับหน้าหลัก", key="back_from_tracking"):
+                st.session_state.current_page = "portal"
+                st.rerun()
+            st.markdown("</div>", unsafe_allow_html=True)
             
-        st.markdown("<div style='font-size: 24px; font-weight: 700; color: #2D3531; margin-top:20px; margin-bottom:20px;'>ระบบจัดการและตรวจสอบสถานะการส่งมอบ D/O</div>", unsafe_allow_html=True)
         df_current = load_data()
         
         with st.form(key="do_entry_form", clear_on_submit=True):
