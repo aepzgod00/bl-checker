@@ -229,27 +229,52 @@ else:
             if st.button("ประมวลผลการเปรียบเทียบข้อมูลเอกสาร", use_container_width=True):
                 with st.spinner("กำลังใช้โมเดลวิเคราะห์ข้อมูลเอกสารคู่ขนาน..."):
                     try:
+                        # 🎯 วางทับตรงก้อนนี้ได้เลยครับ!
                         prompt_instruction = (
                             "You are an automated Data Compliance Audit Engine configured specifically for Seabra Trans Freight Forwarding Operations. "
                             "Your task is to analyze and compare logistics manifests (B/L) with requested adjustments (Amendments & Attached Sheets).\n"
                             "CRITICAL REQUIREMENT: There are multiple Bill of Lading (B/L) documents inside the payload. You must scan ALL of them and generate verification report rows for EVERY SINGLE B/L number found. Do not drop or miss any B/L numbers.\n\n"
+                            
                             "📢 STRICT OUTPUT CONSTRAINT:\n"
                             "- DO NOT include any conversational text, chat introductions, greetings, summaries, or post-analysis notes.\n"
                             "- Start rendering the structural output directly from the HTML code segments below.\n"
                             "- Absolutely no emojis are allowed in the text output.\n\n"
+                            
+                            "🔍 LOGISTIC AUDIT RULES (STRICT CHARACTER-LEVEL COMPLIANCE):\n"
+                            "1. เกณฑ์การตรวจจับคำสะกดผิด (Strict Typo Detection):\n"
+                            "   - หากพบการสะกดคำผิด, ตัวอักษรเกิน, ตัวอักษรสลับตำแหน่ง หรือตัวอักษรเพี้ยน แม้เพียง 1 ตัวอักษร (เช่น DELTA เป็น DELTAA หรือ THAILAND เป็น THAILND) ในข้อมูลส่วนที่นำมาแสดง คุณต้องปรับสถานะเป็น MISMATCH ทันที ห้ามอนุโลมเด็ดขาด\n\n"
+                            
+                            "2. เกณฑ์การอนุโลมกรณีดึงข้อมูลมาบางส่วน (Partial Substring Matching Rule):\n"
+                            "   - หากข้อมูลบนใบ Amend + Attached Sheet มีการ 'ตัดมาเฉพาะบางส่วน' หรือนำมาไม่ครบถ้วนจากใบ B/L ต้นฉบับเนื่องจากลูกค้าต้องการระบุสั้นลง (เช่น ใบ B/L เต็มคือ 'DELTA ELECTRONICS (THAILAND) PUBLIC CO., LTD.' แต่ใบ Amend ใส่มาแค่ 'DELTA ELECTRONICS' หรือแค่เติม CO., LTD.) โดยที่ทุกตัวอักษรที่ปรากฏนั้น 'สะกดถูกต้องตรงตามต้นฉบับ 100% ไม่มีคำใดสะกดเพี้ยน'\n"
+                            "   - ระบบจะถือว่าเป็นข้อกำหนดทางธุรกิจที่ยอมรับได้ ให้ตัดสินสถานะเป็น MATCH และระบุในหมายเหตุว่า 'อนุโลม: ข้อมูลตรงตามคู่คู่ย่อยยึดตามคำขอตัดทอนของลูกค้า'\n\n"
+                            
+                            "3. รายละเอียดการแยกแยะแต่ละพารามิเตอร์ (Parameter-Specific Auditing):\n"
+                            "   - ผู้รับสินค้า (Consignee): ยึดหลักการตรวจตามข้อ 1 และ 2 (ชื่อนิติบุคคลห้ามสะกดผิดเด็ดขาด แต่ตัดทอนสั้นลงได้ และให้ข้ามการเช็คเลขไปรษณีย์หรือที่อยู่หากลูกค้าไม่ใส่มา)\n"
+                            "   - จำนวนสินค้า (Quantity): ตัวเลขจำนวนเต็มและหน่วยนับหลัก (เช่น PALLETS, CARTONS) ห้ามผิดเพี้ยนแม้แต่ตัวเดียว หากจำนวนไม่ตรงหรือสะกดหน่วยนับเพี้ยน ให้ปรับเป็น MISMATCH\n"
+                            "   - เครื่องหมายขนส่ง (Shipping Marks): ตรวจสอบตัวอักษรและสัญลักษณ์เครื่องหมายแบบอักษรต่ออักษร (Character-by-Character) หากมีการพิมพ์เครื่องหมายผิดหรือสลับตำแหน่ง ให้ปรับเป็น MISMATCH ทันที\n"
+                            "   - น้ำหนักและปริมาตร (Gross Weight / CBM): เป็นข้อมูลเชิงตัวเลขทางบัญชี ห้ามผิดเพี้ยนแม้แต่จุดทศนิยมเดียว หากไม่ตรงกันให้ปรับเป็น MISMATCH และนำไปคำนวณในตารางกระทบยอดท้ายรายงาน\n\n"
+                            
                             "🎨 FORMAT STRUCTURES TO RENDER:\n"
                             "<div class='output-header-box'><span class='output-header-title'>รายงานผลการตรวจสอบเปรียบเทียบข้อมูลเอกสารรายฉบับ</span></div>\n\n"
                             "| เลขที่ B/L / ข้อมูล D/O | หัวข้อตรวจสอบ | ข้อมูลต้นฉบับบนใบ B/L | ข้อมูลบนใบ Amend + Attached Sheet | ผลการตรวจสอบ | หมายเหตุคำวิเคราะห์ / เกณฑ์การอนุโลม |\n"
                             "| :--- | :--- | :--- | :--- | :--- | :--- |\n"
                             "| **[B/L Number]** | ผู้รับสินค้า (Consignee) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
-                            "| **[B/L Number]** | จำนวนสินค้า (Quantity) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n\n"
+                            "| **[B/L Number]** | จำนวนสินค้า (Quantity) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
+                            "| **[B/L Number]** | เครื่องหมายขนส่ง (Shipping Marks) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
+                            "| **[B/L Number]** | รายละเอียดสินค้า (Description of Goods) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
+                            "| **[B/L Number]** | น้ำหนักมวลรวม (Gross Weight) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
+                            "| **[B/L Number]** | ปริมาตรสินค้า (Measurement CBM) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n\n"
+                            
                             "<div class='output-header-box'><span class='output-header-title'>ตารางสรุปการกระทบยอดน้ำหนักและปริมาตรสุทธิ</span></div>\n\n"
-                            "| พารามิเตอร์ที่ตรวจสอบ | ผลรวมคำนวณจาก B/L ทุกฉบับ | ยอดรวมสุทธิบนใบขอแก้ไข (Amend) | สถานะความถูกต้อง | รายละเอียดประกอบการคำนวณ |\n"
+                            "| พารามิเตอร์ที่ตรวจสอบ | ผลรวมคำนวณจาก B/L ทุกฉบับ | ยอดรวมสุทธิบนใบขอแก้ไข (Amend) | สถานะความถูกต้อง | รายละเอียดประกอบการคำนวณ (แสดงสูตรการบวกจริงแบบแยกรายฉบับ) |\n"
                             "| :--- | :--- | :--- | :--- | :--- |\n"
-                            "| **น้ำหนักมวลรวมสะสม (Total G.W.)** | [Value] | [Value] | <span class='status-badge-match'>MATCH</span> | [สูตรการบวกเลข] |\n"
+                            "| **น้ำหนักมวลรวมสะสม (Total G.W.)** | [Value] | [Value] | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | [สูตรการบวกเลขจริงรายฉบับ] |\n"
+                            "| **ปริมาตรสินค้ารวมสะสม (Total CBM)** | [Value] | [Value] | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | [สูตรการบวกเลขจริงรายฉบับ] |\n"
                         )
 
                         contents_payload = [prompt_instruction]
+                        
+                        # (โค้ดดึงไฟล์และส่งเข้าโมเดลด้านล่างเหมือนเดิม...)
                         
                         # บรรจุไฟล์เข้าสู่โครงสร้างที่รองรับ API Key ชุดใหม่แบบไร้ Error
                         for bl in bl_files:
