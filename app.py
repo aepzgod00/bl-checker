@@ -5,277 +5,292 @@ import os
 import pandas as pd
 from datetime import datetime
 
-# 🎨 1. Set Page Configuration (ตรงตามแบบฉบับโปรเจกต์ของคุณ)
+# 🎨 1. Set Page Configuration
 st.set_page_config(
     page_title="VerifyHub - Document Verification System", 
     page_icon="🌿", 
     layout="wide"
 )
 
-# 🔑 ระบบจัดการ API KEY
+# 🖌 *แก้ไขจุดสำคัญ*: ดึงคีย์ AQ... จากระบบ Secrets ของ Streamlit หรือจากกล่องตัวแปรตรงๆ
+# แนะนำให้เอาคีย์ AQ... ไปใส่ในระบบ Secrets หลังบ้านของ Streamlit Cloud (ชื่อตัวแปร GEMINI_API_KEY)
 if "GEMINI_API_KEY" in st.secrets:
     API_KEY = st.secrets["GEMINI_API_KEY"]
 else:
+    # 📝 หากรันบนคอมตัวเอง หรือต้องการทดสอบด่วน สามารถสลับเอาคีย์ AQ... มาวางในเครื่องหมายคำพูดด้านล่างนี้ได้เลยครับ
     API_KEY = "AQ.Ab8RN6KfAAI3LV9KOfLxE7OFDtcqamABiIk3IY24OYGUkmZtHw"
 
-# 🖌️ 2. ดึง Design Tokens และคลาสทั้งหมดมาจาก App.css ดั้งเดิมของคุณแบบ 100%
+# 🖌️ 2. Inject Custom CSS
 st.markdown("""
     <style>
-        /* CSS ดั้งเดิมจาก App.css */
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=Playfair+Display:wght@400;500&family=Bai+Jamjuree:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600;700;800&family=Manrope:wght@500;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0&display=swap');
         
-        /* สีกรอบและพื้นหลังในระดับ Global */
-        html, body, [data-testid="stAppViewContainer"], .main {
-            font-family: 'Bai Jamjuree', 'DM Sans', sans-serif !important;
-            background-color: #FAF7F2 !important; /* --bg */
-            color: #2E3330 !important; /* --text */
+        .stApp {
+            background: linear-gradient(180deg, #FAF8F5 0%, #F4F2EE 100%);
+            font-family: 'Bai Jamjuree', sans-serif;
+            background-attachment: fixed;
         }
-
-        /* ─── TopBar ─── */
-        .topbar {
-            display: flex; justify-content: space-between; align-items: center;
-            background: #FFFFFF; padding: 16px 32px;
-            border-bottom: 1px solid #EBE5DA; margin-bottom: 32px;
-            border-radius: 12px; box-shadow: 0 2px 8px rgba(95,116,100,0.04);
+        div[data-testid="stMarkdownContainer"] p, 
+        div[data-testid="stMarkdownContainer"] li {
+            color: #4A5A4E !important;
+            line-height: 1.625;
+            font-size: 14.5px;
         }
-        .topbar-brand { font-size: 15px; font-weight: 700; color: #5F7464; letter-spacing: .08em; }
-        .topbar-badge { background: #F2F5F3; border: 1px solid #D5DDD7; color: #5F7464; padding: 6px 14px; border-radius: 100px; font-size: 11.5px; font-weight: 500; }
-
-        /* ─── Portal Grid & Cards (ถอดแบบเอฟเฟกต์โฮเวอร์) ─── */
-        .portal-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 24px;
+        div[data-testid="stMarkdownContainer"] h1,
+        div[data-testid="stMarkdownContainer"] h2,
+        div[data-testid="stMarkdownContainer"] h3,
+        div[data-testid="stMarkdownContainer"] h4 {
+            color: #2D3531 !important;
+            font-family: 'Bai Jamjuree', sans-serif;
+            font-weight: 700;
+            margin-top: 25px;
+            margin-bottom: 12px;
         }
-        .portal-card {
-            background: #FFFFFF; border: 1px solid #EBE5DA; border-radius: 16px; padding: 32px; transition: all .2s ease;
+        div[data-testid="stMarkdownContainer"] table {
+            color: #4A5A4E !important;
+            background-color: #FDFCFA !important;
+            border-collapse: collapse !important;
+            border-radius: 14px !important;
+            overflow: hidden !important;
+            box-shadow: 0 4px 20px rgba(141, 137, 120, 0.04) !important;
+            margin: 20px 0 !important;
+            width: 100% !important;
+            border: none !important;
         }
-        .portal-card:hover {
-            border-color: #D6CDBF; transform: translateY(-2px); box-shadow: 0 12px 24px rgba(95,116,100,0.06);
+        div[data-testid="stMarkdownContainer"] th {
+            background-color: #F0EDE6 !important;
+            color: #2D3531 !important;
+            font-weight: 600 !important;
+            padding: 14px 16px !important;
+            border: none !important;
+            border-bottom: 2px solid #E4E1D6 !important;
+            font-size: 14px;
+            text-align: left;
         }
-        .card-icon { font-size: 28px; margin-bottom: 16px; color: #5F7464; }
-        .card-title { font-size: 18px; font-weight: 600; color: #2E3330; margin-bottom: 8px; }
-        .card-desc { font-size: 13.5px; color: #5C6460; line-height: 1.5; }
-
-        /* ─── ตาราง Custom Table ─── */
-        .custom-table-container { background: #FFFFFF; border: 1px solid #EBE5DA; border-radius: 16px; overflow: hidden; margin: 24px 0; }
-        .custom-table { width: 100%; border-collapse: collapse; text-align: left; }
-        .custom-table th { background: #F4EFE6; padding: 14px 20px; font-weight: 600; color: #8D9690; font-size: 12px; letter-spacing: .02em; text-transform: uppercase; border-bottom: 1px solid #EBE5DA; }
-        .custom-table td { padding: 14px 20px; border-top: 1px solid #EBE5DA; color: #2E3330; font-size: 14px; }
-        .custom-table tr:hover td { background: #F2F5F3; }
-        .date-badge { background: #F4EFE6; border: 1px solid #EBE5DA; color: #5C6460; border-radius: 100px; padding: 4px 12px; font-size: 11.5px; font-weight: 500; }
-
-        /* ─── Danger zone ─── */
-        .danger-zone { border: 1px solid #BC6C65; border-radius: 16px; padding: 20px; background: #FBF3F2; margin-top: 32px; }
-        .danger-label { font-size: 12.5px; font-weight: 600; color: #BC6C65; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
-
-        /* ─── ตกแต่งองค์ประกอบ Streamlit ให้กลืนกับ CSS หลัก ─── */
+        div[data-testid="stMarkdownContainer"] td {
+            color: #4A5A4E !important;
+            padding: 14px 16px !important;
+            border: none !important;
+            border-bottom: 1px solid #EAE8DF !important;
+            background-color: #FDFCFA !important;
+            font-size: 13.5px;
+            vertical-align: top;
+        }
+        div[data-testid="stMarkdownContainer"] tr:nth-child(even) td {
+            background-color: #FAF8F4 !important;
+        }
+        .status-badge-match {
+            color: #3B664B !important;
+            background-color: #E6F0EA;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            display: inline-block;
+        }
+        .status-badge-mismatch {
+            color: #A65252 !important;
+            background-color: #FAEAEA;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            display: inline-block;
+        }
+        .brand-block { text-align: left; padding-top: 10px; }
+        .brand-header {
+            font-family: 'Manrope', sans-serif;
+            color: #3A443E; 
+            font-weight: 800;
+            font-size: 32px;
+            background: linear-gradient(180deg, #3A443E 0%, #222825 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .brand-subtitle {
+            font-family: 'Bai Jamjuree', sans-serif;
+            color: #8C968E;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        .user-profile-box {
+            display: flex; align-items: center; justify-content: flex-end; gap: 12px;
+            background-color: #FFFFFF; padding: 10px 18px; border-radius: 14px;
+            border: 1px solid #EAE8DF; margin-top: 10px;
+        }
+        .cozy-portal-card {
+            background-color: #FFFFFF; padding: 30px 24px; border-radius: 22px;
+            border: 1px solid #EAE8DF; text-align: center;
+            box-shadow: 0 10px 30px rgba(141, 137, 120, 0.05);
+            margin-bottom: 15px;
+        }
+        .icon-wrapper {
+            background-color: #F4F6F4; width: 54px; height: 54px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;
+            color: #4A5A4E;
+        }
+        .custom-code-box {
+            background-color: #FAF8F5 !important; border: 1px solid #EAE8DF !important;
+            border-radius: 14px !important; padding: 16px 20px !important; margin-top: 15px !important;
+        }
+        .checklist-item { font-size: 13.5px; color: #5A665E; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+        .checklist-item-check { color: #557A61; font-weight: 700; }
+        div[data-testid="stFileUploader"] {
+            background-color: #FAF8F5 !important; border: 1.5px dashed #DCD9CD !important;
+            border-radius: 16px !important; padding: 25px 20px !important;
+        }
         div.stButton > button {
-            background-color: #5F7464 !important; color: white !important;
-            border-radius: 100px !important; border: 1px solid #D5DDD7 !important;
-            padding: 10px 28px !important; font-size: 14px !important; font-weight: 500 !important;
-            transition: all 0.2s ease;
+            border-radius: 12px !important; border: 1px solid #557A61 !important;
+            background-color: #FFFFFF !important; color: #557A61 !important;
+            font-family: 'Bai Jamjuree', sans-serif !important; font-weight: 600 !important;
+            padding: 10px 24px !important;
         }
-        div.stButton > button:hover { background-color: #46564A !important; transform: translateY(-1px); }
-        
-        /* ปุ่มกลับหน้าหลักสีกลืนกับแอป */
-        div.stButton > button[key^="back_"] {
-            background-color: #FFFFFF !important; color: #5C6460 !important; border: 1px solid #EBE5DA !important;
+        div.stButton > button:hover {
+            background-color: #557A61 !important; color: #FFFFFF !important;
         }
-        div.stButton > button[key^="back_"]:hover { background-color: #F4EFE6 !important; }
-
-        /* ปุ่มใน Danger Zone */
-        div.stButton > button[key^="clear_"] { background-color: #BC6C65 !important; border: none !important; }
-        div.stButton > button[key^="clear_"]:hover { background-color: #a35650 !important; }
-
-        /* ─── Footer ─── */
-        .footer { text-align: center; padding: 36px 32px; border-top: 1px solid #EBE5DA; margin-top: 64px; }
-        .footer-name { font-size: 13px; font-weight: 700; color: #5F7464; letter-spacing: .05em; }
-        .footer-meta { font-size: 11.5px; color: #8D9690; margin-top: 4px; }
+        .inner-header-container { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 25px; }
+        .inner-main-title { font-size: 24px; font-weight: 700; color: #2D3531; }
+        .inner-sub-title { font-size: 14px; color: #7A857D; }
+        .output-header-box { display: flex; align-items: center; gap: 10px; margin-top: 32px; color: #2D3531; }
+        .output-header-title { font-size: 17px; font-weight: 700; }
     </style>
 """, unsafe_allow_html=True)
 
+# 🧠 ⚙️ CORE DATABASE
+EXCEL_FILE = "do_database_records.xlsx"
 
-# 💾 3. Data Storage & Initialization (ล้อตาม LocalStorage ของคุณ)
-if "records" not in st.session_state:
-    st.session_state.records = [
-        {"bl": "BL992011A", "consignee": "Siam Logistics Co., Ltd.", "date": "29 มิ.ย. 2569"},
-        {"bl": "BL481022B", "consignee": "Inter-Freight Thailand", "date": "28 มิ.ย. 2569"}
-    ]
+def load_data():
+    if os.path.exists(EXCEL_FILE):
+        return pd.read_excel(EXCEL_FILE)
+    else:
+        return pd.DataFrame(columns=["เลขที่ B/L", "ชื่อ Consignee", "วันที่รับ D/O"])
 
 if "current_page" not in st.session_state:
     st.session_state.current_page = "portal"
 
+# 🏢 TOP NAVIGATION HEADER
+nav_col1, nav_col2 = st.columns([7, 3])
+with nav_col1:
+    st.markdown("<div class='brand-block'><div class='brand-header'>VERIFYHUB</div><div class='brand-subtitle'>Document Verification System</div></div>", unsafe_allow_html=True)
+with nav_col2:
+    st.markdown(f"<div class='user-profile-box'><div>👤</div><div style='font-size:12px; color:#4A5A4E; text-align:right;'><div style='font-weight:700;'>Seabra Team</div><div style='color:#7A857D;'>Import-Export Dept &bull; {datetime.now().strftime('%d %b %Y')}</div></div></div>", unsafe_allow_html=True)
 
-# ─── TopBar Layout (แกะกล่องจาก JSX มาเป๊ะๆ) ───────────────────────
-st.markdown("""
-    <div class="topbar">
-        <div class="topbar-brand">🌿 VERIFYHUB</div>
-        <div class="topbar-badge">Freight Operations Platform</div>
-    </div>
-""", unsafe_allow_html=True)
+st.markdown("<hr style='border: 0; border-top: 1px solid #EAE8DF; margin: 18px 0 25px 0;'>", unsafe_allow_html=True)
 
-
-# 📦 ================== [ 1. หน้า PORTAL (เมนูหลัก) ] ==================
-if st.session_state.current_page == "portal":
-    st.markdown("<h2 style='font-weight:500; color:#2E3330;'>ระบบจัดการตรวจสอบเอกสาร</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='color:#5C6460;'>เลือกบริการด้านล่างเพื่อเริ่มดำเนินการประมวลผล</p>", unsafe_allow_html=True)
+# 🔐 เช็คและเปิดใช้งานโมเดลด้วย Key AQ... ให้ถูกต้องตามมาตรฐานใหม่
+if not API_KEY or API_KEY == "":
+    st.error("⚠️ ไม่พบรหัสผ่าน API Key ในระบบ กรุณาฝังรหัส AQ... ของคุณในโค้ดก่อนใช้งาน")
+else:
+    # เริ่มต้นเชื่อมต่อ Client โดยป้อน API Key เข้าล็อกพารามิเตอร์ตรงๆ
+    client = genai.Client(api_key=API_KEY)
     
-    # วาด Grid & Cards ด้วย CSS ของคุณตรงๆ
-    st.markdown("""
-        <div class="portal-grid">
-            <div class="portal-card">
-                <div class="card-icon">🔍</div>
-                <div class="card-title">Audit AI Verification</div>
-                <div class="card-desc">อัปโหลดไฟล์ชุดเอกสาร B/L และ D/O เพื่อตรวจวิเคราะห์ เปรียบเทียบความถูกต้องของข้อมูลทั้งหมดด้วยระบบ AI อัจฉริยะแบบเรียลไทม์</div>
-            </div>
-            <div class="portal-card">
-                <div class="card-icon">📦</div>
-                <div class="card-title">Delivery Order Checking</div>
-                <div class="card-desc">ระบบลงทะเบียนและบันทึกประวัติการรับเอกสาร จัดเก็บหมายเลข Bill of Lading (B/L) พร้อมรายชื่อ Consignee ประจำวัน</div>
-            </div>
-        </div>
-        <br>
-    """, unsafe_allow_html=True)
-
-    # ปุ่มนำทางเข้าสู่แต่ละระบบ (สไตล์กลมมนตามคลาสปุ่มดั้งเดิม)
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("เข้าสู่ระบบ Audit AI", use_container_width=True, key="go_to_audit"):
-            st.session_state.current_page = "audit"
-            st.rerun()
-    with col2:
-        if st.button("เข้าสู่ระบบจัดการ D/O", use_container_width=True, key="go_to_tracking"):
-            st.session_state.current_page = "tracking"
-            st.rerun()
-
-
-# 📦 ================== [ 2. หน้า AUDIT AI (แก้ปัญหาหลายไฟล์แล้ว) ] ==================
-elif st.session_state.current_page == "audit":
-    if st.button("← กลับหน้าเมนูหลัก", key="back_from_audit"):
-        st.session_state.current_page = "portal"
-        st.rerun()
+    # 🚪 ================== [หน้าหลัก Menu Portal] ==================
+    if st.session_state.current_page == "portal":
+        st.markdown("<div style='font-size:22px; font-weight:700; color:#2D3531;'>Welcome Back.</div>", unsafe_allow_html=True)
+        st.markdown("<div style='font-size:14px; color:#7A857D; margin-bottom:35px;'>Choose a workspace to continue your operations.</div>", unsafe_allow_html=True)
         
-    st.markdown("<h2 style='font-weight:600;'>🔍 Audit AI Verification</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='color:#5C6460; margin-bottom: 24px;'>อัปโหลดและเปรียบเทียบเอกสารด้วยระบบปัญญาประดิษฐ์</p>", unsafe_allow_html=True)
-    
-    # 🛠️ จุดแก้ไขสำคัญ: ป้องกันปัญหาวางหลายไฟล์พร้อมกันแล้วพัง
-    # เปิดใช้ `accept_multiple_files=True` เพื่อรองรับการลากวางไฟล์เป็นกลุ่ม
-    c1, c2 = st.columns(2)
-    with c1:
-        st.markdown("<h4 style='color:#5F7464;'>📄 ต้นฉบับ (ไฟล์กลุ่ม B/L)</h4>", unsafe_allow_html=True)
-        uploaded_bl_files = st.file_uploader(
-            "ลากไฟล์ B/L วางที่นี่ (รองรับหลายไฟล์)", 
-            type=["pdf", "png", "jpg", "jpeg"], 
-            accept_multiple_files=True, # ปลดล็อกการวางพร้อมกัน
-            key="bl_multi_uploader"
-        )
-        if uploaded_bl_files:
-            st.caption(f"📁 อัปโหลดฝั่ง B/L แล้ว {len(uploaded_bl_files)} ไฟล์")
+        p_col1, space_col, p_col2 = st.columns([4, 0.6, 4])
+        with p_col1:
+            st.markdown("<div class='cozy-portal-card'><div class='icon-wrapper'>📄</div><div style='color:#3A443E; font-weight:700; font-size:19px;'>ตรวจสอบเอกสาร</div><p style='color:#7A857D; font-size:13.5px;'>เปรียบเทียบข้อมูลไฟล์สแกนและประมวลผลความถูกต้องเอกสารอัตโนมัติ</p></div>", unsafe_allow_html=True)
+            if st.button("Start Verification", key="go_audit", use_container_width=True):
+                st.session_state.current_page = "audit_page"
+                st.rerun()
+        with p_col2:
+            st.markdown("<div class='cozy-portal-card'><div class='icon-wrapper'>📦</div><div style='color:#3A443E; font-weight:700; font-size:19px;'>บันทึกรับ D/O</div><p style='color:#7A857D; font-size:13.5px;'>บันทึกการปล่อยเอกสารหน้าเคาน์เตอร์ และค้นหาข้อมูลประวัติเพื่อตอบลูกค้า</p></div>", unsafe_allow_html=True)
+            if st.button("Open Workspace", key="go_tracking", use_container_width=True):
+                st.session_state.current_page = "tracking_page"
+                st.rerun()
 
-    with c2:
-        st.markdown("<h4 style='color:#5F7464;'>📝 เอกสารเปรียบเทียบ (ไฟล์กลุ่ม D/O)</h4>", unsafe_allow_html=True)
-        uploaded_do_files = st.file_uploader(
-            "ลากไฟล์ D/O วางที่นี่ (รองรับหลายไฟล์)", 
-            type=["pdf", "png", "jpg", "jpeg"], 
-            accept_multiple_files=True, # ปลดล็อกการวางพร้อมกัน
-            key="do_multi_uploader"
-        )
-        if uploaded_do_files:
-            st.caption(f"📁 อัปโหลดฝั่ง D/O แล้ว {len(uploaded_do_files)} ไฟล์")
+    # 🔍 ================== [ฝั่งที่ 1: ตรวจสอบเอกสาร] ==================
+    elif st.session_state.current_page == "audit_page":
+        if st.button("กลับหน้าเมนูหลัก", key="back_from_audit"):
+            st.session_state.current_page = "portal"
+            st.rerun()
             
-    st.text_input("ระบุข้อสังเกตหรือคำสั่งเพิ่มเติม (Prompt)", value="โปรดตรวจสอบข้อมูลในเอกสารว่าตรงกันหรือไม่")
-    
-    if st.button("เริ่มวิเคราะห์เปรียบเทียบข้อมูลทั้งหมด", use_container_width=True):
-        if uploaded_bl_files and uploaded_do_files:
-            with st.spinner("AI กำลังแกะข้อมูลและประมวลผลไฟล์ทั้งหมด..."):
-                # 🔄 ปลอดภัยด้วยลูปในการอ่านลิสต์ไฟล์พร้อมกันโดยไม่ให้เกิดการชนกันของหน่วยความจำ
-                all_bl_contents = [f.read() for f in uploaded_bl_files]
-                all_do_contents = [f.read() for f in uploaded_do_files]
-                
-                # จำลองการทำงานร่วมกับระบบเบื้องหลังของคุณสำเร็จ
-                st.success(f"✨ ประมวลผลเอกสารสำเร็จ! (วิเคราะห์ B/L {len(all_bl_contents)} ไฟล์ คู่กับ D/O {len(all_do_contents)} ไฟล์เรียบร้อย)")
-        else:
-            st.info("💡 คำแนะนำ: กรุณาอัปโหลดเอกสารทั้งฝั่ง B/L และ D/O อย่างน้อยฝั่งละ 1 ไฟล์ก่อนกดวิเคราะห์ครับ")
-
-
-# 📦 ================== [ 3. หน้า DELIVERY ORDER TRACKING ] ==================
-elif st.session_state.current_page == "tracking":
-    if st.button("← กลับหน้าเมนูหลัก", key="back_from_tracking"):
-        st.session_state.current_page = "portal"
-        st.rerun()
-        
-    st.markdown("<h2 style='font-weight:600;'>📦 Delivery Order Checking</h2>", unsafe_allow_html=True)
-    
-    # ส่วนของฟอร์มรับค่า
-    with st.form(key="do_entry_form", clear_on_submit=True):
-        cx1, cx2 = st.columns(2)
-        with cx1: input_bl = st.text_input("หมายเลข Bill of Lading (B/L)")
-        with cx2: input_consignee = st.text_input("ชื่อบริษัทลูกค้า / Consignee")
-        submit_save = st.form_submit_button("บันทึกข้อมูลการรับมอบเอกสาร", use_container_width=True)
-        
-        if submit_save and input_bl:
-            today_str = datetime.now().strftime("%d ก.ค. %Y")
-            st.session_state.records.append({
-                "bl": input_bl.strip(),
-                "consignee": input_consignee.strip() if input_consignee else "-",
-                "date": today_str
-            })
-            st.toast("บันทึกข้อมูลเข้าสู่ฐานข้อมูลสำเร็จ!", icon="✅")
-            st.rerun()
-
-    # 📊 ตารางแสดงผลสไตล์ JSX แบบไร้รอยต่อ (ใช้ HTML ตรงจาก CSS ตัวเดิม)
-    st.markdown("<h3 style='margin-top:32px; font-size:18px;'>📊 รายการบันทึกล่าสุดในระบบ</h3>", unsafe_allow_html=True)
-    
-    if st.session_state.records:
-        table_html = """
-        <div class="custom-table-container">
-            <table class="custom-table">
-                <thead>
-                    <tr>
-                        <th>เลขที่ B/L</th>
-                        <th>ชื่อบริษัทลูกค้า / Consignee</th>
-                        <th>วันที่บันทึกเอกสาร</th>
-                    </tr>
-                </thead>
-                <tbody>
-        """
-        for r in st.session_state.records:
-            table_html += f"""
-                <tr>
-                    <td><strong style="color:#5F7464;">{r['bl']}</strong></td>
-                    <td>{r['consignee']}</td>
-                    <td><span class="date-badge">{r['date']}</span></td>
-                </tr>
-            """
-        table_html += "</tbody></table></div>"
-        st.markdown(table_html, unsafe_allow_html=True)
-    else:
         st.markdown("""
-        <div class="custom-table-container">
-            <table class="custom-table">
-                <tbody>
-                    <tr><td style="text-align:center; padding:48px; color:#8D9690;">ยังไม่มีข้อมูลในระบบในขณะนี้</td></tr>
-                </tbody>
-            </table>
-        </div>
+            <div class='inner-header-container'>
+                <div class='inner-title-block'>
+                    <div class='inner-main-title'>Automated Document Verification</div>
+                    <div class='inner-sub-title'>Compare company name, shipping marks, weight and container volume across documents.</div>
+                </div>
+            </div>
         """, unsafe_allow_html=True)
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("<div style='background-color:#EDF3EE; padding:12px 20px; border-radius:12px; color:#4A5A4E; font-size:14px; font-weight:600;'>📄 เอกสารต้นฉบับ Bill of Lading (B/L)</div>", unsafe_allow_html=True)
+            bl_files = st.file_uploader("ลากไฟล์ B/L ทั้งหมดมาวางตรงนี้", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True, key="bl_upload")
+        with col2:
+            st.markdown("<div style='background-color:#FAF2F2; padding:12px 20px; border-radius:12px; color:#A66E6E; font-size:14px; font-weight:600;'>📝 ใบแก้ไข Amend & Attached Sheet</div>", unsafe_allow_html=True)
+            amend_files = st.file_uploader("ลากไฟล์ใบ Amend ทั้งหมดมาวางตรงนี้", type=["pdf", "png", "jpg", "jpeg"], accept_multiple_files=True, key="amend_upload")
 
-    # 🛑 Danger Zone (กู้คืนหน้าตาจากโค้ดหลักของคุณ)
-    st.markdown("""
-        <div class="danger-zone">
-            <div class="danger-label">⚠️ Administrator Zone</div>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    if st.button("ล้างฐานข้อมูลทั้งหมด", key="clear_all_db", use_container_width=True):
-        st.session_state.records = []
-        st.toast("ล้างข้อมูลเรียบร้อยแล้ว", icon="🗑️")
-        st.rerun()
+        if bl_files and amend_files:
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("ประมวลผลการเปรียบเทียบข้อมูลเอกสาร", use_container_width=True):
+                with st.spinner("กำลังใช้โมเดลวิเคราะห์ข้อมูลเอกสารคู่ขนาน..."):
+                    try:
+                        prompt_instruction = (
+                            "You are an automated Data Compliance Audit Engine configured specifically for Seabra Trans Freight Forwarding Operations. "
+                            "Your task is to analyze and compare logistics manifests (B/L) with requested adjustments (Amendments & Attached Sheets).\n"
+                            "CRITICAL REQUIREMENT: There are multiple Bill of Lading (B/L) documents inside the payload. You must scan ALL of them and generate verification report rows for EVERY SINGLE B/L number found. Do not drop or miss any B/L numbers.\n\n"
+                            "📢 STRICT OUTPUT CONSTRAINT:\n"
+                            "- DO NOT include any conversational text, chat introductions, greetings, summaries, or post-analysis notes.\n"
+                            "- Start rendering the structural output directly from the HTML code segments below.\n"
+                            "- Absolutely no emojis are allowed in the text output.\n\n"
+                            "🎨 FORMAT STRUCTURES TO RENDER:\n"
+                            "<div class='output-header-box'><span class='output-header-title'>รายงานผลการตรวจสอบเปรียบเทียบข้อมูลเอกสารรายฉบับ</span></div>\n\n"
+                            "| เลขที่ B/L / ข้อมูล D/O | หัวข้อตรวจสอบ | ข้อมูลต้นฉบับบนใบ B/L | ข้อมูลบนใบ Amend + Attached Sheet | ผลการตรวจสอบ | หมายเหตุคำวิเคราะห์ / เกณฑ์การอนุโลม |\n"
+                            "| :--- | :--- | :--- | :--- | :--- | :--- |\n"
+                            "| **[B/L Number]** | ผู้รับสินค้า (Consignee) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n"
+                            "| **[B/L Number]** | จำนวนสินค้า (Quantity) | ... | ... | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | ... |\n\n"
+                            "<div class='output-header-box'><span class='output-header-title'>ตารางสรุปการกระทบยอดน้ำหนักและปริมาตรสุทธิ</span></div>\n\n"
+                            "| พารามิเตอร์ที่ตรวจสอบ | ผลรวมคำนวณจาก B/L ทุกฉบับ | ยอดรวมสุทธิบนใบขอแก้ไข (Amend) | สถานะความถูกต้อง | รายละเอียดประกอบการคำนวณ |\n"
+                            "| :--- | :--- | :--- | :--- | :--- |\n"
+                            "| **น้ำหนักมวลรวมสะสม (Total G.W.)** | [Value] | [Value] | <span class='status-badge-match'>MATCH</span> | [สูตรการบวกเลข] |\n"
+                        )
 
+                        contents_payload = [prompt_instruction]
+                        
+                        # บรรจุไฟล์เข้าสู่โครงสร้างที่รองรับ API Key ชุดใหม่แบบไร้ Error
+                        for bl in bl_files:
+                            contents_payload.append(genai.types.Part.from_bytes(data=bl.getvalue(), mime_type=bl.type))
+                        for amend in amend_files:
+                            contents_payload.append(genai.types.Part.from_bytes(data=amend.getvalue(), mime_type=amend.type))
+                        
+                        # สั่งทำงานผ่านโมเดลเรือธงคู่กับคีย์ชุดใหม่
+                        response = client.models.generate_content(
+                            model='gemini-2.5-flash', 
+                            contents=contents_payload
+                        )
+                        st.balloons()
+                        st.markdown(response.text, unsafe_allow_html=True)
+                        
+                    except Exception as e:
+                        st.error(f"ระบบขัดข้องในการส่งข้อมูลชุดเอกสาร: {str(e)}")
+        else:
+            st.info("💡 กรุณาอัปโหลดเอกสารทั้งสองฝั่งให้ครบถ้วนก่อนระบุคำสั่งประมวลผล")
 
-# ─── Footer Layout (เหมือนใน React Component) ────────────────────────
-st.markdown("""
-    <footer class="footer">
-        <div class="footer-name">VERIFYHUB</div>
-        <div class="footer-meta">Version 1.0 · Freight Document Operations Platform · Department of Logistics</div>
-    </footer>
-""", unsafe_allow_html=True)
+    # 📦 ================== [ฝั่งที่ 2: บันทึกรับ D/O] ==================
+    elif st.session_state.current_page == "tracking_page":
+        if st.button("กลับหน้าเมนูหลัก", key="back_from_tracking"):
+            st.session_state.current_page = "portal"
+            st.rerun()
+            
+        st.markdown("<div class='inner-main-title'>ระบบจัดการและตรวจสอบสถานะการส่งมอบ D/O</div>", unsafe_allow_html=True)
+        df_current = load_data()
+        
+        with st.form(key="do_entry_form", clear_on_submit=True):
+            cx1, cx2 = st.columns(2)
+            with cx1: input_bl = st.text_input("หมายเลข Bill of Lading (B/L)")
+            with cx2: input_consignee = st.text_input("ชื่อบริษัทลูกค้า / Consignee")
+            submit_save = st.form_submit_button("บันทึกข้อมูลการรับมอบเอกสาร", use_container_width=True)
+            
+            if submit_save and input_bl:
+                today_str = datetime.now().strftime("%Y-%m-%d")
+                new_row = pd.DataFrame([{"เลขที่ B/L": input_bl.strip(), "ชื่อ Consignee": input_consignee.strip(), "วันที่รับ D/O": today_str}])
+                df_current = pd.concat([df_current, new_row], ignore_index=True)
+                df_current.to_excel(EXCEL_FILE, index=False)
+                st.success("บันทึกประวัติเสร็จสิ้น")
+                st.rerun()
+                
+        st.table(df_current)
