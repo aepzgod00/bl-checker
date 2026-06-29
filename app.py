@@ -434,6 +434,7 @@ else:
                 if st.button("ประมวลผลการเปรียบเทียบข้อมูลเอกสาร", use_container_width=True):
                     with st.spinner("กำลังดำเนินการตรวจสอบความถูกต้องของระบบเอกสาร..."):
                         try:
+                            # 1. นิยาม Prompt หลักตามเดิม
                             prompt_instruction = (
                                 "You are an automated Data Compliance Audit Engine configured specifically for Seabra Trans Freight Forwarding Operations. "
                                 "Your task is to analyze and compare logistics manifests (B/L) with requested adjustments (Amendments & Attached Sheets).\n"
@@ -482,27 +483,27 @@ else:
                                 "| **ปริมาตรสินค้ารวมสะสม (Total CBM)** | [Value] | [Value] | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | [สูตรการบวกเลขจริงรายฉบับ] |\n"
                             )
 
-                            # 📦 ปรับวิธีการจัดก้อน Payload โดยส่งแบบ Dict/Bytes ตรงเข้า API
+                            # 2. สร้าง contents_payload ตามมาตรฐานใหม่ของ google-genai
+                            # ใช้คำสั่ง genai.types.Part.from_bytes() ในการห่อหุ้มข้อมูลไฟล์
                             contents_payload = [prompt_instruction]
                             
-                            contents_payload.append("\n--- START OF ORIGINAL BILL OF LADING (B/L) FILES ---")
-                            for idx, bl in enumerate(bl_files, 1):
-                                contents_payload.append(f"\n[Original B/L File #{idx}: {bl.name}]")
-                                contents_payload.append({
-                                    "mime_type": bl.type,
-                                    "data": bl.getvalue()
-                                })
-                            contents_payload.append("\n--- END OF ORIGINAL BILL OF LADING (B/L) FILES ---\n")
+                            # วนลูปจัดการไฟล์ฝั่ง B/L
+                            for bl in bl_files:
+                                file_part = genai.types.Part.from_bytes(
+                                    data=bl.getvalue(),
+                                    mime_type=bl.type
+                                )
+                                contents_payload.append(file_part)
                             
-                            contents_payload.append("\n--- START OF AMENDMENT & ATTACHED SHEET FILES ---")
-                            for idx, amend in enumerate(amend_files, 1):
-                                contents_payload.append(f"\n[Amendment File #{idx}: {amend.name}]")
-                                contents_payload.append({
-                                    "mime_type": amend.type,
-                                    "data": amend.getvalue()
-                                })
-                            contents_payload.append("\n--- END OF AMENDMENT & ATTACHED SHEET FILES ---")
+                            # วนลูปจัดการไฟล์ฝั่ง Amend
+                            for amend in amend_files:
+                                file_part = genai.types.Part.from_bytes(
+                                    data=amend.getvalue(),
+                                    mime_type=amend.type
+                                )
+                                contents_payload.append(file_part)
                             
+                            # 3. เรียกใช้โมเดลตามปกติ
                             response = client.models.generate_content(
                                 model='gemini-2.5-pro', 
                                 contents=contents_payload
