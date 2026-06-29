@@ -1,6 +1,5 @@
 import streamlit as st
 from google import genai
-from google import types
 import io
 import os
 import pandas as pd
@@ -322,13 +321,6 @@ def load_data():
     else:
         return pd.DataFrame(columns=["เลขที่ B/L", "ชื่อ Consignee", "วันที่รับ D/O"])
 
-def เตรียมไฟล์สำหรับ_gemini(file_uploader_obj):
-    if file_uploader_obj is not None:
-        file_bytes = file_uploader_obj.getvalue()
-        mime_type = file_uploader_obj.type
-        return types.Part.from_bytes(data=file_bytes, mime_type=mime_type)
-    return None
-
 if "current_page" not in st.session_state:
     st.session_state.current_page = "portal"
 
@@ -428,7 +420,6 @@ else:
             </div>
         """, unsafe_allow_html=True)
         
-        # 🔔 สร้าง Widget กล่องรับไฟล์เพื่อกำหนดค่าให้ตัวแปรไว้ตรงนี้ (ป้องกันพังแบบ NameError)
         with st.container():
             col1, col2 = st.columns(2)
             with col1:
@@ -443,7 +434,6 @@ else:
                 if st.button("ประมวลผลการเปรียบเทียบข้อมูลเอกสาร", use_container_width=True):
                     with st.spinner("กำลังดำเนินการตรวจสอบความถูกต้องของระบบเอกสาร..."):
                         try:
-                            # 🪄 ปรับปรุง PROMPT INSTRUCTION สำหรับคุมพฤติกรรมและการวิเคราะห์คู่เอกสาร
                             prompt_instruction = (
                                 "You are an automated Data Compliance Audit Engine configured specifically for Seabra Trans Freight Forwarding Operations. "
                                 "Your task is to analyze and compare logistics manifests (B/L) with requested adjustments (Amendments & Attached Sheets).\n"
@@ -492,26 +482,27 @@ else:
                                 "| **ปริมาตรสินค้ารวมสะสม (Total CBM)** | [Value] | [Value] | <span class='status-badge-match'>MATCH</span> or <span class='status-badge-mismatch'>MISMATCH</span> | [สูตรการบวกเลขจริงรายฉบับ] |\n"
                             )
 
-                            # 📦 ปรับปรุงการจัดเรียงก้อน Payload (ใส่ตัวคั่นบริบทอย่างเป็นระบบ)
+                            # 📦 ปรับวิธีการจัดก้อน Payload โดยส่งแบบ Dict/Bytes ตรงเข้า API
                             contents_payload = [prompt_instruction]
                             
                             contents_payload.append("\n--- START OF ORIGINAL BILL OF LADING (B/L) FILES ---")
                             for idx, bl in enumerate(bl_files, 1):
-                                part = เตรียมไฟล์สำหรับ_gemini(bl)
-                                if part:
-                                    contents_payload.append(f"\n[Original B/L File #{idx}: {bl.name}]")
-                                    contents_payload.append(part)
+                                contents_payload.append(f"\n[Original B/L File #{idx}: {bl.name}]")
+                                contents_payload.append({
+                                    "mime_type": bl.type,
+                                    "data": bl.getvalue()
+                                })
                             contents_payload.append("\n--- END OF ORIGINAL BILL OF LADING (B/L) FILES ---\n")
                             
                             contents_payload.append("\n--- START OF AMENDMENT & ATTACHED SHEET FILES ---")
                             for idx, amend in enumerate(amend_files, 1):
-                                amend_part = เตรียมไฟล์สำหรับ_gemini(amend)
-                                if amend_part:
-                                    contents_payload.append(f"\n[Amendment File #{idx}: {amend.name}]")
-                                    contents_payload.append(amend_part)
+                                contents_payload.append(f"\n[Amendment File #{idx}: {amend.name}]")
+                                contents_payload.append({
+                                    "mime_type": amend.type,
+                                    "data": amend.getvalue()
+                                })
                             contents_payload.append("\n--- END OF AMENDMENT & ATTACHED SHEET FILES ---")
                             
-                            # 🪄 แนะนำให้ใช้ gemini-2.5-pro เพื่อความถ้วนถี่ในการดึงข้อมูลหลายหน้าคู่ขนานกัน
                             response = client.models.generate_content(
                                 model='gemini-2.5-pro', 
                                 contents=contents_payload
